@@ -4,6 +4,7 @@ export type DateRangeOption =
   | "this_month"
   | "last_month"
   | "last_3_months"
+  | "this_year"
   | "custom"
   | "all";
 
@@ -38,6 +39,10 @@ export function resolveDateRange(
     }
     case "last_3_months": {
       const start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      return { start: toISO(start), end: toISO(startOfToday) };
+    }
+    case "this_year": {
+      const start = new Date(now.getFullYear(), 0, 1);
       return { start: toISO(start), end: toISO(startOfToday) };
     }
     case "custom":
