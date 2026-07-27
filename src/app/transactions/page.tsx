@@ -46,11 +46,15 @@ export default function TransactionsPage() {
     let result = transactions.filter((t) => {
       if (range && (t.date < range.start || t.date > range.end)) return false;
       if (filters.categoryIds.length && !filters.categoryIds.includes(t.categoryId)) return false;
-      if (filters.type !== "all" && t.type !== filters.type) return false;
       if (filters.source !== "all" && t.source !== filters.source) return false;
       if (min !== null && t.amount < min) return false;
       if (max !== null && t.amount > max) return false;
-      if (keyword && !t.description.toLowerCase().includes(keyword)) return false;
+      if (
+        keyword &&
+        !t.store.toLowerCase().includes(keyword) &&
+        !t.description.toLowerCase().includes(keyword)
+      )
+        return false;
       return true;
     });
 
@@ -92,7 +96,6 @@ export default function TransactionsPage() {
   const activeFilterCount =
     (filters.dateRange !== "all" ? 1 : 0) +
     filters.categoryIds.length +
-    (filters.type !== "all" ? 1 : 0) +
     (filters.source !== "all" ? 1 : 0) +
     (filters.minAmount ? 1 : 0) +
     (filters.maxAmount ? 1 : 0) +
@@ -152,7 +155,10 @@ export default function TransactionsPage() {
                 </div>
 
                 <button onClick={() => openEdit(t)} className="flex-1 text-left min-w-0">
-                  <div className="font-medium text-slate-900 truncate">{t.description}</div>
+                  <div className="font-medium text-slate-900 truncate">{t.store}</div>
+                  {t.description && (
+                    <div className="text-xs text-slate-500 truncate">{t.description}</div>
+                  )}
                   <div className="flex items-center gap-1.5 text-xs text-slate-400">
                     <span>{t.date}</span>
                     <span>·</span>
@@ -166,14 +172,7 @@ export default function TransactionsPage() {
                   </div>
                 </button>
 
-                <div
-                  className={`font-semibold ${
-                    t.type === "income" ? "text-emerald-600" : "text-slate-900"
-                  }`}
-                >
-                  {t.type === "income" ? "+" : "-"}
-                  {formatIDR(t.amount)}
-                </div>
+                <div className="font-semibold text-slate-900">{formatIDR(t.amount)}</div>
 
                 <button
                   onClick={() => setDeleteTarget(t)}

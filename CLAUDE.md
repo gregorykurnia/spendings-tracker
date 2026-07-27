@@ -44,10 +44,10 @@ All amounts in IDR. Display format: Rp XX.XXX.XXX
 {
   id: string,
   amount: number,
+  store: string,
   description: string,
   categoryId: string,
   date: string,
-  type: "expense" | "income",
   source: "manual" | "ocr",
   status: "confirmed" | "pending_review",
   createdAt: string
@@ -75,7 +75,7 @@ Seed these into Firestore on first load if categories collection is empty:
 Timeframe toggle: This Week / This Month / Last Month / Last 3 Months / This Year
 
 Sections:
-- Summary bar: total spent, total income, net balance for the period
+- Summary bar: total spent for the period
 - Category breakdown: donut chart + list with amount and % of total
 - Daily/weekly trend: bar chart of spending over time
 - Top 5 transactions: biggest spends in the period
@@ -84,10 +84,9 @@ Sections:
 Filters:
 - Date range: Today / This Week / This Month / Last Month / Last 3 Months / Custom range
 - Category: multi-select dropdown
-- Type: Expense / Income / All
 - Amount range: min / max
 - Source: Manual / OCR / All
-- Keyword search: matches description field
+- Keyword search: matches store and description fields
 
 Sort options:
 - Date newest first (default)
@@ -101,9 +100,9 @@ Each transaction row: editable via edit modal. Delete with confirmation modal.
 Flow:
 1. User uploads one or more BCA screenshots
 2. Each image sent to Claude API (vision) with prompt:
-   "Extract all transactions from this BCA banking screenshot. For each transaction return: date (YYYY-MM-DD), description (merchant or transfer name), amount (number only, no formatting), type (expense or income). Return as JSON array only, no other text."
+   "Extract all transactions from this BCA banking screenshot. For each transaction return: date (YYYY-MM-DD), store (merchant or transfer name), description (any additional note), amount (number only, no formatting). Return as JSON array only, no other text."
 3. Extracted transactions appear in a review queue with status: pending_review
-4. User reviews each: can edit date, description, amount, type, and assign category
+4. User reviews each: can edit date, store, description, amount, and assign category
 5. User confirms → status becomes confirmed, saved to Firestore
 6. User can delete any extracted entry before confirming
 
@@ -119,7 +118,7 @@ Features:
 
 ## Editability Rules
 - All categories are editable (name, emoji, color) and deletable
-- All transactions are editable after saving (amount, description, category, date, type, source)
+- All transactions are editable after saving (amount, store, description, category, date, source)
 - OCR-imported transactions are editable in the review queue before confirming
 - OCR-confirmed transactions remain editable in the transactions list
 - No soft delete — hard delete with confirmation modal everywhere
@@ -136,10 +135,10 @@ export type Category = {
 export type Transaction = {
   id: string;
   amount: number;
+  store: string;
   description: string;
   categoryId: string;
   date: string;
-  type: "expense" | "income";
   source: "manual" | "ocr";
   status: "confirmed" | "pending_review";
   createdAt: string;

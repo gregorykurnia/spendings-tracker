@@ -9,10 +9,10 @@ export type Category = {
 export type Transaction = {
   id: string;
   amount: number;
+  store: string;
   description: string;
   categoryId: string;
   date: string;
-  type: "expense" | "income";
   source: "manual" | "ocr";
   status: "confirmed" | "pending_review";
   createdAt: string;

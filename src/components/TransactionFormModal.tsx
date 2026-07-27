@@ -6,10 +6,10 @@ import { Category, Transaction } from "@/types";
 
 export type TransactionInput = {
   amount: number;
+  store: string;
   description: string;
   categoryId: string;
   date: string;
-  type: "expense" | "income";
 };
 
 function todayISO() {
@@ -30,23 +30,23 @@ export default function TransactionFormModal({
   categories: Category[];
 }) {
   const [amount, setAmount] = useState("");
+  const [store, setStore] = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState(todayISO());
-  const [type, setType] = useState<"expense" | "income">("expense");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
       setAmount(initial ? String(initial.amount) : "");
+      setStore(initial?.store ?? "");
       setDescription(initial?.description ?? "");
       setCategoryId(initial?.categoryId ?? categories[0]?.id ?? "");
       setDate(initial?.date ?? todayISO());
-      setType(initial?.type ?? "expense");
     }
   }, [open, initial, categories]);
 
-  const valid = amount.trim() !== "" && Number(amount) > 0 && description.trim() && categoryId && date;
+  const valid = amount.trim() !== "" && Number(amount) > 0 && store.trim() && categoryId && date;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,10 +55,10 @@ export default function TransactionFormModal({
     try {
       await onSubmit({
         amount: Number(amount),
+        store: store.trim(),
         description: description.trim(),
         categoryId,
         date,
-        type,
       });
       onClose();
     } finally {
@@ -69,21 +69,6 @@ export default function TransactionFormModal({
   return (
     <Modal open={open} onClose={onClose} title={initial ? "Edit Transaction" : "New Transaction"}>
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="flex rounded-xl border border-slate-200 p-1">
-          {(["expense", "income"] as const).map((t) => (
-            <button
-              type="button"
-              key={t}
-              onClick={() => setType(t)}
-              className={`flex-1 rounded-lg py-2 text-sm font-medium capitalize transition-colors ${
-                type === t ? "bg-emerald-500 text-white" : "text-slate-500"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
         <div className="space-y-1">
           <label className="text-sm font-medium text-slate-600">Amount (IDR)</label>
           <input
@@ -98,12 +83,22 @@ export default function TransactionFormModal({
         </div>
 
         <div className="space-y-1">
+          <label className="text-sm font-medium text-slate-600">Store</label>
+          <input
+            value={store}
+            onChange={(e) => setStore(e.target.value)}
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            placeholder="Merchant or transfer name"
+          />
+        </div>
+
+        <div className="space-y-1">
           <label className="text-sm font-medium text-slate-600">Description</label>
           <input
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-            placeholder="Merchant or transfer name"
+            placeholder="Optional note"
           />
         </div>
 

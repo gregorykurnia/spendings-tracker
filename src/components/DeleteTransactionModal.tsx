@@ -36,7 +36,7 @@ export default function DeleteTransactionModal({
         <p className="text-slate-600">
           Delete{" "}
           <span className="font-medium text-slate-900">
-            {transaction.description} ({formatIDR(transaction.amount)})
+            {transaction.store} ({formatIDR(transaction.amount)})
           </span>
           ? This can&apos;t be undone.
         </p>
