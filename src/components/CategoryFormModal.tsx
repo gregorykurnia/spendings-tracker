@@ -60,7 +60,9 @@ export default function CategoryFormModal({
             <label className="text-sm font-medium text-slate-600">Emoji</label>
             <input
               value={emoji}
-              onChange={(e) => setEmoji(e.target.value.slice(0, 4))}
+              onChange={(e) =>
+                setEmoji(Array.from(e.target.value).slice(0, 4).join(""))
+              }
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
               placeholder="🍽️"
             />

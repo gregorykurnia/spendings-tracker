@@ -36,17 +36,30 @@ async function seedIfEmpty() {
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    seedIfEmpty();
+    seedIfEmpty().catch((err) => {
+      console.error("seedIfEmpty failed:", err);
+      setError(err.message);
+    });
 
     const q = query(categoriesRef, orderBy("order"));
-    const unsubscribe = onSnapshot(q, (snap) => {
-      setCategories(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() } as Category))
-      );
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        setCategories(
+          snap.docs.map((d) => ({ id: d.id, ...d.data() } as Category))
+        );
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error("categories onSnapshot failed:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -102,6 +115,7 @@ export function useCategories() {
   return {
     categories,
     loading,
+    error,
     addCategory,
     updateCategory,
     deleteCategory,

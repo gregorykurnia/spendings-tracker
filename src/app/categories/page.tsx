@@ -11,6 +11,7 @@ export default function CategoriesPage() {
   const {
     categories,
     loading,
+    error,
     addCategory,
     updateCategory,
     deleteCategory,
@@ -66,7 +67,11 @@ export default function CategoriesPage() {
         </button>
       </div>
 
-      {loading ? (
+      {error ? (
+        <div className="text-center text-red-500 py-16 px-4">
+          Failed to load categories: {error}
+        </div>
+      ) : loading ? (
         <div className="text-center text-slate-400 py-16">Loading…</div>
       ) : (
         <ul className="space-y-2">
