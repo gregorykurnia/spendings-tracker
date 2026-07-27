@@ -21,16 +21,26 @@ import { SEED_CATEGORIES } from "@/lib/seedCategories";
 const categoriesRef = collection(db, "categories");
 const transactionsRef = collection(db, "transactions");
 
-async function seedIfEmpty() {
-  const snap = await getDocs(categoriesRef);
-  if (!snap.empty) return;
+let seedPromise: Promise<void> | null = null;
 
-  const batch = writeBatch(db);
-  for (const category of SEED_CATEGORIES) {
-    const ref = doc(categoriesRef);
-    batch.set(ref, category);
+function seedIfEmpty() {
+  if (!seedPromise) {
+    seedPromise = (async () => {
+      const snap = await getDocs(categoriesRef);
+      if (!snap.empty) return;
+
+      const batch = writeBatch(db);
+      for (const category of SEED_CATEGORIES) {
+        const ref = doc(categoriesRef);
+        batch.set(ref, category);
+      }
+      await batch.commit();
+    })().catch((err) => {
+      seedPromise = null;
+      throw err;
+    });
   }
-  await batch.commit();
+  return seedPromise;
 }
 
 export function useCategories() {
