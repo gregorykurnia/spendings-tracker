@@ -131,6 +131,62 @@ export function formatPeriodLabel(granularity: Granularity, anchorISO: string): 
   return `${MONTH_LABELS[anchor.getMonth()]} ${anchor.getFullYear()}`;
 }
 
+/**
+ * Range for the period immediately preceding the given option, matched like-for-like
+ * (same day-of-month cutoff for partial months, same weekday cutoff for partial weeks, etc.)
+ * so the comparison is fair even when the current period isn't finished yet.
+ */
+export function resolveComparisonRange(
+  option: DateRangeOption
+): { start: string; end: string; label: string } | null {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  switch (option) {
+    case "today": {
+      const yesterday = new Date(startOfToday);
+      yesterday.setDate(yesterday.getDate() - 1);
+      return { start: toISO(yesterday), end: toISO(yesterday), label: "yesterday" };
+    }
+    case "this_week": {
+      const day = startOfToday.getDay();
+      const monday = new Date(startOfToday);
+      monday.setDate(startOfToday.getDate() - ((day + 6) % 7));
+      const prevMonday = new Date(monday);
+      prevMonday.setDate(monday.getDate() - 7);
+      const prevSameDay = new Date(startOfToday);
+      prevSameDay.setDate(startOfToday.getDate() - 7);
+      return { start: toISO(prevMonday), end: toISO(prevSameDay), label: "last week" };
+    }
+    case "this_month": {
+      const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const daysInPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      const cutoffDay = Math.min(now.getDate(), daysInPrevMonth);
+      const prevMonthEnd = new Date(now.getFullYear(), now.getMonth() - 1, cutoffDay);
+      return { start: toISO(prevMonthStart), end: toISO(prevMonthEnd), label: "last month" };
+    }
+    case "last_month": {
+      const start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - 1, 0);
+      return { start: toISO(start), end: toISO(end), label: "the month before" };
+    }
+    case "last_3_months": {
+      const start = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+      const end = new Date(now.getFullYear(), now.getMonth() - 2, startOfToday.getDate());
+      return { start: toISO(start), end: toISO(end), label: "the previous 3 months" };
+    }
+    case "this_year": {
+      const start = new Date(now.getFullYear() - 1, 0, 1);
+      const end = new Date(now.getFullYear() - 1, now.getMonth(), startOfToday.getDate());
+      return { start: toISO(start), end: toISO(end), label: "last year" };
+    }
+    case "custom":
+    case "all":
+    default:
+      return null;
+  }
+}
+
 export function resolveDateRange(
   option: DateRangeOption,
   custom?: { start: string; end: string }

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
-import { resolveDateRange, DateRangeOption } from "@/lib/dateRanges";
+import { resolveDateRange, resolveComparisonRange, DateRangeOption } from "@/lib/dateRanges";
 import { formatIDR } from "@/lib/format";
 import { colorForIndex } from "@/lib/categoricalPalette";
 import CategoryDonutChart from "@/components/CategoryDonutChart";
@@ -90,6 +90,21 @@ export default function Home() {
     [periodTransactions]
   );
 
+  const comparisonRange = useMemo(() => resolveComparisonRange(timeframe), [timeframe]);
+
+  const comparisonTotal = useMemo(() => {
+    if (!comparisonRange) return null;
+    const confirmed = transactions.filter((t) => t.status === "confirmed");
+    return confirmed
+      .filter((t) => t.date >= comparisonRange.start && t.date <= comparisonRange.end)
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [transactions, comparisonRange]);
+
+  const comparisonDeltaPct =
+    comparisonTotal !== null && comparisonTotal > 0
+      ? ((total - comparisonTotal) / comparisonTotal) * 100
+      : null;
+
   const categoryById = useMemo(
     () => new Map(categories.map((c) => [c.id, c])),
     [categories]
@@ -174,6 +189,25 @@ export default function Home() {
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <div className="text-sm text-slate-500">Total spent</div>
             <div className="text-3xl font-bold text-slate-900 mt-1">{formatIDR(total)}</div>
+            {comparisonRange && comparisonTotal !== null && (
+              <div
+                className={`mt-1 text-sm ${
+                  comparisonDeltaPct === null
+                    ? "text-slate-400"
+                    : comparisonDeltaPct > 0
+                    ? "text-rose-600"
+                    : comparisonDeltaPct < 0
+                    ? "text-emerald-600"
+                    : "text-slate-400"
+                }`}
+              >
+                {comparisonDeltaPct === null
+                  ? `No spending ${comparisonRange.label} to compare`
+                  : `${comparisonDeltaPct > 0 ? "▲" : comparisonDeltaPct < 0 ? "▼" : "–"} ${Math.abs(
+                      comparisonDeltaPct
+                    ).toFixed(0)}% vs ${comparisonRange.label} (${formatIDR(comparisonTotal)})`}
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
