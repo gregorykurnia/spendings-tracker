@@ -5,8 +5,9 @@ import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
 import { Transaction } from "@/types";
 import { formatIDR } from "@/lib/format";
-import { resolveDateRange } from "@/lib/dateRanges";
+import { getPeriodRange } from "@/lib/dateRanges";
 import Modal from "@/components/Modal";
+import PeriodNav from "@/components/PeriodNav";
 import TransactionFilters, {
   defaultFilters,
   Filters,
@@ -35,10 +36,12 @@ export default function TransactionsPage() {
   }, [categories]);
 
   const filtered = useMemo(() => {
-    const range = resolveDateRange(filters.dateRange, {
-      start: filters.customStart,
-      end: filters.customEnd,
-    });
+    const range =
+      filters.dateMode === "period"
+        ? getPeriodRange(filters.granularity, filters.anchor)
+        : filters.dateMode === "custom" && filters.customStart && filters.customEnd
+          ? { start: filters.customStart, end: filters.customEnd }
+          : null;
     const keyword = filters.keyword.trim().toLowerCase();
     const min = filters.minAmount ? Number(filters.minAmount) : null;
     const max = filters.maxAmount ? Number(filters.maxAmount) : null;
@@ -94,7 +97,6 @@ export default function TransactionsPage() {
   }
 
   const activeFilterCount =
-    (filters.dateRange !== "all" ? 1 : 0) +
     filters.categoryIds.length +
     (filters.source !== "all" ? 1 : 0) +
     (filters.minAmount ? 1 : 0) +
@@ -127,6 +129,17 @@ export default function TransactionsPage() {
           </button>
         </div>
       </div>
+
+      {filters.dateMode === "period" && (
+        <div className="mb-4">
+          <PeriodNav
+            granularity={filters.granularity}
+            anchor={filters.anchor}
+            onGranularityChange={(granularity) => setFilters({ ...filters, granularity })}
+            onAnchorChange={(anchor) => setFilters({ ...filters, anchor })}
+          />
+        </div>
+      )}
 
       {error ? (
         <div className="text-center text-red-500 py-16 px-4">

@@ -1,10 +1,14 @@
 "use client";
 
 import { Category } from "@/types";
-import { DateRangeOption } from "@/lib/dateRanges";
+import { Granularity, todayISO } from "@/lib/dateRanges";
+
+export type DateMode = "period" | "custom" | "all";
 
 export type Filters = {
-  dateRange: DateRangeOption;
+  dateMode: DateMode;
+  granularity: Granularity;
+  anchor: string;
   customStart: string;
   customEnd: string;
   categoryIds: string[];
@@ -16,19 +20,11 @@ export type Filters = {
 
 export type SortOption = "date_desc" | "date_asc" | "amount_desc" | "amount_asc";
 
-const DATE_OPTIONS: { value: DateRangeOption; label: string }[] = [
-  { value: "today", label: "Today" },
-  { value: "this_week", label: "This Week" },
-  { value: "this_month", label: "This Month" },
-  { value: "last_month", label: "Last Month" },
-  { value: "last_3_months", label: "Last 3 Months" },
-  { value: "custom", label: "Custom Range" },
-  { value: "all", label: "All Time" },
-];
-
 export function defaultFilters(): Filters {
   return {
-    dateRange: "all",
+    dateMode: "period",
+    granularity: "month",
+    anchor: todayISO(),
     customStart: "",
     customEnd: "",
     categoryIds: [],
@@ -78,18 +74,34 @@ export default function TransactionFilters({
 
       <div className="space-y-1">
         <label className="text-sm font-medium text-slate-600">Date Range</label>
-        <select
-          value={filters.dateRange}
-          onChange={(e) => set("dateRange", e.target.value as DateRangeOption)}
-          className="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
-        >
-          {DATE_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
+        <div className="flex gap-2">
+          {(
+            [
+              { value: "period", label: "Day/Week/Month" },
+              { value: "custom", label: "Custom" },
+              { value: "all", label: "All Time" },
+            ] as { value: DateMode; label: string }[]
+          ).map((o) => (
+            <button
+              type="button"
+              key={o.value}
+              onClick={() => set("dateMode", o.value)}
+              className={`flex-1 rounded-xl px-3 py-2 text-sm border transition-colors ${
+                filters.dateMode === o.value
+                  ? "bg-emerald-500 text-white border-emerald-500"
+                  : "border-slate-200 text-slate-600"
+              }`}
+            >
               {o.label}
-            </option>
+            </button>
           ))}
-        </select>
-        {filters.dateRange === "custom" && (
+        </div>
+        {filters.dateMode === "period" && (
+          <p className="text-xs text-slate-400 pt-1">
+            Use the arrows at the top of the page to step through days, weeks, or months.
+          </p>
+        )}
+        {filters.dateMode === "custom" && (
           <div className="flex gap-2 pt-1">
             <input
               type="date"
