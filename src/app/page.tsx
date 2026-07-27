@@ -226,18 +226,12 @@ export default function Home() {
                           style={{ backgroundColor: b.color }}
                         />
                         <span className="flex-1 truncate text-slate-700">{b.label}</span>
-                        <span className="text-slate-500 shrink-0">{b.pct.toFixed(0)}%</span>
+                        <span className="font-medium text-slate-900 shrink-0">
+                          {formatIDR(b.value)}
+                        </span>
                       </div>
                     ))}
                   </div>
-                </div>
-                <div className="mt-3 space-y-1 border-t border-slate-100 pt-3">
-                  {breakdown.map((b) => (
-                    <div key={b.id} className="flex justify-between text-sm">
-                      <span className="text-slate-600 truncate">{b.label}</span>
-                      <span className="font-medium text-slate-900">{formatIDR(b.value)}</span>
-                    </div>
-                  ))}
                 </div>
               </>
             )}
