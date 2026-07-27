@@ -65,6 +65,7 @@ export default function CategoryFormModal({
               }
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-emerald-400"
               placeholder="🍽️"
+              autoFocus
             />
           </div>
         </div>
@@ -76,7 +77,6 @@ export default function CategoryFormModal({
             onChange={(e) => setName(e.target.value)}
             className="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             placeholder="Category name"
-            autoFocus
           />
         </div>
 
