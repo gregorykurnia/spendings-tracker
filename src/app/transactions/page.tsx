@@ -47,6 +47,7 @@ export default function TransactionsPage() {
     const max = filters.maxAmount ? Number(filters.maxAmount) : null;
 
     let result = transactions.filter((t) => {
+      if (t.status !== "confirmed") return false;
       if (range && (t.date < range.start || t.date > range.end)) return false;
       if (filters.categoryIds.length && !filters.categoryIds.includes(t.categoryId)) return false;
       if (filters.source !== "all" && t.source !== filters.source) return false;
