@@ -6,6 +6,7 @@ import { formatIDR } from "@/lib/format";
 export type TrendBucket = {
   key: string;
   label: string;
+  rangeLabel: string;
   value: number;
 };
 
@@ -23,12 +24,17 @@ export default function TrendBarChart({ buckets }: { buckets: TrendBucket[] }) {
             <button
               type="button"
               key={b.key}
+              onMouseEnter={() => setActive(b.key)}
+              onMouseLeave={() => setActive((cur) => (cur === b.key ? null : cur))}
+              onFocus={() => setActive(b.key)}
+              onBlur={() => setActive((cur) => (cur === b.key ? null : cur))}
               onClick={() => setActive(isActive ? null : b.key)}
-              className="flex-1 flex flex-col justify-end items-center h-full group"
+              className="relative flex-1 flex flex-col justify-end items-center h-full group"
             >
               {isActive && (
-                <div className="mb-1 rounded-lg bg-slate-900 text-white text-[10px] px-1.5 py-0.5 whitespace-nowrap">
-                  {formatIDR(b.value)}
+                <div className="absolute bottom-full mb-1 z-10 rounded-lg bg-slate-900 text-white text-[10px] px-2 py-1 whitespace-nowrap text-center shadow-lg">
+                  <div className="font-medium">{formatIDR(b.value)}</div>
+                  <div className="text-slate-300">{b.rangeLabel}</div>
                 </div>
               )}
               <div

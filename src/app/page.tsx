@@ -32,6 +32,12 @@ function buildDailyBuckets(start: string, end: string): TrendBucket[] {
     buckets.push({
       key: toISO(cur),
       label: cur.toLocaleDateString("en-US", { day: "numeric", month: "short" }),
+      rangeLabel: cur.toLocaleDateString("en-US", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
       value: 0,
     });
     cur.setDate(cur.getDate() + 1);
@@ -46,9 +52,18 @@ function buildWeeklyBuckets(start: string, end: string): TrendBucket[] {
   cur.setDate(cur.getDate() - ((day + 6) % 7));
   const endDate = new Date(`${end}T00:00:00`);
   while (cur <= endDate) {
+    const weekEnd = new Date(cur);
+    weekEnd.setDate(cur.getDate() + 6);
+    const sameMonth = cur.getMonth() === weekEnd.getMonth();
+    const startStr = cur.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+    const endStr = weekEnd.toLocaleDateString(
+      "en-US",
+      sameMonth ? { day: "numeric" } : { day: "numeric", month: "short" }
+    );
     buckets.push({
       key: toISO(cur),
       label: cur.toLocaleDateString("en-US", { day: "numeric", month: "short" }),
+      rangeLabel: `${startStr} – ${endStr}`,
       value: 0,
     });
     cur.setDate(cur.getDate() + 7);
