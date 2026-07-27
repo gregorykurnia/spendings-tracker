@@ -11,22 +11,19 @@ const GRANULARITIES: { value: Granularity; label: string }[] = [
 export default function PeriodNav({
   granularity,
   anchor,
-  onGranularityChange,
-  onAnchorChange,
+  onChange,
 }: {
   granularity: Granularity;
   anchor: string;
-  onGranularityChange: (g: Granularity) => void;
-  onAnchorChange: (anchor: string) => void;
+  onChange: (next: { granularity: Granularity; anchor: string }) => void;
 }) {
   function shift(dir: -1 | 1) {
-    onAnchorChange(shiftAnchor(granularity, anchor, dir));
+    onChange({ granularity, anchor: shiftAnchor(granularity, anchor, dir) });
   }
 
   function changeGranularity(g: Granularity) {
     if (g === granularity) return;
-    onGranularityChange(g);
-    onAnchorChange(todayISO());
+    onChange({ granularity: g, anchor: todayISO() });
   }
 
   return (

@@ -135,8 +135,9 @@ export default function TransactionsPage() {
           <PeriodNav
             granularity={filters.granularity}
             anchor={filters.anchor}
-            onGranularityChange={(granularity) => setFilters({ ...filters, granularity })}
-            onAnchorChange={(anchor) => setFilters({ ...filters, anchor })}
+            onChange={({ granularity, anchor }) =>
+              setFilters((f) => ({ ...f, granularity, anchor }))
+            }
           />
         </div>
       )}
