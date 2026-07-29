@@ -30,14 +30,21 @@ function seedIfEmpty() {
     seedPromise = (async () => {
       // The sentinel write happens inside the same transaction as the
       // read, so concurrent tabs/devices racing this at the same time
-      // can't both observe "not seeded" and both write the batch.
-      const shouldSeed = await runTransaction(db, async (tx) => {
+      // can't both observe "not seeded" and both write the batch. Only
+      // the caller that wins the sentinel gets to seed, and even then
+      // only after confirming the collection is actually empty (the
+      // sentinel doc may not exist yet on an already-populated database,
+      // e.g. right after this code first ships).
+      const acquiredLock = await runTransaction(db, async (tx) => {
         const sentinel = await tx.get(seedSentinelRef);
         if (sentinel.exists()) return false;
         tx.set(seedSentinelRef, { seededAt: new Date().toISOString() });
         return true;
       });
-      if (!shouldSeed) return;
+      if (!acquiredLock) return;
+
+      const snap = await getDocs(categoriesRef);
+      if (!snap.empty) return;
 
       const batch = writeBatch(db);
       for (const category of SEED_CATEGORIES) {
