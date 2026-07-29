@@ -10,6 +10,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  runTransaction,
   updateDoc,
   where,
   writeBatch,
@@ -20,14 +21,23 @@ import { SEED_CATEGORIES } from "@/lib/seedCategories";
 
 const categoriesRef = collection(db, "categories");
 const transactionsRef = collection(db, "transactions");
+const seedSentinelRef = doc(db, "meta", "categoriesSeeded");
 
 let seedPromise: Promise<void> | null = null;
 
 function seedIfEmpty() {
   if (!seedPromise) {
     seedPromise = (async () => {
-      const snap = await getDocs(categoriesRef);
-      if (!snap.empty) return;
+      // The sentinel write happens inside the same transaction as the
+      // read, so concurrent tabs/devices racing this at the same time
+      // can't both observe "not seeded" and both write the batch.
+      const shouldSeed = await runTransaction(db, async (tx) => {
+        const sentinel = await tx.get(seedSentinelRef);
+        if (sentinel.exists()) return false;
+        tx.set(seedSentinelRef, { seededAt: new Date().toISOString() });
+        return true;
+      });
+      if (!shouldSeed) return;
 
       const batch = writeBatch(db);
       for (const category of SEED_CATEGORIES) {

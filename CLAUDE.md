@@ -168,3 +168,17 @@ Build in this order — each depends on the previous:
 - Keep components small and reusable under src/components/
 - Use custom hooks in src/hooks/ for all Firestore reads/writes
 - Never hardcode category IDs — always fetch from Firestore
+
+## Deploy Workflow
+1. Make changes
+2. Run `./push.sh "description of change"`
+3. Vercel auto-deploys from main branch
+
+## push.sh
+Create this file in project root and run `chmod +x push.sh` once:
+```bash
+#!/bin/bash
+git add .
+git commit -m "$1"
+git push origin main
+```
