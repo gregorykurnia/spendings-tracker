@@ -3,18 +3,30 @@
 import { useMemo, useState } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
-import { resolveDateRange, resolveComparisonRange, DateRangeOption } from "@/lib/dateRanges";
+import {
+  formatPeriodLabel,
+  getPeriodRange,
+  resolveDateRange,
+  resolveComparisonRange,
+  shiftAnchor,
+  todayISO,
+  DateRangeOption,
+} from "@/lib/dateRanges";
 import { formatIDR } from "@/lib/format";
 import { colorForIndex } from "@/lib/categoricalPalette";
 import CategoryDonutChart from "@/components/CategoryDonutChart";
 import TrendBarChart, { TrendBucket } from "@/components/TrendBarChart";
+import PeriodNav from "@/components/PeriodNav";
 
-const TIMEFRAMES: { value: DateRangeOption; label: string }[] = [
+type DashboardTimeframe = DateRangeOption | "month_browser";
+
+const TIMEFRAMES: { value: DashboardTimeframe; label: string }[] = [
   { value: "this_week", label: "This Week" },
   { value: "this_month", label: "This Month" },
   { value: "last_month", label: "Last Month" },
   { value: "last_3_months", label: "Last 3 Months" },
   { value: "this_year", label: "This Year" },
+  { value: "month_browser", label: "Browse Month" },
 ];
 
 function toISO(d: Date) {
@@ -90,9 +102,16 @@ function bucketKeyForDate(
 export default function Home() {
   const { transactions, loading: txLoading } = useTransactions();
   const { categories, loading: catLoading } = useCategories();
-  const [timeframe, setTimeframe] = useState<DateRangeOption>("this_month");
+  const [timeframe, setTimeframe] = useState<DashboardTimeframe>("this_month");
+  const [monthAnchor, setMonthAnchor] = useState(todayISO());
 
-  const range = useMemo(() => resolveDateRange(timeframe), [timeframe]);
+  const range = useMemo(
+    () =>
+      timeframe === "month_browser"
+        ? getPeriodRange("month", monthAnchor)
+        : resolveDateRange(timeframe),
+    [timeframe, monthAnchor]
+  );
 
   const periodTransactions = useMemo(() => {
     const confirmed = transactions.filter((t) => t.status === "confirmed");
@@ -105,7 +124,17 @@ export default function Home() {
     [periodTransactions]
   );
 
-  const comparisonRange = useMemo(() => resolveComparisonRange(timeframe), [timeframe]);
+  const comparisonRange = useMemo(() => {
+    if (timeframe === "month_browser") {
+      const previousMonthAnchor = shiftAnchor("month", monthAnchor, -1);
+      const previousMonthRange = getPeriodRange("month", previousMonthAnchor);
+      return {
+        ...previousMonthRange,
+        label: formatPeriodLabel("month", previousMonthAnchor).toLowerCase(),
+      };
+    }
+    return resolveComparisonRange(timeframe);
+  }, [timeframe, monthAnchor]);
 
   const comparisonTotal = useMemo(() => {
     if (!comparisonRange) return null;
@@ -195,6 +224,19 @@ export default function Home() {
         ))}
       </div>
 
+      {timeframe === "month_browser" && (
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">
+            Exact monthly view
+          </p>
+          <PeriodNav
+            granularity="month"
+            anchor={monthAnchor}
+            onChange={({ anchor }) => setMonthAnchor(anchor)}
+          />
+        </div>
+      )}
+
       {loading ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-400">
           Loading…
@@ -202,7 +244,11 @@ export default function Home() {
       ) : (
         <>
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="text-sm text-slate-500">Total spent</div>
+            <div className="text-sm text-slate-500">
+              {timeframe === "month_browser"
+                ? `Total spent in ${formatPeriodLabel("month", monthAnchor)}`
+                : "Total spent"}
+            </div>
             <div className="text-3xl font-bold text-slate-900 mt-1">{formatIDR(total)}</div>
             {comparisonRange && comparisonTotal !== null && (
               <div
