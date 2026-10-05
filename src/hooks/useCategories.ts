@@ -17,11 +17,20 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Category } from "@/types";
-import { SEED_CATEGORIES } from "@/lib/seedCategories";
+import {
+  SEED_CATEGORIES,
+  TELECOMMUNICATIONS_CATEGORY,
+} from "@/lib/seedCategories";
 
 const categoriesRef = collection(db, "categories");
 const transactionsRef = collection(db, "transactions");
 const seedSentinelRef = doc(db, "meta", "categoriesSeeded");
+const telecommunicationsMigrationRef = doc(
+  db,
+  "meta",
+  "telecommunicationsCategorySeeded"
+);
+const telecommunicationsCategoryRef = doc(categoriesRef, "telecommunications");
 
 let seedPromise: Promise<void> | null = null;
 
@@ -60,16 +69,46 @@ function seedIfEmpty() {
   return seedPromise;
 }
 
+async function addTelecommunicationsCategoryIfMissing() {
+  const existingCategories = await getDocs(categoriesRef);
+  const alreadyExists = existingCategories.docs.some(
+    (category) => category.data().name === TELECOMMUNICATIONS_CATEGORY.name
+  );
+  const order = existingCategories.docs.reduce(
+    (highest, category) => Math.max(highest, category.data().order ?? -1),
+    -1
+  ) + 1;
+
+  await runTransaction(db, async (tx) => {
+    const migration = await tx.get(telecommunicationsMigrationRef);
+    if (migration.exists()) return;
+
+    const category = await tx.get(telecommunicationsCategoryRef);
+    tx.set(telecommunicationsMigrationRef, {
+      seededAt: new Date().toISOString(),
+    });
+
+    if (!alreadyExists && !category.exists()) {
+      tx.set(telecommunicationsCategoryRef, {
+        ...TELECOMMUNICATIONS_CATEGORY,
+        order,
+      });
+    }
+  });
+}
+
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    seedIfEmpty().catch((err) => {
-      console.error("seedIfEmpty failed:", err);
-      setError(err.message);
-    });
+    seedIfEmpty()
+      .then(addTelecommunicationsCategoryIfMissing)
+      .catch((err) => {
+        console.error("category initialization failed:", err);
+        setError(err.message);
+      });
 
     const q = query(categoriesRef, orderBy("order"));
     const unsubscribe = onSnapshot(

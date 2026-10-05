@@ -7,7 +7,7 @@ import { Category } from "@/types";
 const PRESET_COLORS = [
   "#f97316", "#84cc16", "#3b82f6", "#0ea5e9", "#64748b",
   "#ef4444", "#ec4899", "#a855f7", "#eab308", "#22c55e",
-  "#6366f1", "#06b6d4", "#f43f5e", "#78716c", "#9ca3af",
+  "#6366f1", "#06b6d4", "#14b8a6", "#f43f5e", "#78716c", "#9ca3af",
 ];
 
 export default function CategoryFormModal({

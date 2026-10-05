@@ -1,5 +1,11 @@
 import { Category } from "@/types";
 
+export const TELECOMMUNICATIONS_CATEGORY = {
+  name: "Telecommunications",
+  emoji: "📶",
+  color: "#14b8a6",
+};
+
 export const SEED_CATEGORIES: Omit<Category, "id">[] = [
   { name: "Food & Drink", emoji: "🍽️", color: "#f97316", order: 0 },
   { name: "Groceries", emoji: "🛒", color: "#84cc16", order: 1 },
@@ -15,5 +21,6 @@ export const SEED_CATEGORIES: Omit<Category, "id">[] = [
   { name: "Travel", emoji: "✈️", color: "#06b6d4", order: 11 },
   { name: "Relationship", emoji: "💑", color: "#f43f5e", order: 12 },
   { name: "Subscriptions", emoji: "🔧", color: "#78716c", order: 13 },
-  { name: "Other", emoji: "❓", color: "#9ca3af", order: 14 },
+  { ...TELECOMMUNICATIONS_CATEGORY, order: 14 },
+  { name: "Other", emoji: "❓", color: "#9ca3af", order: 15 },
 ];
