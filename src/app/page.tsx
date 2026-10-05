@@ -3,31 +3,12 @@
 import { useMemo, useState } from "react";
 import { useTransactions } from "@/hooks/useTransactions";
 import { useCategories } from "@/hooks/useCategories";
-import {
-  formatPeriodLabel,
-  getPeriodRange,
-  resolveDateRange,
-  resolveComparisonRange,
-  shiftAnchor,
-  todayISO,
-  DateRangeOption,
-} from "@/lib/dateRanges";
+import { formatPeriodLabel, getPeriodRange, shiftAnchor, todayISO } from "@/lib/dateRanges";
 import { formatIDR } from "@/lib/format";
 import { colorForIndex } from "@/lib/categoricalPalette";
 import CategoryDonutChart from "@/components/CategoryDonutChart";
 import TrendBarChart, { TrendBucket } from "@/components/TrendBarChart";
 import PeriodNav from "@/components/PeriodNav";
-
-type DashboardTimeframe = DateRangeOption | "month_browser";
-
-const TIMEFRAMES: { value: DashboardTimeframe; label: string }[] = [
-  { value: "this_week", label: "This Week" },
-  { value: "this_month", label: "This Month" },
-  { value: "last_month", label: "Last Month" },
-  { value: "last_3_months", label: "Last 3 Months" },
-  { value: "this_year", label: "This Year" },
-  { value: "month_browser", label: "Browse Month" },
-];
 
 function toISO(d: Date) {
   const y = d.getFullYear();
@@ -57,60 +38,15 @@ function buildDailyBuckets(start: string, end: string): TrendBucket[] {
   return buckets;
 }
 
-function buildWeeklyBuckets(start: string, end: string): TrendBucket[] {
-  const buckets: TrendBucket[] = [];
-  const cur = new Date(`${start}T00:00:00`);
-  const day = cur.getDay();
-  cur.setDate(cur.getDate() - ((day + 6) % 7));
-  const endDate = new Date(`${end}T00:00:00`);
-  while (cur <= endDate) {
-    const weekEnd = new Date(cur);
-    weekEnd.setDate(cur.getDate() + 6);
-    const sameMonth = cur.getMonth() === weekEnd.getMonth();
-    const startStr = cur.toLocaleDateString("en-US", { day: "numeric", month: "short" });
-    const endStr = weekEnd.toLocaleDateString(
-      "en-US",
-      sameMonth ? { day: "numeric" } : { day: "numeric", month: "short" }
-    );
-    buckets.push({
-      key: toISO(cur),
-      label: cur.toLocaleDateString("en-US", { day: "numeric", month: "short" }),
-      rangeLabel: `${startStr} – ${endStr}`,
-      value: 0,
-    });
-    cur.setDate(cur.getDate() + 7);
-  }
-  return buckets;
-}
-
-function bucketKeyForDate(
-  dateStr: string,
-  granularity: "day" | "week",
-  buckets: TrendBucket[]
-): string | undefined {
-  if (granularity === "day") return dateStr;
-  const d = new Date(`${dateStr}T00:00:00`);
-  for (const b of buckets) {
-    const bStart = new Date(`${b.key}T00:00:00`);
-    const bEnd = new Date(bStart);
-    bEnd.setDate(bEnd.getDate() + 6);
-    if (d >= bStart && d <= bEnd) return b.key;
-  }
-  return undefined;
-}
-
 export default function Home() {
   const { transactions, loading: txLoading } = useTransactions();
   const { categories, loading: catLoading } = useCategories();
-  const [timeframe, setTimeframe] = useState<DashboardTimeframe>("this_month");
-  const [monthAnchor, setMonthAnchor] = useState(todayISO());
+  const [granularity, setGranularity] = useState<"month" | "week">("month");
+  const [periodAnchor, setPeriodAnchor] = useState(todayISO());
 
   const range = useMemo(
-    () =>
-      timeframe === "month_browser"
-        ? getPeriodRange("month", monthAnchor)
-        : resolveDateRange(timeframe),
-    [timeframe, monthAnchor]
+    () => getPeriodRange(granularity, periodAnchor),
+    [granularity, periodAnchor]
   );
 
   const periodTransactions = useMemo(() => {
@@ -125,16 +61,13 @@ export default function Home() {
   );
 
   const comparisonRange = useMemo(() => {
-    if (timeframe === "month_browser") {
-      const previousMonthAnchor = shiftAnchor("month", monthAnchor, -1);
-      const previousMonthRange = getPeriodRange("month", previousMonthAnchor);
-      return {
-        ...previousMonthRange,
-        label: formatPeriodLabel("month", previousMonthAnchor).toLowerCase(),
-      };
-    }
-    return resolveComparisonRange(timeframe);
-  }, [timeframe, monthAnchor]);
+    const previousPeriodAnchor = shiftAnchor(granularity, periodAnchor, -1);
+    const previousPeriodRange = getPeriodRange(granularity, previousPeriodAnchor);
+    return {
+      ...previousPeriodRange,
+      label: formatPeriodLabel(granularity, previousPeriodAnchor).toLowerCase(),
+    };
+  }, [granularity, periodAnchor]);
 
   const comparisonTotal = useMemo(() => {
     if (!comparisonRange) return null;
@@ -178,23 +111,15 @@ export default function Home() {
       .sort((a, b) => b.value - a.value);
   }, [periodTransactions, categoryById, colorIndexById, total]);
 
-  const granularity: "day" | "week" =
-    timeframe === "last_3_months" || timeframe === "this_year" ? "week" : "day";
-
   const trendBuckets = useMemo(() => {
-    if (!range) return [];
-    const buckets =
-      granularity === "day"
-        ? buildDailyBuckets(range.start, range.end)
-        : buildWeeklyBuckets(range.start, range.end);
+    const buckets = buildDailyBuckets(range.start, range.end);
     const byKey = new Map(buckets.map((b) => [b.key, b]));
     for (const t of periodTransactions) {
-      const key = bucketKeyForDate(t.date, granularity, buckets);
-      const bucket = key ? byKey.get(key) : undefined;
+      const bucket = byKey.get(t.date);
       if (bucket) bucket.value += t.amount;
     }
     return buckets;
-  }, [range, granularity, periodTransactions]);
+  }, [range, periodTransactions]);
 
   const topTransactions = useMemo(
     () => [...periodTransactions].sort((a, b) => b.amount - a.amount).slice(0, 5),
@@ -207,35 +132,23 @@ export default function Home() {
     <div className="max-w-lg mx-auto px-4 pt-6 pb-24 space-y-6">
       <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
 
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-        {TIMEFRAMES.map((tf) => (
-          <button
-            key={tf.value}
-            type="button"
-            onClick={() => setTimeframe(tf.value)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-sm border transition-colors ${
-              timeframe === tf.value
-                ? "bg-emerald-500 text-white border-emerald-500"
-                : "border-slate-200 text-slate-600"
-            }`}
-          >
-            {tf.label}
-          </button>
-        ))}
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">
+          View spending by
+        </p>
+        <PeriodNav
+          granularity={granularity}
+          anchor={periodAnchor}
+          granularities={["month", "week"]}
+          preserveAnchorOnGranularityChange
+          onChange={({ granularity: nextGranularity, anchor }) => {
+            if (nextGranularity === "month" || nextGranularity === "week") {
+              setGranularity(nextGranularity);
+              setPeriodAnchor(anchor);
+            }
+          }}
+        />
       </div>
-
-      {timeframe === "month_browser" && (
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mb-2">
-            Exact monthly view
-          </p>
-          <PeriodNav
-            granularity="month"
-            anchor={monthAnchor}
-            onChange={({ anchor }) => setMonthAnchor(anchor)}
-          />
-        </div>
-      )}
 
       {loading ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-400">
@@ -245,9 +158,7 @@ export default function Home() {
         <>
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <div className="text-sm text-slate-500">
-              {timeframe === "month_browser"
-                ? `Total spent in ${formatPeriodLabel("month", monthAnchor)}`
-                : "Total spent"}
+              Total spent in {formatPeriodLabel(granularity, periodAnchor)}
             </div>
             <div className="text-3xl font-bold text-slate-900 mt-1">{formatIDR(total)}</div>
             {comparisonRange && comparisonTotal !== null && (
@@ -299,9 +210,7 @@ export default function Home() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <h2 className="text-sm font-semibold text-slate-700 mb-3">
-              Spending trend ({granularity === "day" ? "daily" : "weekly"})
-            </h2>
+            <h2 className="text-sm font-semibold text-slate-700 mb-3">Spending trend (daily)</h2>
             {trendBuckets.length === 0 ? (
               <p className="text-sm text-slate-400">No data.</p>
             ) : (
