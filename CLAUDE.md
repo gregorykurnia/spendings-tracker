@@ -183,16 +183,12 @@ git commit -m "$1"
 git push origin main
 ```
 
-## UI redesign (blank-slate, in progress)
-- The plan is `redesign/redesign-plan.md` (from `~/.claude/playbooks/blank-slate-redesign.md`). Design happens in `../spendings-tracker-studio`, a separate repo that never sees this codebase. Studio sessions start only with `./start` there.
-- Never read from the studio folder, and never send anything from this codebase into it, except `redesign/handoff/` through `redesign/studio.sh enter`.
-- Before every `enter`, run the banned-word scan on every file in `redesign/handoff/`.
+## UI redesign (blank-slate, light version, in progress)
+- The plan is `redesign/redesign-plan.md` (a cut-down `~/.claude/playbooks/blank-slate-redesign.md`; the plan wins where they differ). Design happens in `../spendings-tracker-studio`, a separate repo that never sees this codebase. Studio sessions start only with `./start` there.
+- Never read from the studio folder, and never send anything from this codebase into it, except `redesign/handoff/` through `redesign/studio.sh enter`. Run the banned-word scan on every file in `redesign/handoff/` before every `enter`.
 - On tmux, the studio runs on its own server (`tmux -L studio`). Never capture, read or send keys to its panes.
 - Don't save memories that describe the current UI.
-- When a redesign step finishes, tick its box in the checklist at the top of `redesign/redesign-plan.md` in the same commit, never before. Studio steps (4a–5) are ticked here when the owner reports them done, or at the import at the latest.
-- At the start of each redesign session, check the model against the step's line in the plan's checklist (or §7.0 in the implementation plan during the rebuild), using the table in `~/.claude/CLAUDE.md`. If the current model is lower, say so and suggest switching.
-- When the owner says **"Import the approved design"**: run `redesign/studio.sh import`, confirm `redesign/design/` arrived, tick the step it belongs to (5b, or the matching rows in `needs.md` and §9.1), and offer the next step.
-- Rebuild (Step 7): work only on the `redesign` branch, one task per session, reading only that task's plan section, design-guide section and prototype file. Never copy markup, CSS, names or wording from the old UI.
-- After every rebuild task: tick its **Done** box in the implementation plan's §7.0 table (date and commit), in the same commit as the work, and nowhere else. The phase review ticks §5, §6 and §10 and the phase in `redesign/redesign-plan.md`'s checklist. Add a one-to-three-line entry to `CHANGELOG.md`, never to `CLAUDE.md` or `AGENTS.md`.
-- Checks per task are the light ones in §7.0; the full end-to-end suite runs at phase reviews.
-- Design gaps: add them to §9.1 of the implementation plan, then write them as needs in `redesign/handoff/needs.md` (the design-gap loop). Never fill a gap from the old app.
+- Tick a redesign step in the plan's checklist in the same commit as its work, never before; studio steps are ticked here when the owner reports them done. At the start of each redesign session, check the model against the step's pick (or the task table in `redesign/ui-implementation-plan.md` during the rebuild) and say so if the current one is lower.
+- When the owner says **"Import the approved design"**: run `redesign/studio.sh import`, confirm `redesign/design/` arrived, tick Step 3d (or mark the matching `needs.md` rows `designed`), and offer the next step.
+- Rebuild: only on the `redesign` branch, one task per session, reading only that task's section, `redesign/design/design-notes.md` and the matching prototype file. Never copy markup, CSS, names or wording from the old UI. Tick the task's Done cell in the task table in the same commit as the work, and nowhere else; change-log lines go in `CHANGELOG.md`.
+- Design gaps go to the implementation plan's "Design gaps" section, then as needs into `redesign/handoff/needs.md` (the design-gap loop). Never fill a gap from the old app.
