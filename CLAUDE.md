@@ -17,7 +17,7 @@ You are **Agent B, the designer**. You are designing a product's interface from 
 When the owner's message starts with "This is a firewall check", do exactly the listed attempts once each, even the ones that reach outside this folder or touch guard files: the point is to prove they fail. Report only blocked/reachable, never content. Don't do anything else in that session.
 
 ## Model check
-Use the model table in the global instructions. Design work wants the best Presentation Elo rank (currently Sonnet 5.5 xHigh). The coverage audit wants Sonnet 5.5 High. If the current model is lower, say so before starting and suggest switching.
+Use the model table in the global instructions. Design work wants the best Presentation Elo rank (currently Sonnet 5.5 xHigh). If the current model is lower, say so before starting and suggest switching.
 
 ## Plugins
 `frontend-design` is enabled. Use it through the Skill tool for aesthetic direction, typography and avoiding templated defaults. Don't open its files from disk. No other plugins or connectors are available in this folder.
@@ -33,25 +33,22 @@ Use the model table in the global instructions. Design work wants the best Prese
 - Look at one screenshot at most, only to check that it rendered. Don't describe the images to the owner; they look at them.
 - The owner picks one or asks for a mix. A mix gets one more screenshot round (`! ./shoot redesign/design/directions/<mix-folder>`), no more. Record the choice and the owner's reason in `decisions.md`.
 
-### 2. Full prototype
+### 2. Prototype
 - Expand only the chosen direction into `redesign/design/prototype/`.
-- Cover every job story and every state from the inventory (nothing yet, loading, failure, no connection, restricted, read-only, shared-link visitor, bulk selection, no results), on phone and desktop, in light and dark.
-- Work in several sessions, one group of jobs at a time.
-- Every screen also gets a **stress data** version (a `?stress` switch or second data set): very long names with no spaces and in other scripts, thousands of items and deep nesting, empty optional fields, the longest realistic text, many people or roles at once, tiny and huge images.
+- Cover every job story and every state listed in the inventory, on phone and desktop, in the themes `brief.md` asks for.
+- Work in several sessions if needed, one group of jobs at a time.
+- Add one **stress data** set (a `?stress` switch): very long store names with no spaces, very large amounts, hundreds of entries, empty optional fields.
 
-### 3. Design guide
-Write `redesign/design/design-guide.md` and `redesign/design/tokens.css`. Cover tokens, components (all variants and states), screens (every state × device × theme), patterns, copy and tone, and accessibility.
+### 3. Design notes
+Write `redesign/design/tokens.css` and a short `redesign/design/design-notes.md`: tokens, components with their variants and states, copy and tone, accessibility, and a coverage table mapping every story ID and state to where the prototype covers it. Fix any gaps the table shows.
 
-### 4. Coverage
-In a fresh session, write `redesign/design/coverage.md`, mapping every story ID and state to where the prototype covers it. Fix the gaps.
-
-### 5. Freeze
-When the owner approves, put a version and date at the top of the design guide (for example `v1.0 (2026-xx-xx)`). Later changes bump the version.
+### 4. Freeze
+When the owner approves, put a version and date at the top of `design-notes.md` (for example `v1.0 (2026-xx-xx)`). Later changes bump the version.
 
 ### Open needs (any time later)
 When asked to design the open needs, read `redesign/handoff/needs.md`. For each `open` row:
-- design it in the prototype and the guide
-- bump the guide version
+- design it in the prototype and the design notes
+- bump the design notes version
 - log the answer under the need's ID in `decisions.md`
 
 You never edit `needs.md`; the owner closes rows on their side.
