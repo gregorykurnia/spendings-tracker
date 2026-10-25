@@ -125,3 +125,9 @@ Built on P7: tapping a row anywhere opens the same "Change spend" form. If P7 is
 - **Nothing in the notes is new design.** Where a rule came from a decision, the notes point at `decisions.md`; the open questions there still have their defaults.
 - **Not frozen.** The notes carry "draft for approval". Approving them freezes groups 4 and 5 as built too, which you haven't looked at yet.
 
+## Stage 4: freeze (2026-10-25)
+- **Approved:** the owner approved the design on 2026-10-25. `design-notes.md` is **v1.0 (2026-10-25)**, with `tokens.css` and the prototype as they stand in that commit.
+- **This covers groups 4 and 5 as built**, which the owner had not separately looked at, and every default answer to the open questions under each group (no undo on throw away or accept, top five categories, filters in a dialog on desktop, source icons without words, arrows for the order, no duplicate category names, read-only offline). They are final until a need says otherwise.
+- **Still open, by the owner's choice:** the name, mark and colours. "Daybook", the bookmark and the palette are proposals inside v1.0.
+- **From here:** a change to the design bumps the version in `design-notes.md` and gets a line here. New needs arrive as open rows in `redesign/handoff/needs.md` (the owner closes rows on their side); each one is designed in the prototype and the notes, bumps the version, and logs its answer here under the need's ID.
+

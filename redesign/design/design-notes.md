@@ -1,6 +1,6 @@
 # Design notes: Daybook (working name)
 
-**Status:** draft for approval, 2026-10-25. Not frozen. When the owner approves, a version and date go on this line (for example `v1.0 (2026-xx-xx)`); later changes bump it.
+**v1.0 (2026-10-25).** Frozen: approved by the owner on 2026-10-25. Later changes bump this version and are logged in `decisions.md`.
 
 Inputs: `redesign/handoff/` only. Direction: `directions/d-daybook-crop`. Decisions and the reasons behind them: `decisions.md` (P1 to P7 and the choices per group). The working prototype is `prototype/`; every state below opens by link, for example `/prototype/?state=import-mixed`. Add `&stress` for the stress data set.
 

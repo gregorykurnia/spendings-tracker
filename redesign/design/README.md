@@ -11,16 +11,16 @@ Built in `prototype/`, expanded only from `directions/d-daybook-crop`. One group
 1. **Capture and review: C1 to C4, R1 to R11 (done and approved 2026-10-25).** States: import in progress, failed, found nothing, amount couldn't be read, not ready to save, saving, and nothing waiting.
 2. **Understand: U1 to U8 (done and approved 2026-10-25).** States: no spending, nothing to compare with, a day with no spending.
 3. **Find and fix: F1 to F7 (done and approved 2026-10-25).** States: no results, deleting, missing category. All transactions lives in `js/find.js`; the Change spend form (`D.openForm('edit-saved')`) now has delete.
-4. **Organise: O1 to O6 (done 2026-10-25, waiting for the owner's look).** States: starter categories being set up, checking a category before deleting. Whole-app states use `state.boot` (see `D.screens['boot-setup']` in `js/org.js` and the hook in `D.render`); group 5 adds `boot-first`, `boot-loading`, `boot-failed`, `boot-offline` the same way.
-5. **App-wide states, `?stress` on every screen, installable (done 2026-10-25, waiting for the owner's look).** First use, loading, failed to load, no connection (opening, and using it read-only), manifest and icons.
+4. **Organise: O1 to O6 (done and approved 2026-10-25, with the freeze).** States: starter categories being set up, checking a category before deleting. Whole-app states use `state.boot` (see `D.screens['boot-setup']` in `js/org.js` and the hook in `D.render`); group 5 adds `boot-first`, `boot-loading`, `boot-failed`, `boot-offline` the same way.
+5. **App-wide states, `?stress` on every screen, installable (done and approved 2026-10-25, with the freeze).** First use, loading, failed to load, no connection (opening, and using it read-only), manifest and icons.
 
 Carried over from D: no tab bar (home is the inbox; Spending, All transactions and Categories open from it); a tick per row plus one accept bar; the "needs a look" group in lemon; the "From the screenshot" crop in the open row; store names verbatim; sentence case; text never under 14px; touch targets 44px; light mode only. Defaults: phone label "Add", desktop "Add screenshots"; the compare line says "lower than 1 to 25 September" while a period runs.
 
-## Stage 3: design notes (done 2026-10-25, waiting for the owner's approval)
+## Stage 3: design notes (done and approved 2026-10-25)
 `tokens.css` (all tokens, one file) and `design-notes.md` (tokens, type and layout, components with variants and states, copy and tone, accessibility, behaviour that isn't visible, and the coverage tables: every story, every inventory state and every hard constraint, each pointing at state ids). `node prototype/check.js` keeps them honest: it fails if a story or state is missing from the tables, if a state id in the notes doesn't exist or a state isn't in the notes, if the swatches differ between `tokens.css` and `data.js`, if text is under 14px or a control under 44px, and if a contrast ratio quoted in the notes isn't true.
 
-## Stage 4: freeze (next, on the owner's approval)
-Put a version and date at the top of `design-notes.md` (for example `v1.0 (2026-xx-xx)`). Later changes bump the version.
+## Stage 4: freeze (done 2026-10-25): design-notes.md is v1.0
+Approved by the owner. A later change bumps the version at the top of `design-notes.md` and is logged in `decisions.md`. Open needs: read `redesign/handoff/needs.md`, design each open row in the prototype and the notes, bump the version, log the answer under the need's ID in `decisions.md`.
 
 ### How to look at it
 - **Interactive (the way to look at it):** in a second terminal on the server run `cd ~/spendings-tracker-studio/redesign/design && python3 -m http.server 8080 --bind "$(tailscale ip -4)"`, then open `http://100.118.18.29:8080/prototype/` with Tailscale on (Ctrl-C when done). Plain files, no build; fonts from Google Fonts.

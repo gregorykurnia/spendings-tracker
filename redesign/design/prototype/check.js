@@ -993,7 +993,7 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   notes.replace(/`([a-z]+(?:-[a-z0-9]+)+|picker)`/g, function (_, id) { mentioned[id] = 1; });
   Object.keys(mentioned).filter(function (id) { return /^(review|import|form|spend|find|org|app)-/.test(id) || id === 'picker'; }).forEach(function (id) { ok(ids[id], 'the notes name state "' + id + '" and it exists'); });
   D.scenarios.forEach(function (sc) { ok(mentioned[sc.id], 'state "' + sc.id + '" is in the notes'); });
-  ok(/^\*\*Status:\*\*/m.test(notes), 'the notes carry a status line');
+  ok(/^\*\*v\d+\.\d+ \(\d{4}-\d{2}-\d{2}\)\.\*\*/m.test(notes) && !/draft for approval/i.test(notes), 'the notes carry a version and date, and no longer say draft');
 
   /* money formatting */
   ok(D.rp(1234567) === 'Rp 1.234.567' && D.rp(5000) === 'Rp 5.000' && D.rp(48250000) === 'Rp 48.250.000', 'rupiah formatting');
