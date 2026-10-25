@@ -14,7 +14,7 @@ Work one step per session. At the start of each session, check the model against
 
 **Setup**
 - [x] Step 0: plan, studio templates, `studio.sh`, `CLAUDE.md` rules, `studio.sh init` — done 2026-10-24
-- [ ] Step 0b: firewall check in a fresh `./start` session reports ALL BLOCKED — **Haiku 5.5 High** · studio
+- [x] Step 0b: firewall check in a fresh `./start` session reports ALL BLOCKED (2026-10-25) — **Haiku 5.5 High** · studio
 
 **Needs (sees the old app)**
 - [ ] Step 1: `inventory.md` job stories, owner-only `inventory-notes.md`, starter `priorities.md`, `brief.md`, `needs.md`; banned-word scan clean — **Opus 5.5 Medium** · Claude on `main`
