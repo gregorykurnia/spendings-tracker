@@ -9,6 +9,7 @@
     right:  '<path d="M9 6l6 6-6 6"/>',
     left:   '<path d="M15 6l-6 6 6 6"/>',
     down:   '<path d="M6 9l6 6 6-6"/>',
+    up:     '<path d="M6 15l6-6 6 6"/>',
     close:  '<path d="M6 6l12 12M18 6L6 18"/>',
     chart:  '<path d="M6 20v-7M12 20V5M18 20v-10"/>',
     list:   '<path d="M9 7h11M9 12h11M9 17h11M4.5 7h.01M4.5 12h.01M4.5 17h.01"/>',

@@ -38,7 +38,7 @@ global.scrollTo = function () {};
 global.addEventListener = function () {};
 ['app', 'overlays', 'toast', 'live', 'picker'].forEach(function (i) { doc.getElementById(i); });
 
-['icons', 'data', 'ui', 'capture', 'spending', 'find', 'app'].forEach(function (f) {
+['icons', 'data', 'ui', 'capture', 'spending', 'find', 'org', 'app'].forEach(function (f) {
   vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), {filename: f + '.js'});
 });
 var D = window.Daybook;
@@ -570,6 +570,189 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   D.ins.fq({value: 'INDOMARET*POINT'});
   validate(app(), 'stress search');
   ok(/<mark>INDOMARET\*POINT<\/mark>/.test(page()), 'a long name with no spaces is found and highlighted');
+  D.stress = false;
+
+  /* ---------- group 4: organise ---------- */
+  var T1 = {getAttribute: function () { return null; }};
+  function usedBy(id) { return D.S.saved.filter(function (x) { return x.cat === id; }).length; }
+  function catRows() { return (app().match(/data-act="cat-edit" data-id="([a-z0-9]+)"/g) || []).map(function (m) { return m.match(/data-id="([a-z0-9]+)"/)[1]; }); }
+
+  console.log('Categories (O1 list, O5)');
+  D.applyScenario('org-list', true);
+  validate(app(), 'org-list');
+  t = text(app());
+  ok(D.route === 'categories' && /Categories/.test(t) && /16 categories/.test(t), 'opens Categories with a count');
+  ok(catRows().length === 16 && catRows()[0] === 'groceries', 'sixteen starter categories, in the owner\'s order');
+  ok(D.S.cats.every(function (c) { return new RegExp((usedBy(c.id) ? D.dots(usedBy(c.id)) + ' spends?' : 'No spends yet')).test(t); }), 'each says how many spends it has');
+  ok(/No spends yet/.test(t) && usedBy('invest') === 0, 'a category nobody uses says so');
+  ok(/Tap one to change it/.test(t), 'says how to change one');
+  ok(D.S.cats.length === 16 && D.S.cats.every(function (c) { return D.SWATCHES[c.sw]; }), 'every starter has an emoji and a colour');
+
+  console.log('Order (O4)');
+  D.acts['cat-reorder']();
+  validate(app(), 'reorder on');
+  ok(/Quick choices end here/.test(app()) && /The first four are the quick choices/.test(text(app())), 'reorder mode explains the first four');
+  ok((app().match(/data-act="cat-move"/g) || []).length === 32 && !/data-act="cat-edit"/.test(app()), 'arrows instead of rows you tap');
+  ok(/data-d="-1" data-key="mv-groceries-up"[^>]*aria-disabled="true"/.test(app()), 'the first cannot go up');
+  ok(/data-d="1" data-key="mv-other-down"[^>]*aria-disabled="true"/.test(app()), 'the last cannot go down');
+  D.acts['cat-move']({getAttribute: function () { return null; }, dataset: {id: 'health', d: '-1'}});
+  ok(D.S.cats[5].id === 'health' && D.S.cats[6].id === 'home', 'moved up one');
+  for (var k = 0; k < 5; k++) D.acts['cat-move']({getAttribute: function () { return null; }, dataset: {id: 'health', d: '-1'}});
+  ok(D.S.cats[0].id === 'health', 'moved to the top');
+  D.acts['cat-move']({getAttribute: function () { return 'true'; }, dataset: {id: 'health', d: '-1'}});
+  ok(D.S.cats[0].id === 'health' && D.S.cats.length === 16, 'a disabled arrow does nothing');
+  D.acts['cat-reorder']();
+  ok(!/Quick choices end here/.test(app()) && /Change order/.test(text(app())), 'done');
+  D.S.waiting = []; D.batchFor(D.S);
+  ok(catChipIds().slice(0, 1)[0] === 'health', 'the new first category is the first quick choice when checking a spend');
+  function catChipIds() { var w = D.S.waiting[0]; D.S.ui.openId = w.id; D.route = 'home'; return (D.screens.home.render().match(/data-act="set-cat" data-id="w\d+" data-cat="([a-z]+)"/g) || []).map(function (m) { return m.match(/data-cat="([a-z]+)"/)[1]; }); }
+  D.route = 'categories';
+  D.acts['cat-edit'] = D.acts['cat-edit'];
+  D.openCatPicker({kind: 'line', id: D.S.waiting[0].id});
+  ok(D.overlay.top().cfg.render().indexOf('data-cat="health"') < D.overlay.top().cfg.render().indexOf('data-cat="groceries"'), 'and first in the full list');
+  D.overlay.closeAll();
+
+  console.log('Add (O2)');
+  D.applyScenario('org-add', true);
+  var cf = D.catform;
+  validate('<div>' + D.overlay.top().cfg.render() + '</div>', 'add form');
+  var useCount = function (k) { return D.S.cats.filter(function (c) { return c.sw === k; }).length; };
+  var least = Math.min.apply(null, Object.keys(D.SWATCHES).map(useCount));
+  ok(cf.mode === 'add' && cf.data.name === '' && cf.data.emoji && useCount(cf.data.sw) === least, 'starts empty with a default emoji and the colour used least so far');
+  t = text(D.overlay.top().cfg.render());
+  ok(/Still needed: a name\./.test(t), 'only the name is missing');
+  ok((D.overlay.top().cfg.render().match(/class="swatch( on)?"/g) || []).length === 13 && /role="radiogroup"/.test(D.overlay.top().cfg.render()), 'thirteen colours to choose from');
+  ok(/id="cf-primary"[^>]*aria-disabled="true"/.test(D.overlay.top().cfg.render()), 'save is off without a name');
+  D.acts['cf-submit']();
+  ok(cf.attempted && /Add a name\./.test(text(D.overlay.top().cfg.render())) && !/id="e-cname"[^>]* hidden/.test(D.overlay.top().cfg.render()), 'trying shows the error');
+  D.ins['cf-name']({value: 'food & drink'});
+  ok(Object.keys(D.invalidCat(cf)).join() === 'name' && /already have a category called/.test(D.invalidCat(cf).name), 'a repeated name is refused, whatever its capitals');
+  D.ins['cf-name']({value: 'Pets'});
+  ok(Object.keys(D.invalidCat(cf)).length === 0, 'a new name is fine');
+  var inEl = {value: '🐶🐱'}; D.ins['cf-emoji'](inEl);
+  ok(cf.data.emoji === '🐶' && inEl.value === '🐶', 'typing two emoji keeps the first');
+  inEl = {value: '👨‍👩‍👧'}; D.ins['cf-emoji'](inEl);
+  ok(cf.data.emoji === '👨‍👩‍👧', 'a family emoji counts as one');
+  inEl = {value: 'ab'}; D.ins['cf-emoji'](inEl);
+  ok(D.invalidCat(cf).emoji === 'Choose an emoji.', 'letters are not an emoji');
+  D.acts['cf-emoji']({dataset: {e: '🐶'}});
+  D.acts['cf-sw']({dataset: {sw: 'lime'}});
+  var nCats = D.S.cats.length;
+  D.acts['cf-submit']();
+  ok(cf.saving, 'saving');
+  await sleep(750);
+  var added = D.S.cats[D.S.cats.length - 1];
+  ok(D.S.cats.length === nCats + 1 && added.name === 'Pets' && added.emoji === '🐶' && added.sw === 'lime', 'added at the end with what was chosen');
+  ok(!D.overlay.top() && catRows().indexOf(added.id) === 15 + 1, 'form closed and it is in the list');
+  ok(/No spends yet/.test(text(app())), 'with no spends yet');
+
+  console.log('Change (O3): it shows everywhere');
+  D.applyScenario('org-edit', true);
+  cf = D.catform;
+  validate('<div>' + D.overlay.top().cfg.render() + '</div>', 'edit form');
+  ok(cf.mode === 'edit' && cf.data.name === 'Food & Drink' && /Changes show on every spend in this category/.test(text(D.overlay.top().cfg.render())), 'opens with its current name, emoji and colour');
+  ok(/Delete this category/.test(text(D.overlay.top().cfg.render())), 'with delete at the end');
+  ok(/Save changes/.test(text(D.overlay.top().cfg.render())) && /id="cf-primary"[^>]*aria-disabled="false"/.test(D.overlay.top().cfg.render()), 'nothing missing');
+  D.ins['cf-name']({value: 'Eating out'}); D.acts['cf-emoji']({dataset: {e: '🍔'}}); D.acts['cf-sw']({dataset: {sw: 'coral'}});
+  D.acts['cf-submit']();
+  await sleep(750);
+  var food = D.S.cats.filter(function (c) { return c.id === 'food'; })[0];
+  ok(food.name === 'Eating out' && food.emoji === '🍔' && food.sw === 'coral', 'changed');
+  ok(D.S.cats[1].id === 'food', 'it keeps its place in the order');
+  D.route = 'spending'; D.render();
+  ok(/Eating out/.test(app()) && !/Food &amp; Drink/.test(app()) && />🍔</.test(app()) && new RegExp(D.SWATCHES.coral[0]).test(app()), 'Spending shows the new name, emoji and colour');
+  D.route = 'transactions'; D.params = {}; D.S.find = null; D.render();
+  ok(/Eating out/.test(app()) && />🍔</.test(app()), 'All transactions rows too');
+  D.route = 'home'; D.S.waiting = []; D.batchFor(D.S); D.S.waiting[0].cat = 'food'; D.S.ui.openId = D.S.waiting[0].id; D.render();
+  ok(/Eating out/.test(app()), 'and the review rows');
+
+  D.applyScenario('org-list', true);
+  ok(D.S.cats[1].name === 'Food & Drink' && D.CATS[1].name === 'Food & Drink', 'editing a category does not leak into the next state');
+  D.openCatForm('edit', {id: 'food'});
+  D.ins['cf-name']({value: 'Eating'});
+  D.acts['cf-submit']();
+  D.acts['ov-close']();
+  ok(D.overlay.top() && D.overlay.top().cfg.key === 'catform', 'cannot close the category form while it is saving');
+  await sleep(750);
+  ok(!D.overlay.top(), 'and it closes once saved');
+
+  console.log('Delete (O6)');
+  D.applyScenario('org-del-checking', true);
+  ok(D.overlay.top().cfg.key === 'catdel' && D.catDel.step === 'checking', 'checking first');
+  t = text(D.overlay.top().cfg.render());
+  validate('<div>' + D.overlay.top().cfg.render() + '</div>', 'delete, checking');
+  ok(/Delete Food & Drink\?/.test(t) && /Checking if it is used/.test(t), 'says it is checking');
+  D.overlay.closeAll();
+  D.applyScenario('org-del-empty', true);
+  t = text(D.overlay.top().cfg.render());
+  validate('<div>' + D.overlay.top().cfg.render() + '</div>', 'delete, empty');
+  ok(/Delete Investments\?/.test(t) && /No spends use it/.test(t) && /No spends/.test(t), 'no spends: just confirm');
+  var n0 = D.S.cats.length;
+  D.acts['cd-yes'](T1);
+  ok(D.catDel.step === 'busy', 'deleting');
+  await sleep(1000);
+  ok(D.S.cats.length === n0 - 1 && !D.S.cats.some(function (c) { return c.id === 'invest'; }) && !D.overlay.top(), 'gone');
+  D.applyScenario('org-del-has', true);
+  t = text(D.overlay.top().cfg.render());
+  var dh = D.overlay.top().cfg.render();
+  validate('<div>' + dh + '</div>', 'delete, has spends');
+  var nFood = usedBy('food');
+  ok(new RegExp(D.dots(nFood) + ' spends use it\\. 1 waiting line does too\\. Choose where they go first').test(t), 'tells how many use it, counts the waiting line, and asks where they go');
+  ok((dh.match(/data-act="cd-dest"/g) || []).length === 15 && dh.indexOf('data-cat="food"') < 0, 'the other fifteen to choose from, not itself');
+  ok(/Choose a category/.test(t) && /data-key="cd-yes"[^>]*aria-disabled="true"/.test(dh), 'cannot delete until one is chosen');
+  D.acts['cd-yes']({getAttribute: function () { return 'true'; }});
+  ok(D.catDel.step === 'has', 'pressing it anyway does nothing');
+  D.acts['cd-dest']({dataset: {cat: 'groceries'}});
+  dh = D.overlay.top().cfg.render();
+  var wFood0 = D.S.waiting.filter(function (w) { return w.cat === 'food'; }).length;
+  ok(wFood0 > 0 && new RegExp('Move ' + D.dots(nFood + wFood0) + ' and delete').test(text(dh)) && /data-key="cd-yes"[^>]*aria-disabled="false"/.test(dh), 'now it says how many will move, waiting lines included');
+  var nGro = usedBy('groceries'), wFood = D.S.waiting.filter(function (w) { return w.cat === 'food'; }).length, wGro = D.S.waiting.filter(function (w) { return w.cat === 'groceries'; }).length;
+  D.S.find = {q: '', date: {kind: 'all', anchor: D.S.today, from: '', to: '', label: ''}, cats: ['food', 'transport'], min: null, max: null, src: 'any', sort: 'date-desc', limit: 60, paramKey: null};
+  D.acts['cd-yes'](T1);
+  ok(D.catDel.step === 'busy' && /Moving and deleting/.test(text(D.overlay.top().cfg.render())), 'moving and deleting in progress');
+  D.acts['ov-close']();
+  ok(D.overlay.top() && D.overlay.top().cfg.key === 'catdel', 'cannot back out halfway');
+  await sleep(1000);
+  ok(!D.S.cats.some(function (c) { return c.id === 'food'; }), 'category gone');
+  ok(usedBy('groceries') === nGro + nFood && D.S.saved.every(function (x) { return D.catById(x.cat); }), 'every spend still has a category');
+  ok(D.S.waiting.filter(function (w) { return w.cat === 'groceries'; }).length === wGro + wFood, 'waiting lines moved too');
+  ok(D.S.find.cats.join() === 'transport', 'a filter on the deleted category is dropped');
+  ok(!D.overlay.top() && D.catDel === null, 'everything closed');
+  D.applyScenario('org-del-moving', true);
+  t = text(D.overlay.top().cfg.render());
+  ok(/Moving and deleting/.test(t) && /Delete Food & Drink\?/.test(t), 'the moving state can be shown on its own');
+  D.overlay.closeAll();
+  D.applyScenario('org-list', true);
+  D.openCatForm('edit', {id: 'groceries'});
+  D.acts['cat-delete']();
+  ok(D.catDel.step === 'checking', 'delete starts with a check');
+  await sleep(900);
+  ok(D.catDel.step === 'has', 'the check finds spends and moves on');
+  D.acts['ov-close']();
+  ok(D.S.cats.some(function (c) { return c.id === 'groceries'; }), 'cancel keeps it');
+  D.overlay.closeAll();
+  D.S.cats = [D.S.cats[0]];
+  D.openCatForm('edit', {id: D.S.cats[0].id});
+  ok(!/Delete this category/.test(text(D.overlay.top().cfg.render())), 'the last category cannot be deleted');
+  D.overlay.closeAll();
+
+  console.log('Setting up (O1)');
+  D.applyScenario('org-setup', true);
+  ph = app(); t = text(ph);
+  validate(ph, 'org-setup');
+  ok(/Setting up/.test(t) && /Adding your starter categories/.test(t) && /9 of 16/.test(t), 'says what is happening and how far');
+  ok(/role="progressbar"[^>]*aria-valuenow="9"/.test(ph) && (ph.match(/class="bd on"/g) || []).length === 9, 'nine of sixteen are in');
+  ok(!/class="bar"/.test(ph), 'no top bar or other screen behind it');
+  D.applyScenario('org-setup-live', true);
+  ok(D.S.boot && D.S.boot.done === 0, 'the live version starts at nothing');
+  await sleep(3200);
+  ok(D.S.boot === null && /to check|All checked/.test(text(app())), 'then the app opens');
+
+  console.log('Stress data on categories');
+  D.stress = true;
+  D.applyScenario('org-list', true);
+  validate(app(), 'stress categories');
+  ok(/Kebutuhan-rumah-tangga/.test(app()) && /18 categories/.test(text(app())), 'a very long name with no spaces is listed');
   D.stress = false;
 
   /* money formatting */

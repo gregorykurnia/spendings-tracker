@@ -90,3 +90,16 @@ Built on P7: tapping a row anywhere opens the same "Change spend" form. If P7 is
 
 **Approved:** the owner said groups 2 and 3 "look fine" on 2026-10-25. P7 is built into both, so it counts as adopted; if that was meant for the look only, it goes back to open. The default answers to the questions under groups 2 and 3 stand.
 
+## Stage 2, group 4: organise (2026-10-25)
+- **Categories screen** (O5): one row per category, in your order: emoji on its colour, the name, and how many spends it has ("23 spends", or "No spends yet"). Tap one to change it. "Add category" is at the top, like "Add" on home.
+- **Order (O4)** is a "Change order" mode with an up and a down arrow on each row (no dragging, which is hard on a phone and impossible by keyboard). A dashed line after the fourth row says "Quick choices end here", because the first four are the chips you see when checking a spend. "Done" leaves the mode.
+- **One form to add or change (O2, O3, P4's idea again):** a live preview of the category, its name, an emoji (28 to tap, or type or paste any one), and one of 13 colours. A new category starts with a tag emoji and the colour used least so far, so only the name can be missing ("Still needed: a name."). Changing one says "Changes show on every spend in this category", and it does: every screen reads the same list. A new category goes at the end, and the message says so.
+- **Delete (O6)** starts from the change form, and asks first. It checks whether the category is used ("Checking if it is used…"), then either "No spends use it. It is removed for good." with Cancel and Delete, or "69 spends use it. 1 waiting line does too. Choose where they go first." with the other fifteen categories to pick from and no default. The button reads "Choose a category" until one is picked, then "Move 70 and delete". While it runs it says "Moving and deleting…" and can't be dismissed. Waiting lines move with the spends, and any filter on the deleted category is dropped. The last remaining category has no delete button.
+- **First open (O1):** a whole-screen "Setting up", the mark, "Adding your starter categories. This takes a moment.", sixteen small tiles that fill with their emoji and colour, and "9 of 16". Nothing else is on screen. Whole-app states like this one are `state.boot` in the prototype; group 5 uses the same hook for first use, loading, failed to load and no connection.
+- **Bug fixed along the way:** editing a category in one prototype state no longer shows up in the next state you jump to.
+
+### Questions for the owner (defaults, nothing waits)
+1. **Arrows, not dragging, for the order.** Default: as built. Dragging could be added on top for mouse users.
+2. **Two categories can't have the same name** (capitals ignored). You didn't ask for this; it stops two identical-looking choices in every picker. Default: as built.
+3. **A new category goes at the end of the list**, so it doesn't change your quick choices. Default: as built.
+

@@ -31,7 +31,7 @@
     opts = opts || {};
     D.epoch++;
     return {
-      today: D.TODAY, cats: D.CATS.slice(), saved: D.buildSaved(!!opts.stress),
+      today: D.TODAY, cats: D.CATS.map(function (c) { return Object.assign({}, c); }).concat(opts.stress ? [{id: 'x1', name: 'Kebutuhan-rumah-tangga-dan-perlengkapan-dapur-bulanan-keluarga', emoji: '🧺', sw: 'sand'}, {id: 'x2', name: 'Hadiah', emoji: '🎁', sw: 'rose'}] : []), saved: D.buildSaved(!!opts.stress),
       waiting: [], imports: null,
       ui: {openId: null, accepting: new Set(), leaving: new Set(), acceptingAll: false},
       seq: 100, poolI: 0, freshShots: 0, frozen: false, stress: !!opts.stress, scenario: null
