@@ -12,14 +12,16 @@ const hanken = Hanken_Grotesk({
   display: "swap",
 });
 
+// Title, description and home-screen name are the prototype's (`redesign/design/prototype/index.html`
+// and its manifest).
 export const metadata: Metadata = {
-  title: "Spending Tracker",
-  description: "Personal spending tracker for BCA transactions",
+  title: "Daybook",
+  description: "Check your spending, quickly.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Spending",
+    title: "Daybook",
   },
   icons: {
     icon: "/icons/icon-192.png",

@@ -1,5 +1,6 @@
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import { Icon, Logo } from "@/components/ui/icon";
+import { Icon, Logo, type IconName } from "@/components/ui/icon";
 import { swatchTint } from "@/lib/swatches";
 import { SEED_CATEGORIES } from "@/lib/seedCategories";
 import type { LoadTarget, ScreenName } from "@/lib/boot";
@@ -57,6 +58,38 @@ function RetryButton({ retrying, onRetry }: { retrying?: boolean; onRetry: () =>
   );
 }
 
+/**
+ * A full screen in place of the page: a mark, a heading, one line and the actions. `bar` is the screen's
+ * own bar, when it has one. Shared by the failed states and the pages for an unknown address and an error.
+ */
+export function NoticeScreen({
+  bar,
+  icon = "alert",
+  heading,
+  actions,
+  children,
+}: {
+  bar?: ReactNode;
+  icon?: IconName;
+  heading: string;
+  actions: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      {bar}
+      <main id="main" className={styles.failed} tabIndex={-1}>
+        <span className={styles.mark}>
+          <Icon name={icon} size={28} />
+        </span>
+        <h1>{heading}</h1>
+        <p>{children}</p>
+        <div className={styles.actions}>{actions}</div>
+      </main>
+    </>
+  );
+}
+
 /** Loading went wrong: no raw error text, what happened and what to do. Keeps the screen's own bar. */
 export function BootFailed({
   screen,
@@ -70,17 +103,13 @@ export function BootFailed({
   onRetry: () => void;
 }) {
   return (
-    <>
-      {screen === "home" ? <AppBar /> : <SubBar />}
-      <main id="main" className={styles.failed} tabIndex={-1}>
-        <span className={styles.mark}>
-          <Icon name="alert" size={28} />
-        </span>
-        <h1>Couldn’t load your {what}</h1>
-        <p>Something went wrong while loading. Try again in a moment.</p>
-        <RetryButton retrying={retrying} onRetry={onRetry} />
-      </main>
-    </>
+    <NoticeScreen
+      bar={screen === "home" ? <AppBar /> : <SubBar />}
+      heading={`Couldn’t load your ${what}`}
+      actions={<RetryButton retrying={retrying} onRetry={onRetry} />}
+    >
+      Something went wrong while loading. Try again in a moment.
+    </NoticeScreen>
   );
 }
 
