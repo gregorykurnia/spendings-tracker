@@ -227,6 +227,29 @@ describe("editing a waiting line", () => {
     unmount();
   });
 
+  it("never shows the old values again between writing an edit and the stored data catching up", async () => {
+    await writeDocs("transactions", [waitingDoc("w1", { categoryId: "", store: "Kopi" })]);
+    const seen: string[] = [];
+    const hook = renderHook(() => {
+      const t = useTransactions();
+      seen.push(t.waiting[0] ? `${t.waiting[0].store}|${t.waiting[0].categoryId}` : "none");
+      return t;
+    });
+    await waitFor(() => expect(hook.result.current.loading).toBe(false));
+
+    // The pause in typing writes it, outside `act`, so every render in between is seen.
+    act(() => hook.result.current.editWaitingLine("w1", { store: "Kopi Senopati", categoryId: "groceries" }));
+    await expect
+      .poll(async () => (await byId("w1"))?.categoryId, { timeout: EDIT_DELAY_MS * 10 })
+      .toBe("groceries");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const typed = seen.indexOf("Kopi Senopati|groceries");
+    expect(typed).toBeGreaterThan(0);
+    expect(seen.slice(typed).every((v) => v === "Kopi Senopati|groceries")).toBe(true);
+    hook.unmount();
+  });
+
   it("writes what was typed when the screen closes", async () => {
     await writeDocs("transactions", [waitingDoc("w1")]);
     const { result, unmount } = await openHook();

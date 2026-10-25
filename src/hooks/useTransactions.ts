@@ -110,6 +110,9 @@ export function useTransactions() {
   // Edits to waiting lines, kept here until they are written. They show in
   // the lists straight away; the write waits for a pause in typing.
   const pending = useRef(new Map<string, Partial<SpendFields>>());
+  // Edits that have been sent and are waiting for the write to be acknowledged. They stay on top of
+  // the stored data until then, so a line never shows its old values for a moment in between.
+  const written = useRef(new Map<string, Partial<SpendFields>>());
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const [, setPendingVersion] = useState(0);
   const bumpPending = () => setPendingVersion((v) => v + 1);
@@ -148,15 +151,18 @@ export function useTransactions() {
     };
   }, []);
 
-  const transactions = pending.current.size
-    ? stored.map((t) => {
-        const patch = pending.current.get(t.id);
-        if (!patch) return t;
-        const next = { ...t, ...patch };
-        if ("categoryId" in patch) delete next.categorySuggested;
-        return next;
-      })
-    : stored;
+  const transactions =
+    pending.current.size || written.current.size
+      ? stored.map((t) => {
+          const sent = written.current.get(t.id);
+          const typed = pending.current.get(t.id);
+          if (!sent && !typed) return t;
+          const patch = { ...sent, ...typed };
+          const next = { ...t, ...patch };
+          if ("categoryId" in patch) delete next.categorySuggested;
+          return next;
+        })
+      : stored;
   const spends = transactions.filter((t) => t.status === "confirmed");
   const waiting = transactions
     .filter((t) => t.status === "pending_review")
@@ -175,6 +181,13 @@ export function useTransactions() {
     const patch = pending.current.get(id);
     pending.current.delete(id);
     return patch;
+  }
+
+  /** A write is over: its edits no longer need to sit on top of the stored data (unless a newer write holds them). */
+  function settle(id: string, sent: Partial<SpendFields>) {
+    if (written.current.get(id) !== sent) return;
+    written.current.delete(id);
+    bumpPending();
   }
 
   /** Puts back edits whose write failed, under anything typed since, so nothing typed is lost. */
@@ -236,11 +249,17 @@ export function useTransactions() {
     const writes = ids.flatMap((lineId) => {
       const patch = takePending(lineId);
       if (!patch) return [];
+      const sent = { ...written.current.get(lineId), ...patch };
+      written.current.set(lineId, sent);
       return [
-        writeEdit(lineId, patch).catch((err) => {
-          restorePending(lineId, patch, err);
-          throw err;
-        }),
+        writeEdit(lineId, patch).then(
+          () => settle(lineId, sent),
+          (err) => {
+            settle(lineId, sent);
+            restorePending(lineId, patch, err);
+            throw err;
+          }
+        ),
       ];
     });
     if (!writes.length) return;

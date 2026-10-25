@@ -27,6 +27,11 @@ export function buttonClass({ variant = "outline", size = "default" }: Look = {}
   );
 }
 
+/** The turning ring that shows something is still working. It sits next to the verb in progress. */
+export function Spinner() {
+  return <span className={styles.spin} aria-hidden="true" />;
+}
+
 type ButtonProps = Look &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, "disabled"> & {
     /**
@@ -91,7 +96,7 @@ export function Button({
     >
       {busy ? (
         <>
-          <span className={styles.spin} aria-hidden="true" />
+          <Spinner />
           {busyLabel ?? children}
         </>
       ) : (

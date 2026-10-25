@@ -1,0 +1,467 @@
+/* wide layout: 960 (see tokens.css). Home is the inbox; the side column (glance card, links) is task 2.3. */
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 6px 20px 0;
+}
+
+.home:focus {
+  outline: 0;
+}
+
+/* the accept bar is fixed to the bottom on a phone: the page makes room for it */
+.inbox {
+  min-width: 0;
+}
+
+.withBar {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+.head {
+  margin: 24px 0 8px;
+}
+
+.head h1 {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.head p {
+  margin-top: 4px;
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+/* groups */
+.grp {
+  margin-top: 14px;
+}
+
+.grp h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--fs-l);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.grp h2:focus {
+  outline: 0;
+}
+
+.grp h2 span {
+  font-size: var(--fs-b);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.grpHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--touch);
+}
+
+.jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--touch);
+  padding: 0 15px 0 12px;
+  border-radius: 22px;
+  background: var(--lemon-soft);
+  border: 1px solid var(--lemon-line);
+  font-size: var(--fs-m);
+  font-weight: 700;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--lemon);
+  box-shadow: 0 0 0 1.5px var(--lemon-edge);
+}
+
+/* rows. li.row > .rowIn is what collapses when a row leaves */
+.rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.rowIn {
+  min-height: 0;
+  padding: 13px 0;
+}
+
+.row + .row > .rowIn {
+  border-top: 1px solid var(--line);
+}
+
+.rowHead {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--touch) minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: center;
+}
+
+.main {
+  min-width: 0;
+}
+
+.store {
+  display: block;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: var(--fs-b);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+/* the name is the row's open button: it stretches over the whole line (the tick sits above it) */
+.storeOpen::after {
+  content: "";
+  position: absolute;
+  inset: -6px -4px;
+}
+
+.storeOpen:focus-visible {
+  outline: 0;
+}
+
+.rowHead:has(.storeOpen:focus-visible) {
+  outline: 3px solid var(--petrol);
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+.side {
+  text-align: right;
+  min-width: 0;
+}
+
+.amt {
+  font-size: var(--fs-amt);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+.date {
+  margin-top: 4px;
+  font-size: var(--fs-s);
+  color: var(--ink-2);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tick {
+  position: relative;
+  z-index: 1;
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 50%;
+  border: 2px solid var(--petrol);
+  color: var(--petrol);
+  display: grid;
+  place-items: center;
+}
+
+.tickBusy {
+  border-color: var(--line-2);
+}
+
+/* no connection: dimmed, and pressing it says why */
+.offline {
+  opacity: 0.45;
+}
+
+/* the open row */
+.open > .rowIn {
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-l);
+  padding: 14px 14px 6px;
+  margin: 6px -12px;
+}
+
+.row + .open > .rowIn {
+  border-top: 1px solid var(--line-2);
+}
+
+.open + .row > .rowIn {
+  border-top: 0;
+}
+
+.edit {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.catWrap {
+  display: grid;
+  gap: 6px;
+}
+
+/* the field's own label is for screen readers: the placeholder is what is seen */
+.note > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  margin: 0 -14px;
+  padding: 0 14px;
+}
+
+.links button {
+  height: 48px;
+  font-weight: 700;
+  font-size: var(--fs-m);
+  color: var(--petrol);
+}
+
+.links button + button {
+  color: var(--ink-2);
+}
+
+/* a message tied to one line */
+.lineMsg {
+  margin: 10px 0 0 58px;
+}
+
+.busy .rowHead {
+  opacity: 0.7;
+}
+
+.busy .storeOpen {
+  pointer-events: none;
+}
+
+.leaving {
+  animation: rowOut var(--dur-leave) ease-in forwards;
+}
+
+.leaving > .rowIn {
+  overflow: hidden;
+  animation: padOut var(--dur-leave) ease-in forwards;
+}
+
+@keyframes rowOut {
+  to {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+
+@keyframes padOut {
+  to {
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top-width: 0;
+  }
+}
+
+/* "need a look" */
+.look {
+  background: var(--lemon-soft);
+  border-radius: var(--r-xl);
+  padding: 16px 18px 4px;
+  margin-top: 22px;
+}
+
+.look .row + .row > .rowIn {
+  border-top-color: var(--lemon-line);
+}
+
+.look .rowHead {
+  align-items: start;
+}
+
+.flag {
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 50%;
+  background: var(--lemon);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.flagAlert {
+  background: var(--alert-soft);
+  color: var(--alert);
+  box-shadow: inset 0 0 0 1.5px var(--alert-line);
+}
+
+.why {
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.amtBad {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: var(--r-s);
+  background: var(--alert-soft);
+  box-shadow: inset 0 0 0 1px var(--alert-line);
+  color: var(--alert);
+  font-size: var(--fs-m);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.act {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 0 58px;
+}
+
+/* accept bar */
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-bar);
+  display: grid;
+  gap: 10px;
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  background: var(--ground);
+  border-top: 1px solid var(--line);
+}
+
+.acceptAll {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--petrol);
+  color: var(--on-petrol);
+  font-weight: 800;
+  font-size: var(--fs-amt);
+}
+
+.acceptAll[aria-disabled="true"] {
+  cursor: progress;
+}
+
+@media (min-width: 960px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    column-gap: 56px;
+    padding: 12px 40px 0;
+  }
+
+  .withBar {
+    padding-bottom: 0;
+  }
+
+  .head {
+    margin-top: 30px;
+  }
+
+  .head h1 {
+    font-size: var(--fs-h1-wide);
+  }
+
+  .head p {
+    font-size: var(--fs-b);
+  }
+
+  .rowIn {
+    padding: 15px 0;
+  }
+
+  .store {
+    font-size: var(--fs-amt);
+  }
+
+  .open > .rowIn {
+    margin: 6px -18px;
+    padding: 16px 18px 6px;
+  }
+
+  .edit {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .cropSlot {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .note {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .catWrap {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .edit .links {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 0 -18px;
+    padding: 0 18px;
+  }
+
+  .look {
+    padding: 18px 24px 4px;
+  }
+
+  .bar {
+    position: sticky;
+    left: auto;
+    right: auto;
+    margin-top: 10px;
+    padding: 30px 0 22px;
+    background: linear-gradient(to top, var(--ground) 64%, transparent);
+    border: 0;
+  }
+
+  .acceptAll {
+    height: 60px;
+    border-radius: 20px;
+    font-size: var(--fs-l);
+    box-shadow: var(--shadow-cta);
+  }
+}

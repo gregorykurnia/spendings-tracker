@@ -28,6 +28,8 @@ const PATHS = {
   ),
   repeat: <path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5" />,
   in: <path d="M17 7L7 17M7 9v8h8" />,
+  // Money moving between the owner's own accounts: two opposite arrows. Provisional, see gap G5.
+  transfer: <path d="M4 8h13M14 5l3 3-3 3M20 16H7M10 13l-3 3 3 3" />,
   alert: (
     <>
       <path d="M12 4.2l9 15.6H3z" />

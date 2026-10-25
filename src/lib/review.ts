@@ -140,12 +140,17 @@ export function isRepeat(line: Pick<Line, "amount" | "store" | "date" | "directi
   );
 }
 
-/** Lines keep the order they arrived in: `createdAt`, then `seq` within one screenshot. */
+/** The order lines arrived in: `createdAt`, then `seq` within one screenshot. */
+export function arrivalOrder(
+  a: Pick<Transaction, "createdAt" | "seq">,
+  b: Pick<Transaction, "createdAt" | "seq">
+) {
+  return (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0) || (a.seq ?? 0) - (b.seq ?? 0);
+}
+
+/** Lines keep the order they arrived in. */
 export function sortWaiting<T extends Pick<Transaction, "createdAt" | "seq">>(lines: readonly T[]): T[] {
-  return [...lines].sort(
-    (a, b) =>
-      (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0) || (a.seq ?? 0) - (b.seq ?? 0)
-  );
+  return [...lines].sort(arrivalOrder);
 }
 
 export type WaitingGroups<T> = {
