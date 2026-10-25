@@ -38,7 +38,7 @@ global.scrollTo = function () {};
 global.addEventListener = function () {};
 ['app', 'overlays', 'toast', 'live', 'picker'].forEach(function (i) { doc.getElementById(i); });
 
-['icons', 'data', 'ui', 'capture', 'spending', 'app'].forEach(function (f) {
+['icons', 'data', 'ui', 'capture', 'spending', 'find', 'app'].forEach(function (f) {
   vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), {filename: f + '.js'});
 });
 var D = window.Daybook;
@@ -367,9 +367,6 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   await sleep(800);
   ok(tx0.amount === amt1, 'the amount was corrected');
   ok(D.summary('month', D.S.today).total === 6842350 - (amt0 - amt1), 'the totals follow the correction');
-  D.route = 'transactions'; D.params = {};
-  ok(/designed in a later session/.test(text(D.screens.transactions.render())), 'the unfiltered list is still group 3');
-  D.route = 'spending';
 
   console.log('Stress data');
   D.stress = true;
@@ -384,6 +381,195 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   validate(app(), 'stress all categories');
   D.params = {cat: 'none', from: '2026-09-01', to: '2026-10-25', label: 'x', back: 'spending'}; D.route = 'transactions';
   validate(D.screens.transactions.render(), 'stress list');
+  D.stress = false;
+
+  /* ---------- group 3: find and fix ---------- */
+  function page() { return D.screens.transactions.render(); }
+  function rowsOf(h) { return (h.match(/data-act="open-tx" data-id="(t\d+)"/g) || []).map(function (m) { return m.match(/t\d+/)[0]; }); }
+  function byId(id) { return D.S.saved.filter(function (x) { return x.id === id; })[0]; }
+
+  console.log('All transactions');
+  D.applyScenario('find-all', true);
+  var all = D.S.saved.length, ph = page();
+  validate(app(), 'find-all');
+  t = text(ph);
+  ok(D.route === 'transactions' && /All transactions/.test(t), 'opens All transactions');
+  ok(new RegExp(all + ' spends').test(t), 'count of everything');
+  var ids = rowsOf(ph);
+  ok(ids.length === 60, 'first 60 rows, then "Show more"');
+  ok(/Show 60 more/.test(t), 'show more');
+  var ds = ids.map(function (i) { return byId(i).date; });
+  ok(ds.every(function (d, i) { return i === 0 || ds[i - 1] >= d; }), 'newest first');
+  var r0 = byId(ids[0]);
+  ok(new RegExp(D.catById(r0.cat).name.replace('&', '&amp;') + '|' + D.catById(r0.cat).name).test(ph.replace(/&amp;/g, '&')), 'a row names its category');
+  ok(/class="cat-em" style="background:#[0-9A-F]{6}" aria-hidden="true">[^<]+<\/span><span class="tx-main">/.test(ph), 'a row carries the category emoji on its colour');
+  ok(/From a screenshot/.test(ph) && /Typed in/.test(ph), 'a row says whether it was imported (F5)');
+  D.acts['f-more']();
+  ok(rowsOf(page()).length === 120, 'show more adds 60');
+
+  console.log('Search (F1)');
+  D.applyScenario('find-search', true);
+  ph = page(); t = text(ph);
+  var want = D.S.saved.filter(function (x) { return (x.store + ' ' + (x.note || '')).toLowerCase().indexOf('kopi') >= 0; });
+  ok(want.length > 3 && rowsOf(ph).length === Math.min(60, want.length), 'every spend with "kopi" in its store or note: ' + want.length);
+  ok(/<mark>/i.test(ph) && /<mark>kopi<\/mark>|<mark>KOPI<\/mark>/i.test(ph), 'matches are highlighted');
+  D.ins.fq({value: 'kopi coffee'});
+  var two = D.S.saved.filter(function (x) { var h = (x.store + ' ' + (x.note || '')).toLowerCase(); return h.indexOf('kopi') >= 0 && h.indexOf('coffee') >= 0; });
+  ok(rowsOf(page()).length === two.length, 'two words: both must match (' + two.length + ')');
+  D.ins.fq({value: 'KoPi'});
+  ok(rowsOf(page()).length === Math.min(60, want.length), 'case does not matter');
+  D.ins.fq({value: '(*['});
+  ok(/No spends match/.test(text(page())), 'odd characters do not break the search');
+  ok(!/<mark>/.test(page()), 'no highlights without a match');
+
+  console.log('Filters (F2) and clearing (F3)');
+  D.applyScenario('find-all', true);
+  var f = D.find();
+  f.cats = ['food'];
+  var manual = function (fn) { return D.S.saved.filter(fn).length; };
+  var cntText = function () { var m = text(page()).match(/(\d+) spends?/); return m ? +m[1] : -1; };
+  ok(cntText() === manual(function (x) { return x.cat === 'food'; }), 'one category');
+  f.cats = ['food', 'groceries'];
+  ok(cntText() === manual(function (x) { return x.cat === 'food' || x.cat === 'groceries'; }), 'two categories (or)');
+  f.date = {kind: 'custom', anchor: D.S.today, from: '2026-10-01', to: '2026-10-25', label: ''};
+  ok(cntText() === manual(function (x) { return (x.cat === 'food' || x.cat === 'groceries') && x.date >= '2026-10-01' && x.date <= '2026-10-25'; }), 'plus a date range');
+  f.min = 50000; f.max = 150000;
+  ok(cntText() === manual(function (x) { return (x.cat === 'food' || x.cat === 'groceries') && x.date >= '2026-10-01' && x.date <= '2026-10-25' && x.amount >= 50000 && x.amount <= 150000; }), 'plus an amount range');
+  f.src = 'hand';
+  ok(cntText() === manual(function (x) { return (x.cat === 'food' || x.cat === 'groceries') && x.date >= '2026-10-01' && x.date <= '2026-10-25' && x.amount >= 50000 && x.amount <= 150000 && x.src === 'hand'; }), 'plus the source');
+  t = text(page());
+  ok((page().match(/data-act="unfilter"/g) || []).length === 4, 'four filters, four chips');
+  ok(/Food &amp; Drink, Groceries|Food & Drink, Groceries/.test(page()) || /Food & Drink, Groceries/.test(t), 'a chip names the categories');
+  ok(/1 to 25 Oct 2026/.test(t) && /Rp 50\.000 to Rp 150\.000/.test(t) && /Typed in/.test(t), 'chips for the dates, the amounts and the source');
+  ok(/data-key="f-clear"/.test(page()), 'one button clears them all');
+  D.acts.unfilter({dataset: {k: 'amt'}});
+  ok(f.min == null && f.max == null && (page().match(/data-act="unfilter"/g) || []).length === 3, 'removing one chip leaves the others');
+  D.acts['f-clear']({getAttribute: function () { return null; }});
+  ok(!f.cats.length && f.date.kind === 'all' && f.src === 'any' && !/data-act="unfilter"/.test(page()), 'clear all');
+  ok(cntText() === all, 'everything is back');
+  ok(/id="f-badge" hidden/.test(page()), 'no filters, no badge');
+
+  console.log('Order (F4)');
+  f.sort = 'amt-desc';
+  var am = rowsOf(page()).map(function (i) { return byId(i).amount; });
+  ok(am.every(function (a, i) { return i === 0 || am[i - 1] >= a; }) && am[0] === Math.max.apply(null, D.S.saved.map(function (x) { return x.amount; })), 'highest amount first');
+  f.sort = 'amt-asc';
+  am = rowsOf(page()).map(function (i) { return byId(i).amount; });
+  ok(am.every(function (a, i) { return i === 0 || am[i - 1] <= a; }), 'lowest amount first');
+  f.sort = 'date-asc';
+  ds = rowsOf(page()).map(function (i) { return byId(i).date; });
+  ok(ds.every(function (d, i) { return i === 0 || ds[i - 1] <= d; }), 'oldest first');
+  f.sort = 'date-desc';
+
+  console.log('No results');
+  D.applyScenario('find-none', true);
+  t = text(page());
+  validate(app(), 'find-none');
+  ok(/0 spends/.test(t) && /No spends match/.test(t) && /Nothing for “zzz” with 1 filter on/.test(t), 'says what it was looking for');
+  ok(/Clear search and filters/.test(t), 'one way out');
+  D.acts['f-clear-all']();
+  ok(D.find().q === '' && D.find().cats.length === 0 && cntText() === all, 'clear search and filters');
+
+  console.log('Filters sheet');
+  D.applyScenario('find-sheet', true);
+  var sheet = D.overlay.top().cfg.render();
+  validate('<div>' + sheet + '</div>', 'filters sheet');
+  ok(D.overlay.top().cfg.key === 'filters', 'sheet open');
+  ok(/Dates/.test(text(sheet)) && /Categories/.test(text(sheet)) && /Amount/.test(text(sheet)) && /Source/.test(text(sheet)), 'four groups');
+  ok((sheet.match(/data-act="f-cat"/g) || []).length === 16, 'all sixteen categories to pick from');
+  ok(/aria-pressed="true"[^>]*data-act="f-cat" data-cat="food"/.test(sheet), 'chosen categories are pressed');
+  ok(/19 to 25 Oct 2026/.test(text(sheet)), 'a week is chosen by its Monday-to-Sunday range');
+  var nShown = (text(sheet).match(/Show (\d+) spends?/) || [])[1];
+  ok(+nShown === results_count(), 'the button says how many it will show: ' + nShown);
+  function results_count() { var f2 = D.find(); return D.S.saved.filter(function (x) { var r = {from: '2026-10-19', to: '2026-10-25'}; return (f2.cats.indexOf(x.cat) >= 0) && x.date >= r.from && x.date <= r.to; }).length; }
+  D.acts['f-step']({getAttribute: function () { return null; }, dataset: {d: '-1'}});
+  ok(/12 to 18 Oct 2026/.test(text(D.overlay.top().cfg.render())), 'earlier week');
+  D.acts['f-kind']({dataset: {k: 'month'}});
+  ok(/October 2026/.test(text(D.overlay.top().cfg.render())), 'a month');
+  D.acts['f-kind']({dataset: {k: 'day'}});
+  ok(/Sun 18 Oct 2026/.test(text(D.overlay.top().cfg.render())), 'a day (the Sunday we were on)');
+  D.acts['f-kind']({dataset: {k: 'custom'}});
+  ok(D.find().date.kind === 'custom' && D.find().date.from === D.find().date.to, 'custom starts from the day you were on');
+  D.ins.ffrom({value: '2026-10-20'}); D.ins.fto({value: '2026-10-10'});
+  ok(/The end is before the start/.test(text(D.overlay.top().cfg.render())) && /No spends match/.test(text(D.overlay.top().cfg.render())), 'a backwards range says so and finds nothing');
+  D.acts['f-kind']({dataset: {k: 'all'}});
+  D.acts['f-cat']({dataset: {cat: 'food'}}); D.acts['f-cat']({dataset: {cat: 'groceries'}});
+  ok(D.find().cats.length === 0, 'tapping a chosen category again turns it off');
+  var minEl = {value: '1500000'}; D.ins.fmin(minEl);
+  ok(minEl.value === '1.500.000' && D.find().min === 1500000, 'amount fields format as you type');
+  D.acts['f-src']({dataset: {s: 'hand'}});
+  ok(D.find().src === 'hand', 'source');
+  D.acts['f-show']({getAttribute: function () { return 'false'; }});
+  ok(!D.overlay.top(), 'Show closes the sheet');
+  ok(/data-act="unfilter"/.test(page()), 'the filters now show as chips');
+
+  console.log('Missing category');
+  D.applyScenario('find-missing', true);
+  ph = page(); t = text(ph);
+  validate(app(), 'find-missing');
+  ok(/No category/.test(t) && (ph.match(/class="fx-none"/g) || []).length === 4, 'rows without a category say so, in the alert colour');
+  var missingId = rowsOf(ph)[0];
+  D.acts['open-tx']({dataset: {id: missingId}});
+  var fh = formHtml(); t = text(fh);
+  ok(/That category was removed\. Choose another\./.test(t) && !/id="e-cat"[^>]* hidden/.test(fh), 'the form says the category was removed');
+  ok(!/class="chip on"|class="chip opt4 on"/.test(fh), 'no category looks chosen');
+  ok(/id="f-primary"[^>]*aria-disabled="true"/.test(fh), 'cannot save until one is chosen');
+  D.form.data.cat = 'food';
+  D.acts['form-submit']();
+  await sleep(800);
+  ok(D.S.saved.filter(function (x) { return x.id === missingId; })[0].cat === 'food', 'saved with a new category');
+  ok(rowsOf(page()).indexOf(missingId) < 0 && rowsOf(page()).length === 3, 'it leaves the "No category" list');
+  ok(D.find().cats.indexOf('none') >= 0, 'No category stays on as a filter until cleared');
+
+  console.log('Delete (F7)');
+  D.applyScenario('find-form', true);
+  fh = formHtml(); t = text(fh);
+  ok(/Added from a screenshot/.test(t) && /Delete this spend/.test(t), 'the form says where it came from and offers delete');
+  var delId = D.form.id, delTx = byId(delId), before = D.S.saved.length, octBefore = D.summary('month', D.S.today).total;
+  D.acts['tx-delete']();
+  ok(D.overlay.top().cfg.key === 'confirm', 'one confirmation');
+  var ch = D.overlay.top().cfg.render(); t = text(ch);
+  validate('<div>' + ch + '</div>', 'confirm');
+  ok(/Delete this spend\?/.test(t) && t.indexOf(delTx.store) >= 0 && /stops counting in your totals/.test(t), 'it shows what will go');
+  ok(/data-autofocus>Cancel|data-autofocus/.test(ch.split('del-cancel')[0] + ch.split('del-cancel')[1]), 'focus starts on the safe button');
+  D.acts['ov-close']();
+  ok(D.overlay.top().cfg.key === 'form' && D.S.saved.length === before, 'cancel keeps it');
+  D.acts['tx-delete']();
+  D.acts['tx-delete-yes']();
+  ok(D.del.busy && /Deleting…/.test(text(D.overlay.top().cfg.render())), 'deleting in progress');
+  D.acts['ov-close']();
+  ok(D.overlay.top() && D.overlay.top().cfg.key === 'confirm', 'cannot back out while it is being deleted');
+  await sleep(900);
+  ok(D.S.saved.length === before - 1 && !byId(delId), 'gone for good');
+  ok(!D.overlay.top() && D.del === null && D.form === null, 'both sheets closed');
+  ok(D.summary('month', D.S.today).total === octBefore - (delTx.date >= '2026-10-01' ? delTx.amount : 0), 'the totals no longer count it');
+  ok(rowsOf(page()).indexOf(delId) < 0, 'and the list no longer shows it');
+  D.applyScenario('find-deleting', true);
+  ok(D.del.busy && /Deleting…/.test(text(D.overlay.top().cfg.render())), 'the deleting state can be shown on its own');
+  D.overlay.closeAll();
+
+  console.log('Arriving at All transactions');
+  D.applyScenario('spend-category', true);
+  ph = page(); t = text(ph);
+  ok(/Food & Drink/.test(t) && /October so far/.test(t), 'from Spending: the category and the period are already on');
+  ok(D.find().cats.join() === 'food' && D.find().date.from === '2026-10-01', 'as filters, not as a different screen');
+  ok(/href="#\/spending"[^>]*>[^<]*<svg[^>]*>.*Spending/.test(app().replace(/\n/g, '')) || /Spending<\/a>/.test(app()), 'back goes to Spending');
+  D.params = {focus: 'search'}; D._searchFocused = false;
+  D.screens.transactions.render(); D.screens.transactions.after();
+  ok(D._searchFocused === true, 'the search icon puts the cursor in the search box');
+  D.params = {}; D.route = 'transactions';
+  ok(D.find().cats.length === 0 && D.find().date.kind === 'all', 'from a menu it starts with nothing filtered');
+  D.params = {};
+
+  console.log('Stress data on the list');
+  D.stress = true;
+  D.applyScenario('find-all', true);
+  validate(app(), 'stress find-all');
+  ok(/No category/.test(page()), 'stress: rows with a missing category show it');
+  D.applyScenario('find-search', true);
+  D.ins.fq({value: 'INDOMARET*POINT'});
+  validate(app(), 'stress search');
+  ok(/<mark>INDOMARET\*POINT<\/mark>/.test(page()), 'a long name with no spaces is found and highlighted');
   D.stress = false;
 
   /* money formatting */

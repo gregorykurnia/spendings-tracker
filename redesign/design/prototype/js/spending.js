@@ -92,9 +92,13 @@
       '<span class="g-cmp">' + esc(m.cmp.short) + '</span></a>';
   };
 
+  /* shared with All transactions */
+  D.dt = {mondayOf: mondayOf, monthStart: monthStart, monthEnd: monthEnd, addMonths: addMonths, rangeLabel: rangeLabel};
+
   /* ---------- the numbers behind the screen ---------- */
   function catOrMissing(id) { return D.catById(id) || {id: 'none', name: 'No category', emoji: '❔', sw: 'slate'}; }
   function txCat(t) { return D.catById(t.cat) ? t.cat : 'none'; }
+  D.catOrMissing = catOrMissing; D.txCat = txCat;
 
   D.spend = function () {
     var s = S();
@@ -127,17 +131,17 @@
   /* ---------- pieces ---------- */
   D.subBarHtml = function (href, label) {
     return '<header class="bar"><a class="back" href="' + href + '">' + icon('left') + esc(label) + '</a><div class="tools">' +
-      '<a class="icon-btn" href="#/transactions" aria-label="Search">' + icon('search') + '</a>' +
+      '<a class="icon-btn" href="#/transactions?focus=search" aria-label="Search">' + icon('search') + '</a>' +
       '<button class="icon-btn" type="button" data-act="menu" data-key="menu-btn" aria-label="Menu">' + icon('menu') + '</button></div></header>';
   };
 
-  function txLine(t, mode) {
+  /* a row in "Biggest spends": store, date and category, amount (All transactions has its own, fuller row) */
+  function txLine(t) {
     var c = catOrMissing(t.cat), sw = D.SWATCHES[c.sw] || D.SWATCHES.slate;
-    var sub = mode === 'big' ? D.dshort(t.date) + ' · ' + c.name : (t.note ? esc(t.note) : '');
     return '<li><button type="button" class="tx-line" data-act="open-tx" data-id="' + t.id + '" data-key="tx-' + t.id + '">' +
       '<span class="cat-em" style="background:' + sw[0] + '" aria-hidden="true">' + c.emoji + '</span>' +
-      '<span class="tx-main"><span class="tx-store">' + esc(t.store) + '</span>' + (sub ? '<span class="tx-sub">' + (mode === 'big' ? esc(sub) : sub) + '</span>' : '') + '</span>' +
-      '<span class="tx-side"><b>' + rp(t.amount) + '</b>' + (mode === 'big' ? '' : '<small>' + D.dshort(t.date) + '</small>') + '</span></button></li>';
+      '<span class="tx-main"><span class="tx-store">' + esc(t.store) + '</span><span class="tx-sub">' + esc(D.dshort(t.date) + ' · ' + c.name) + '</span></span>' +
+      '<span class="tx-side"><b>' + rp(t.amount) + '</b></span></button></li>';
   }
 
   function readoutMain(agg, i) {
@@ -181,7 +185,7 @@
     return '<section class="sec sec-cats" aria-labelledby="s-cat"><h2 id="s-cat">Where it went</h2><p class="sec-hint">Tap one to see its spends.</p><ul class="cats">' + lines + '</ul>' + toggle + '</section>';
   }
   function bigHtml(agg) {
-    return '<section class="sec sec-big" aria-labelledby="s-big"><h2 id="s-big">Biggest spends</h2><ul class="tx-list">' + agg.biggest.map(function (t) { return txLine(t, 'big'); }).join('') + '</ul></section>';
+    return '<section class="sec sec-big" aria-labelledby="s-big"><h2 id="s-big">Biggest spends</h2><ul class="tx-list">' + agg.biggest.map(txLine).join('') + '</ul></section>';
   }
 
   function heroHtml(m, p, today) {
@@ -285,27 +289,6 @@
 
   /* U8, and rows of the list below: open a saved spend to check or correct it */
   D.acts['open-tx'] = function (el) { D.openForm('edit-saved', {id: el.dataset.id}); };
-
-  /* ---------- U7: one category's spends in a period (group 3 grows this into All transactions) ---------- */
-  D.acts['tx-more'] = function () { S().txLimit = (S().txLimit || 60) + 60; D.render(); };
-  D.screens.transactions = {
-    render: function () {
-      var q = D.params || {}, s = S();
-      if (!q.cat && !q.from) return D.stubHtml('All transactions');
-      var list = s.saved.filter(function (t) {
-        return (!q.cat || txCat(t) === q.cat) && (!q.from || t.date >= q.from) && (!q.to || t.date <= q.to);
-      }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
-      var cat = catOrMissing(q.cat), sw = D.SWATCHES[cat.sw] || D.SWATCHES.slate;
-      var total = sum(list, function (t) { return t.amount; }), limit = s.txLimit || 60;
-      var head = '<div class="tx-head"><span class="cat-em big" style="background:' + sw[0] + '" aria-hidden="true">' + cat.emoji + '</span><div><h1>' + esc(cat.name) + '</h1>' +
-        '<p>' + esc(q.label || '') + (q.label ? ' · ' : '') + plural(list.length, 'spend', 'spends') + ' · ' + rp(total) + '</p></div></div>';
-      var body = list.length
-        ? '<ul class="tx-list">' + list.slice(0, limit).map(function (t) { return txLine(t, 'list'); }).join('') + '</ul>' +
-          (list.length > limit ? '<button type="button" class="btn quiet more-btn" data-act="tx-more" data-key="tx-more">Show ' + Math.min(60, list.length - limit) + ' more</button>' : '')
-        : '<div class="empty"><span class="empty-mark">' + icon('list') + '</span><p><b>Nothing left here.</b></p><p>No spends in this category for these dates.</p><div class="empty-act"><a class="btn" href="#/spending">Back to spending</a></div></div>';
-      return D.subBarHtml('#/' + (q.back || ''), q.back === 'spending' ? 'Spending' : 'Home') + '<main id="main" class="txp" tabindex="-1">' + head + body + '</main>';
-    }
-  };
 
   /* ---------- states for review ---------- */
   function spend(mode, anchor, extra) {

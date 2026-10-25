@@ -84,7 +84,7 @@
   /* ---------- pieces of the home screen ---------- */
   D.barHtml = function () {
     return '<header class="bar"><a class="brand" href="#/">' + D.logo + 'Daybook</a><div class="tools">' +
-      '<a class="icon-btn" href="#/transactions" aria-label="Search">' + icon('search') + '</a>' +
+      '<a class="icon-btn" href="#/transactions?focus=search" aria-label="Search">' + icon('search') + '</a>' +
       '<button class="icon-btn" type="button" data-act="menu" data-key="menu-btn" aria-label="Menu">' + icon('menu') + '</button>' +
       '</div></header>';
   };
@@ -273,7 +273,7 @@
       var w = find(id);
       s.ui.accepting.delete(id); s.ui.leaving.delete(id);
       if (!w) return;
-      s.saved.push({id: 't' + (++s.seq), date: w.date, store: w.store.trim(), amount: w.amount, cat: w.cat, note: (w.note || '').trim(), src: 'shot'});
+      s.saved.push({id: 't' + (++s.seq), date: w.date, store: w.store.trim(), amount: w.amount, cat: w.cat, note: (w.note || '').trim(), src: 'shot', n: 1000 + s.seq});
       s.waiting = s.waiting.filter(function (x) { return x.id !== id; });
       if (s.ui.openId === id) s.ui.openId = null;
       total += w.amount; count++;
@@ -424,6 +424,7 @@
     if (!String(d.store || '').trim()) e.store = 'Add the store name.';
     if (!(d.amount > 0)) e.amount = f && f.unread && d.amount == null ? "Couldn't read this amount. Check the screenshot and type it in." : 'Enter an amount above Rp 0.';
     if (!d.cat) e.cat = 'Choose a category.';
+    else if (!D.catById(d.cat)) e.cat = 'That category was removed. Choose another.';
     if (!d.date) e.date = 'Choose a date.';
     return e;
   };
@@ -435,13 +436,14 @@
 
   D.openForm = function (mode, opts) {
     opts = opts || {};
-    var s = S(), data, id = null, unread = false;
+    var s = S(), data, id = null, unread = false, src = null;
     if (mode === 'edit-waiting') { data = find(opts.id); id = data.id; unread = !(data.amount > 0); }
     else if (mode === 'edit-saved') {
       var t = s.saved.filter(function (x) { return x.id === opts.id; })[0];
-      id = t.id; data = {store: t.store, amount: t.amount, date: t.date, cat: t.cat, note: t.note || ''};
+      id = t.id; data = {store: t.store, amount: t.amount, date: t.date, cat: t.cat, note: t.note || ''}; src = t.src;
     } else data = {store: '', amount: null, date: s.today, cat: null, note: ''};
-    var f = D.form = {mode: mode, id: id, data: data, touched: {}, attempted: !!opts.attempted, saving: !!opts.saving, focus: opts.focus || (mode === 'add' ? 'store' : null), unread: unread};
+    var f = D.form = {mode: mode, id: id, data: data, touched: {}, attempted: !!opts.attempted, saving: !!opts.saving, focus: opts.focus || (mode === 'add' ? 'store' : null), unread: unread, src: src};
+    if (mode === 'edit-saved' && data.cat && !D.catById(data.cat)) f.touched.cat = true;   // show why the category needs choosing
     var label = mode === 'add' ? 'Type in a spend' : mode === 'edit-waiting' ? 'Edit details' : 'Change spend';
     D.overlay.open({key: 'form', label: label, cls: 'form', render: function () { return formHtml(f); },
       onClose: function () { D.form = null; D.render(); }});
@@ -464,6 +466,7 @@
 
     var body = '';
     if (wait) body += '<p class="f-note">Changes are kept as you go.</p>' + crop(d);
+    if (f.mode === 'edit-saved' && f.src) body += '<p class="f-note">' + icon(f.src === 'hand' ? 'pencil' : 'image', 18) + (f.src === 'hand' ? 'Typed in by hand' : 'Added from a screenshot') + '</p>';
     body += '<div class="field"><label for="f-store">Store</label><input class="input" id="f-store" type="text" data-in="f-store" data-key="f-store" value="' + esc(d.store) + '" maxlength="80" autocomplete="off" aria-describedby="e-store"' + bad('store') + ro + af('store') + '>' + fieldErr(f, inv, 'store') + '</div>';
     body += '<div class="two"><div class="field"><label for="f-amount">Amount</label><div class="amount-box"><span class="rp" aria-hidden="true">Rp</span><input class="input" id="f-amount" type="text" inputmode="numeric" data-in="f-amount" data-key="f-amount" value="' + (d.amount > 0 ? D.dots(d.amount) : '') + '" placeholder="0" autocomplete="off" aria-describedby="e-amount"' + bad('amount') + ro + af('amount') + '></div>' + fieldErr(f, inv, 'amount') + '</div>';
     body += '<div class="field"><span class="field-label" id="l-date">Date</span><div class="date-box" id="date-box"' + bad('date') + '><span id="date-text">' + (d.date ? esc(D.dlong(d.date)) : 'Choose a date') + '</span>' + icon('calendar') +
@@ -471,6 +474,8 @@
     body += '<div class="field"><span class="field-label" id="l-cat">Category</span>' + (wait && d.suggested ? '<p class="hint">Suggested from the store name</p>' : '') +
       catChips(d.cat, {set: 'form-cat', more: 'form-cat-more', key: 'form'}) + fieldErr(f, inv, 'cat') + '</div>';
     body += '<div class="field"><label for="f-note">Note <span class="hint">(optional)</span></label><input class="input" id="f-note" type="text" data-in="f-note" data-key="f-note" value="' + esc(d.note) + '" placeholder="What did you buy?" maxlength="120" autocomplete="off"' + ro + '></div>';
+
+    if (f.mode === 'edit-saved' && !busy) body += '<div class="del-zone"><button type="button" class="btn danger-o" data-act="tx-delete" data-key="f-delete">' + icon('trash') + 'Delete this spend</button></div>';
 
     var foot = '<p class="f-sum" id="f-sum"' + (keys.length ? '' : ' hidden') + '>Still needed: ' + names(keys) + '.</p>' +
       '<div class="foot-row"><button type="button" class="btn big" data-act="ov-close" data-key="f-cancel"' + (busy ? ' aria-disabled="true"' : '') + '>' + secondary + '</button>' +
@@ -541,7 +546,7 @@
     var s = S(), d = f.data;
     f.saving = false;
     if (f.mode === 'add') {
-      s.saved.push({id: 't' + (++s.seq), date: d.date, store: d.store.trim(), amount: d.amount, cat: d.cat, note: (d.note || '').trim(), src: 'hand'});
+      s.saved.push({id: 't' + (++s.seq), date: d.date, store: d.store.trim(), amount: d.amount, cat: d.cat, note: (d.note || '').trim(), src: 'hand', n: 1000 + s.seq});
       D.overlay.close();
       D.toast('Added ' + d.store.trim() + ', ' + rp(d.amount) + '.');
     } else if (f.mode === 'edit-saved') {

@@ -55,7 +55,7 @@
       el.className = 'ov';
       el.dataset.ov = cfg.key;
       el.innerHTML = '<div class="scrim" data-act="ov-close"></div>' +
-        '<div class="panel ' + (cfg.cls || '') + '" role="dialog" aria-modal="true" aria-label="' + D.esc(cfg.label) + '" tabindex="-1">' + cfg.render() + '</div>';
+        '<div class="panel ' + (cfg.cls || '') + '" role="' + (cfg.role || 'dialog') + '" aria-modal="true" aria-label="' + D.esc(cfg.label) + '" tabindex="-1">' + cfg.render() + '</div>';
       document.getElementById('overlays').appendChild(el);
       stack.forEach(function (s) { s.el.inert = true; });
       document.getElementById('app').inert = true;

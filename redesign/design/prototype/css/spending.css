@@ -5,7 +5,7 @@
 
 /* phone: one column in the order hero, categories, days, biggest */
 .sp{display:flex;flex-direction:column;max-width:1120px;margin:0 auto;padding:6px 20px 56px}
-.sp:focus,.txp:focus{outline:0}
+.sp:focus{outline:0}
 .sp-left,.sp-right{display:contents}
 .hero{order:1}
 .sec-cats{order:2}
@@ -88,14 +88,6 @@
 .tx-side b{display:block;font-size:17px;font-weight:800;letter-spacing:-.01em;overflow-wrap:anywhere}
 .tx-side small{display:block;margin-top:4px;font-size:var(--fs-s);font-weight:500;color:var(--ink-2);white-space:nowrap}
 
-/* one category's spends */
-.txp{max-width:760px;margin:0 auto;padding:6px 20px 56px}
-.tx-head{display:flex;align-items:center;gap:14px;margin:14px 0 8px}
-.tx-head > div{min-width:0}
-.tx-head h1{font-size:var(--fs-h1);font-weight:800;letter-spacing:-.035em;line-height:1.1;overflow-wrap:anywhere}
-.tx-head p{margin-top:4px;font-size:var(--fs-m);font-weight:500;color:var(--ink-2)}
-.cat-em.big{width:56px;height:56px;border-radius:18px;font-size:28px;flex:none}
-
 @media (min-width:960px){
   .sp{display:grid;grid-template-columns:minmax(0,1fr) 380px;column-gap:56px;align-items:start;padding:12px 40px 64px}
   .sp-top{grid-column:1 / -1}
@@ -117,9 +109,6 @@
   .sec-cats .cats{margin-top:6px}
   .plot{height:200px;gap:4px}
   .ro-amt{font-size:30px}
-  .txp{padding:12px 40px 64px}
-  .tx-head{margin-top:22px}
-  .tx-head h1{font-size:44px}
 }
 @media (hover:hover){
   .cat-line:hover .cl-name,.tx-line:hover .tx-store{text-decoration:underline;text-underline-offset:3px}

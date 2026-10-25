@@ -70,3 +70,21 @@ Choices that follow from the approved direction; none changes the inventory.
 1. **Top five categories by default.** Default: as built. Showing all sixteen at once would make the screen longer, not clearer.
 2. **Bars are the same colour except the one you are looking at.** Default: as built; a category colour per bar would add colour without adding information.
 
+## Stage 2, group 3: find and fix (2026-10-25)
+Built on P7: tapping a row anywhere opens the same "Change spend" form. If P7 is turned down, the rows open a read-only view first.
+- **One screen, All transactions.** The list that group 2 opened from a category is now this screen with filters already on: arriving from Spending with "Food & Drink, October so far" shows those as two chips you can remove. Opening it from a menu starts with nothing filtered.
+- **Search (F1)** looks in the store and the note as you type, all words must match, capitals don't matter, and the matching letters are highlighted. It has its own clear button and is not counted as a filter.
+- **Filters (F2, F3)** are in a sheet (a dialog on desktop) and apply as you go. The main button says what you'll see ("Show 23 spends", or "No spends match"). Dates: All time, A day, A week, A month (step earlier or later, or jump to any date) or Custom (a start and an end, either can be left open). Categories: tap several. Amount: at least and at most. Source: Any, Screenshot, Typed in.
+- **Filters that are on stay visible** (F3): a number on the Filters button and one lemon chip each under the search box, each removable, plus "Clear all". Lemon because they hide things.
+- **Order (F4)** is a menu beside Filters: Newest first, Oldest first, Highest amount, Lowest amount.
+- **A row at a glance (F5):** the category's emoji on its colour, the store as the bank wrote it, "Category · note", the amount, the date, and a small icon for where it came from (picture = screenshot, pencil = typed in, each with a hidden text for screen readers). The year shows only when it isn't this year. 60 rows at a time with "Show 60 more".
+- **Change (F6)** is the shared form; it now also says "Added from a screenshot" or "Typed in by hand".
+- **Delete (F7)** is the last thing in the Change form. One question follows: "Delete this spend?" showing the store, date and amount, "It is removed for good and stops counting in your totals.", buttons "Cancel" (focused) and "Delete". While deleting it says "Deleting…" and can't be dismissed. Then a short "Deleted …" message.
+- **No results:** "No spends match." with what was asked ("Nothing for "zzz" with 1 filter on.") and one button, "Clear search and filters".
+- **Missing category:** its row shows a grey ❔ and "No category" in the alert colour; "No category" is a filter choice whenever one exists, and Spending links to it. The form says "That category was removed. Choose another." and can't be saved until one is chosen.
+
+### Questions for the owner (defaults, nothing waits)
+1. **Filters open in a sheet on desktop too.** Default: as built. A permanent panel beside the list would suit a wide screen better but is a second layout to maintain.
+2. **The source marks are icons only** (with hidden text for screen readers). Default: as built; a word next to the icon on desktop is an easy addition.
+3. **Search does not look at categories or amounts**, as asked (store or note); the filters cover those.
+

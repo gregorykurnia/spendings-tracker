@@ -37,6 +37,7 @@
     var scr = D.screens[D.route] || D.screens.home;
     app.innerHTML = '<a class="skip" href="#/" data-act="skip">Skip to the content</a>' + scr.render();
     document.body.classList.toggle('has-bar', !!app.querySelector('.actionbar'));
+    if (scr.after) scr.after();
     if (key) {
       var t = app.querySelector('[data-key="' + key + '"]');
       if (t) t.focus({preventScroll: true});
@@ -46,7 +47,7 @@
   window.addEventListener('hashchange', function () {
     D.overlay.closeAll();
     var r = D.parseHash();
-    D.route = r.route; D.params = r.params;
+    D.route = r.route; D.params = r.params; D._searchFocused = false;
     D.render();
     window.scrollTo(0, 0);
     var m = document.getElementById('main');
@@ -76,6 +77,7 @@
   D.acts['ov-close'] = function () {
     var top = D.overlay.top();
     if (top && top.cfg.key === 'form' && D.form && D.form.saving) return;
+    if (top && top.cfg.key === 'confirm' && D.del && D.del.busy) return;
     D.overlay.close();
   };
   D.acts.nav = function () { D.overlay.closeAll(); };
@@ -90,7 +92,7 @@
     s.scenario = def.id;
     /* a state names its screen; a link with its own #/screen wins at start */
     if (!(boot && location.hash.replace(/^#\/?/, '') !== '')) {
-      D.route = def.route || 'home'; D.params = def.params || {};
+      D.route = def.route || 'home'; D.params = def.params || {}; D._searchFocused = false;
       try { history.replaceState(null, '', location.pathname + location.search + hashFor(D.route, D.params)); } catch (e) {}
     }
     def.run(s);

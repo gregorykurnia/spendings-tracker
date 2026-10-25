@@ -197,7 +197,7 @@
     var aug = genRange(r, '2026-08-01', '2026-08-31', 8240000, {noSpend: ['2026-08-16']});
     var all = oct.concat(sepA, sepB, aug, stress ? stressSaved() : []);
     all.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
-    all.forEach(function (t, i) { t.id = 't' + (i + 1); });
+    all.forEach(function (t, i) { t.id = 't' + (i + 1); t.n = all.length - i; });   // n: later means added later
     return all;
   };
   D.sumRange = function (list, from, to) {

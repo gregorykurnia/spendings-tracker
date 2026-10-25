@@ -21,6 +21,8 @@
     calendar: '<rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
     image:  '<rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17.5l4.2-4.2 3 3 2.8-2.8 4 4"/>',
     dash:   '<path d="M7 12h10"/>',
+    trash:  '<path d="M5 7h14M10 7V4.5h4V7M7 7l.8 12.5h8.4L17 7M10.5 11v5M13.5 11v5"/>',
+    sliders:'<path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/>',
     lower:  '<path d="M7 7l10 10M17 8.5V17H8.5"/>',
     higher: '<path d="M7 17L17 7M8.5 7H17v8.5"/>'
   };
