@@ -20,7 +20,7 @@ Adopted when the owner said "I'll go with your rec" after the designer recommend
 - **Chosen:** B (Daybook) with C's "From the screenshot" crop in the open row, built as `directions/d-daybook-crop`.
 - **Reason:** the designer's recommendation, which the owner accepted: fewest taps for the daily job (a tick per row plus accept all), no tab bar, and the crop is the real check against a misread amount, date or name (R1). The owner has not given a reason of their own yet.
 - **Owner note:** a stray extra space in the "Add screenshots" button; fixed in B and D.
-- **Next:** one screenshot round for D (`! ./shoot redesign/design/directions/d-daybook-crop`), then the prototype.
+- **Approved:** the owner approved D on 2026-10-25. Stage 1 is closed; next is the prototype (stage 2).
 
 ## Choices made in stage 1 (for the record)
 - The mock batch is ordered so the five clean lines come first in A and B; C keeps the bank's own order.
