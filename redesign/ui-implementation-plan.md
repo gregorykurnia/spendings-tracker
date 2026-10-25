@@ -124,7 +124,7 @@ Fresh session. Review the phase diff against the design notes and the prototype;
 | 2.4 | Spending; `e2e/spending.spec.ts` | Sonnet 5.5 xHigh | chart and number layout | 2026-10-25, spending |
 | 2.5 | All transactions; `e2e/transactions.spec.ts` | Sonnet 5.5 High | filters, edit and delete | 2026-10-25, all transactions |
 | 2.6 | Categories; `e2e/categories.spec.ts` | Sonnet 5.5 High | reorder, move-and-delete | 2026-10-25, categories |
-| 2.7 | Phase 2 end-to-end: `e2e/journey.spec.ts` across screens and offline | Sonnet 5.5 High | the screens together |  |
+| 2.7 | Phase 2 end-to-end: `e2e/journey.spec.ts` across screens and offline | Sonnet 5.5 High | the screens together | 2026-10-25, journey spec |
 | R2 | Phase 2 review | Opus 5.5 High | phase review rule |  |
 
 ### 2.1 The spend form and category picker
