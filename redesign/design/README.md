@@ -9,4 +9,5 @@ Inputs: `redesign/handoff/` (priorities and brief both FILLED).
 - `b-daybook` one home with grouped rows, no tab bar.
 - `c-tick` screenshot beside the result, bottom bar and rail.
 - Owner chose B with C's screenshot crop: `d-daybook-crop` (the one mix round). P1 to P4 adopted. Both in `decisions.md`.
-- Next: owner looks at `d-daybook-crop` (live page or `! ./shoot redesign/design/directions/d-daybook-crop`). If it is approved, stage 2: the prototype, one group of jobs at a time.
+- Mix round done (`d-daybook-crop`, screenshots taken). After the shot, one desktop fix (crop column widened so the store name doesn't wrap), checked by measurement only.
+- Next: owner approves D. Then stage 2 in a new session started with `./start`: the prototype in `redesign/design/prototype/`, one group of jobs at a time (capture and review first).
