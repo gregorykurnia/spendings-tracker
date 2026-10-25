@@ -14,6 +14,8 @@ export default defineConfig({
   use: {
     baseURL: `http://127.0.0.1:${APP_PORT}`,
     trace: "retain-on-failure",
+    // The service worker stays off except in the spec that tests it (e2e/installable.spec.ts).
+    serviceWorkers: "block",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

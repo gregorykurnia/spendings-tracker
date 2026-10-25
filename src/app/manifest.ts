@@ -1,17 +1,21 @@
 import type { MetadataRoute } from "next";
 
+// The prototype's manifest (`redesign/design/prototype/manifest.webmanifest`); `#FFFCEE` is the page colour.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Spending Tracker",
-    short_name: "Spending",
-    description: "Personal spending tracker for BCA transactions",
+    name: "Daybook",
+    short_name: "Daybook",
+    description: "Check your spending, quickly.",
     start_url: "/",
+    scope: "/",
     display: "standalone",
-    background_color: "#f8fafc",
-    theme_color: "#10b981",
+    orientation: "portrait",
+    background_color: "#FFFCEE",
+    theme_color: "#FFFCEE",
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk } from "next/font/google";
 import AppShell from "@/components/app/app-shell";
-import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import ServiceWorkerRegister from "@/components/app/service-worker-register";
 import "@/styles/tokens.css";
 import "./globals.css";
 
@@ -24,7 +24,6 @@ export const metadata: Metadata = {
     title: "Daybook",
   },
   icons: {
-    icon: "/icons/icon-192.png",
     apple: "/icons/apple-touch-icon.png",
   },
 };
