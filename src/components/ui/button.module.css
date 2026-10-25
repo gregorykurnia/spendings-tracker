@@ -35,7 +35,7 @@
 .danger {
   background: var(--alert);
   border-color: var(--alert);
-  color: #fff;
+  color: var(--on-petrol);
 }
 
 .dangerOutline {
@@ -54,7 +54,7 @@
 .danger[aria-disabled="true"] {
   background: var(--alert);
   border-color: var(--alert);
-  color: #fff;
+  color: var(--on-petrol);
   opacity: 0.75;
 }
 
@@ -87,6 +87,6 @@
 /* the one thing that keeps moving when motion is reduced: a slow turn shows it is still working */
 @media (prefers-reduced-motion: reduce) {
   .spin {
-    animation: spin 2s linear infinite !important;
+    animation: spin calc(var(--dur-spin) * 2.5) linear infinite !important;
   }
 }

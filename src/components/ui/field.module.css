@@ -33,7 +33,8 @@
 }
 
 /* read-only while saving, or with no connection */
-.input[readonly] {
+.input[readonly],
+.dateBox[data-readonly="true"] {
   background: var(--line);
   border-color: var(--line-2);
 }

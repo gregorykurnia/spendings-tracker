@@ -1,4 +1,4 @@
-import { isOcrMediaType, OcrUnreadableError, readScreenshot } from "@/lib/ocr";
+import { isOcrMediaType, MAX_IMAGE_CHARS, OcrUnreadableError, readScreenshot } from "@/lib/ocr";
 
 // One screenshot per request.
 //   200 { transactions: OcrLine[] }  ([] means "Nothing found")
@@ -9,6 +9,9 @@ export async function POST(request: Request) {
   const mediaType = body?.mediaType;
   if (typeof image !== "string" || !image || !isOcrMediaType(mediaType)) {
     return Response.json({ error: "missing_image" }, { status: 400 });
+  }
+  if (image.length > MAX_IMAGE_CHARS) {
+    return Response.json({ error: "too_big" }, { status: 413 });
   }
 
   if (!process.env.ANTHROPIC_API_KEY) {

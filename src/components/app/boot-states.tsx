@@ -51,7 +51,7 @@ export function BootLoading({ screen }: { screen: ScreenName }) {
 
 function RetryButton({ retrying, onRetry }: { retrying?: boolean; onRetry: () => void }) {
   return (
-    <Button variant="solid" size="big" className={styles.retry} busy={retrying} busyLabel="Trying again…" onClick={onRetry}>
+    <Button variant="solid" size="big" className={styles.retry} busy={retrying} busyLabel="Trying again…" onClick={onRetry} data-retry>
       Try again
     </Button>
   );

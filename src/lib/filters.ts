@@ -78,7 +78,8 @@ export function searchWords(query: string) {
 export function matchRanges(text: string, words: readonly string[]): [number, number][] {
   const hay = lowerKeepingLength(text);
   const ranges: [number, number][] = [];
-  for (const word of words) {
+  for (const raw of words) {
+    const word = raw.toLowerCase();
     if (!word) continue;
     for (let i = hay.indexOf(word); i >= 0; i = hay.indexOf(word, i + 1)) ranges.push([i, i + word.length]);
   }

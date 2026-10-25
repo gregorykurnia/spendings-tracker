@@ -164,7 +164,11 @@ export function DateField({
   const errorId = `${id}-err`;
   return (
     <Frame label={label} hint={hint} error={error} controlId={id} hintId={hintId} errorId={errorId} className={className}>
-      <div className={styles.dateBox} data-invalid={error ? "true" : undefined}>
+      <div
+        className={styles.dateBox}
+        data-invalid={error ? "true" : undefined}
+        data-readonly={readOnly ? "true" : undefined}
+      >
         <span>{value ? formatDayLong(value) : placeholder}</span>
         <Icon name="calendar" />
         <input

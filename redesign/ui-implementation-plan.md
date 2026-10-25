@@ -83,7 +83,7 @@ Sent as needs to `redesign/handoff/needs.md`. Until the studio answers, the task
 | 1.3 | Pure logic: money, dates, periods, comparison, review reasons, filters, swatches | Sonnet 5.5 High | well specified, unit-tested maths |2026-10-25, pure logic |
 | 1.4 | Tokens, font, layout and shared parts; whole-app states | Sonnet 5.5 xHigh | sets the look every screen builds on | 2026-10-25, tokens and shell |
 | 1.5 | Phase 1 end-to-end: `e2e/app.spec.ts` for the whole-app states | Sonnet 5.5 High | flow test over finished parts | 2026-10-25, app spec |
-| R1 | Phase 1 review | Opus 5.5 High | phase review rule |  |
+| R1 | Phase 1 review | Opus 5.5 High | phase review rule | 2026-10-25, phase 1 review |
 
 ### 1.1 Safe test setup
 Files: `package.json`, `src/lib/firebase.ts`, `firebase.json`, `vitest.config.ts`, `playwright.config.ts`, `next.config.ts` (`distDir` from `NEXT_DIST_DIR`), `.gitignore`, `scripts/seed-emulator.ts`, `e2e/smoke.spec.ts`, `src/hooks/*.test.db.ts`, `CHANGELOG.md` (create). Read: "Architecture" (Tests).
@@ -129,10 +129,12 @@ Fresh session. Review the phase diff against the design notes and the prototype;
 ### 2.1 The spend form and category picker
 Files: `src/components/spend-form/*`; delete `TransactionFormModal.tsx`, `DeleteTransactionModal.tsx`, `Modal.tsx` once nothing imports them. Read: design notes §4 (Text field, Message, Sheet), §5, §7; `decisions.md` P4, P7, group 1 and 3 (Change, Delete); prototype `js/capture.js` (form), `js/find.js` (delete); states `form-correct`, `form-add`, `form-saved`, `form-amount`, `form-notready`, `form-saving`, `find-form`, `find-delete`, `find-deleting`, `find-missing-form`, `picker`, `app-offline-save`.
 Done when: unit tests for not-ready rules, the mode buttons, kept-as-typed for a waiting line and the offline error.
+Also (R1): save only through validated hook functions (`addSpend`, and an update that validates and ends `categorySuggested`); delete `addTransaction` and the unvalidated `updateTransaction` with the old screens; guard money formatting against a waiting line's `amount: null`.
 
 ### 2.2 Home: the inbox
 Files: `src/app/page.tsx`, `src/components/inbox/*`. Read: design notes §4 (Tick, Review row, Need-a-look row, Group heading, Accept bar), §6, §7; `decisions.md` P1–P3, P5, P6, group 1; prototype `js/capture.js`, `css/capture.css`; states `review-fresh`, `review-problems`, `review-incomplete`, `review-later`, `review-saving`; "Design gaps" G5 (provisional own-transfer reason).
 Done when: unit tests for grouping, the accept bar's wording and scope, and the tick's label; the screen matches the states at 390 and 1280 wide.
+Also (R1): show `useTransactions().saveError` beside the line, never as a whole-app state; the crop shows the line's own amount when `bankLine.amountText` is empty; call `todayISO()` on the client only; render `<main id="main" tabIndex={-1}>`.
 
 ### 2.3 Home: import tray and the rest of home
 Files: `src/components/inbox/*`, `src/components/app/menu*`, `e2e/home.spec.ts`, `e2e/fixtures/`; delete `src/app/ocr/`, `OcrReviewRow.tsx`, add the `/ocr` redirect. Read: design notes §4 (Add, Import row, Cards, Toast); `decisions.md` group 1 (tray), group 5 (first use); prototype `js/capture.js`, `js/spending.js` (glance card only); states `import-*`, `review-clear`, `app-first`.
@@ -141,14 +143,17 @@ Done when: `e2e/home.spec.ts` covers add screenshots (one read, one failed, one 
 ### 2.4 Spending
 Files: `src/app/spending/page.tsx`, `src/components/spending/*`, `e2e/spending.spec.ts`; delete `CategoryDonutChart`, `TrendBarChart`, `PeriodNav`, `categoricalPalette.ts`. Read: design notes §3, §4 (Day chart, Category line), §6 (the day chart); `decisions.md` group 2; prototype `js/spending.js`, `css/spending.css`; states `spend-*`.
 Done when: `e2e/spending.spec.ts` covers week/month and earlier/later, stepping the day chart by keyboard, a category opening All transactions filtered, a biggest spend opening the form.
+Also (R1): render `<main id="main" tabIndex={-1}>` (skip link and focus fallbacks land there).
 
 ### 2.5 All transactions
 Files: `src/app/transactions/page.tsx`, `src/components/find/*`, `e2e/transactions.spec.ts`; delete `TransactionFilters.tsx`. Read: design notes §4 (Spend row, Filter chip, Chip); `decisions.md` group 3; prototype `js/find.js`, `css/find.css`; states `find-*`, `app-first-list`.
 Done when: `e2e/transactions.spec.ts` covers type in a spend, search, a filter and clear all, change a spend, delete one.
+Also (R1): render `<main id="main" tabIndex={-1}>` (skip link and focus fallbacks land there).
 
 ### 2.6 Categories
 Files: `src/app/categories/page.tsx`, `src/components/organise/*`, `e2e/categories.spec.ts`; delete `CategoryFormModal.tsx`, `DeleteCategoryModal.tsx`. Read: design notes §4 (Category line, Swatch); `decisions.md` group 4; prototype `js/org.js`, `css/org.css`; states `org-*`.
 Done when: `e2e/categories.spec.ts` covers add, a duplicate name refused, change (shows on a spend), reorder, delete unused, delete used with moving.
+Also (R1): render `<main id="main" tabIndex={-1}>`; `useTransactionCounts` returns its error and a failure shows the failed state, not "no spends"; the form always sends `swatchFor(color)` (`updateCategory` refuses old hex values).
 
 ### 2.7 Phase 2 end-to-end
 Files: `e2e/journey.spec.ts`. Do: import and accept, find it on Spending, open its category's spends, change it, delete it; rename a category and see it on every screen; go offline mid-use and check that writes are refused and typing is kept. Done when: the spec passes.

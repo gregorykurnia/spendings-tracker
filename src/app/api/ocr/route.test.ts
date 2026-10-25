@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GOPAY_REPLY } from "@/lib/__fixtures__/ocr-replies";
+import { MAX_IMAGE_CHARS } from "@/lib/ocr";
 
 const create = vi.fn();
 vi.mock("@anthropic-ai/sdk", () => ({
@@ -75,6 +76,7 @@ describe("POST /api/ocr", () => {
     expect((await post({ mediaType: "image/png" })).status).toBe(400);
     expect((await post({ image: "aGk=", mediaType: "application/pdf" })).status).toBe(400);
     expect((await post("not json")).status).toBe(400);
+    expect((await post({ image: "a".repeat(MAX_IMAGE_CHARS + 1), mediaType: "image/png" })).status).toBe(413);
     expect(create).not.toHaveBeenCalled();
   });
 

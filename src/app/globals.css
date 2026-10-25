@@ -63,8 +63,8 @@
   body {
     margin: 0;
     min-height: 100vh;
-    /* the installed app's bottom edge on a notched phone */
-    padding-bottom: env(safe-area-inset-bottom);
+    /* the installed app's edges on a notched phone, the sides when it is turned */
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     font-size: var(--fs-b);
     line-height: 1.4;
     /* figures line up */

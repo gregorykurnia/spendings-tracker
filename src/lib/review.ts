@@ -108,13 +108,13 @@ function storeKey(store: string) {
 /**
  * Everything that stops a waiting line from being accepted, most important first: own transfer,
  * incoming money, a repeat of a saved spend, then the missing pieces. "Keep it" and "It's a spend"
- * (`kept`) silence the first three only. When `categoryIds` is given, a category that no longer
- * exists counts as no category.
+ * (`kept`) silence the first three only. `categoryIds` is every category that exists, so a line
+ * whose category was deleted counts as having none; it is required so no caller can forget it.
  */
 export function reviewReasons(
   line: Line,
   saved: readonly Saved[],
-  categoryIds?: ReadonlySet<string>
+  categoryIds: ReadonlySet<string>
 ): ReviewReason[] {
   const reasons: ReviewReason[] = [];
   if (line.ownTransfer && !line.kept) reasons.push("ownTransfer");
@@ -123,7 +123,7 @@ export function reviewReasons(
   if (!(line.amount != null && line.amount > 0)) reasons.push("amount");
   if (!line.store.trim()) reasons.push("store");
   if (!line.date) reasons.push("date");
-  if (!line.categoryId || (categoryIds && !categoryIds.has(line.categoryId))) reasons.push("category");
+  if (!line.categoryId || !categoryIds.has(line.categoryId)) reasons.push("category");
   return reasons;
 }
 
@@ -158,7 +158,7 @@ export type WaitingGroups<T> = {
 /** Splits the waiting lines, in arrival order, into the ones that look right and the ones that need a look. */
 export function groupWaiting<
   T extends Line & Pick<Transaction, "createdAt" | "seq">,
->(lines: readonly T[], saved: readonly Saved[], categoryIds?: ReadonlySet<string>): WaitingGroups<T> {
+>(lines: readonly T[], saved: readonly Saved[], categoryIds: ReadonlySet<string>): WaitingGroups<T> {
   const groups: WaitingGroups<T> = { lookRight: [], needLook: [] };
   for (const line of sortWaiting(lines)) {
     const reasons = reviewReasons(line, saved, categoryIds);

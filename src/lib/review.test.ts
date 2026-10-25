@@ -26,39 +26,39 @@ describe("reviewReasons", () => {
   });
 
   it("puts an own-account transfer first, then incoming money", () => {
-    expect(reviewReasons(line({ ownTransfer: true, direction: "in" }), [])).toEqual(["ownTransfer", "incoming"]);
-    expect(reviewReasons(line({ direction: "in" }), [])).toEqual(["incoming"]);
+    expect(reviewReasons(line({ ownTransfer: true, direction: "in" }), [], ids)).toEqual(["ownTransfer", "incoming"]);
+    expect(reviewReasons(line({ direction: "in" }), [], ids)).toEqual(["incoming"]);
   });
 
   it("stops flagging those three after Keep it or It's a spend", () => {
     const dup = saved();
-    expect(reviewReasons(line({ ownTransfer: true, direction: "in", kept: true }), [dup])).toEqual([]);
-    expect(reviewReasons(line({ kept: true }), [dup])).toEqual([]);
+    expect(reviewReasons(line({ ownTransfer: true, direction: "in", kept: true }), [dup], ids)).toEqual([]);
+    expect(reviewReasons(line({ kept: true }), [dup], ids)).toEqual([]);
   });
 
   it("keeps flagging missing pieces after kept", () => {
-    expect(reviewReasons(line({ kept: true, amount: null }), [])).toEqual(["amount"]);
+    expect(reviewReasons(line({ kept: true, amount: null }), [], ids)).toEqual(["amount"]);
   });
 
   it("flags a repeat of a saved spend with the same date, amount and store", () => {
-    expect(reviewReasons(line(), [saved()])).toEqual(["repeat"]);
-    expect(reviewReasons(line(), [saved({ store: "  kopi kenangan scbd " })])).toEqual(["repeat"]);
-    expect(reviewReasons(line(), [saved({ amount: 27_000 })])).toEqual([]);
-    expect(reviewReasons(line(), [saved({ date: "2026-10-24" })])).toEqual([]);
-    expect(reviewReasons(line(), [saved({ store: "KOPI" })])).toEqual([]);
+    expect(reviewReasons(line(), [saved()], ids)).toEqual(["repeat"]);
+    expect(reviewReasons(line(), [saved({ store: "  kopi kenangan scbd " })], ids)).toEqual(["repeat"]);
+    expect(reviewReasons(line(), [saved({ amount: 27_000 })], ids)).toEqual([]);
+    expect(reviewReasons(line(), [saved({ date: "2026-10-24" })], ids)).toEqual([]);
+    expect(reviewReasons(line(), [saved({ store: "KOPI" })], ids)).toEqual([]);
   });
 
   it("doesn't take another waiting line for a repeat", () => {
-    expect(reviewReasons(line(), [saved({ status: "pending_review" })])).toEqual([]);
+    expect(reviewReasons(line(), [saved({ status: "pending_review" })], ids)).toEqual([]);
   });
 
   it("flags a missing or zero amount", () => {
-    expect(reviewReasons(line({ amount: null }), [])).toEqual(["amount"]);
-    expect(reviewReasons(line({ amount: 0 }), [])).toEqual(["amount"]);
+    expect(reviewReasons(line({ amount: null }), [], ids)).toEqual(["amount"]);
+    expect(reviewReasons(line({ amount: 0 }), [], ids)).toEqual(["amount"]);
   });
 
   it("flags a blank store, a missing date and no category, in that order after the amount", () => {
-    expect(reviewReasons(line({ amount: null, store: "  ", date: "", categoryId: "" }), [])).toEqual([
+    expect(reviewReasons(line({ amount: null, store: "  ", date: "", categoryId: "" }), [], ids)).toEqual([
       "amount",
       "store",
       "date",
@@ -66,10 +66,9 @@ describe("reviewReasons", () => {
     ]);
   });
 
-  it("counts a category that no longer exists as no category, when the ids are given", () => {
+  it("counts a category that no longer exists as no category", () => {
     expect(reviewReasons(line({ categoryId: "gone" }), [], ids)).toEqual(["category"]);
-    expect(reviewReasons(line({ categoryId: "gone" }), [])).toEqual([]);
-  });
+      });
 
   it("is never a repeat for incoming money, an unread amount or a missing date", () => {
     expect(isRepeat(line({ direction: "in" }), [saved()])).toBe(false);
@@ -127,6 +126,6 @@ describe("sortWaiting and groupWaiting", () => {
   });
 
   it("has two empty groups when nothing is waiting", () => {
-    expect(groupWaiting([], [])).toEqual({ lookRight: [], needLook: [] });
+    expect(groupWaiting([], [], ids)).toEqual({ lookRight: [], needLook: [] });
   });
 });

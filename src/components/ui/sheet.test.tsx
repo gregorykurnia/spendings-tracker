@@ -207,4 +207,32 @@ describe("Sheet", () => {
     // The one left is no longer behind another, so it can be reached.
     expect((document.getElementById("app") as HTMLElement).inert).toBe(true);
   });
+
+  it("puts focus back on the opener inside the sheet below when the top one closes", () => {
+    function Picker() {
+      const [inner, setInner] = useState(false);
+      return (
+        <>
+          <div id="app" />
+          <Sheet label="Form" onClose={() => {}}>
+            <SheetHead title="Form" />
+            <button onClick={() => setInner(true)}>More</button>
+          </Sheet>
+          {inner ? (
+            <Sheet label="Picker" onClose={() => setInner(false)}>
+              <SheetHead title="Picker" />
+            </Sheet>
+          ) : null}
+        </>
+      );
+    }
+    render(<Picker />);
+    const more = screen.getByText("More");
+    more.focus();
+    fireEvent.click(more);
+    expect(screen.getByRole("dialog", { name: "Picker" })).toBeTruthy();
+    fireEvent.keyDown(document.activeElement as Element, { key: "Escape" });
+    expect(screen.queryByRole("dialog", { name: "Picker" })).toBeNull();
+    expect(document.activeElement).toBe(more);
+  });
 });

@@ -32,10 +32,22 @@ export default function AppGate({ children }: { children: ReactNode }) {
   const [retry, setRetry] = useState<Retry | null>(null);
   const [note, setNote] = useState<string | undefined>(undefined);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // A retry remounts the state screen, so the "Try again" that had focus is gone: focus goes to the
+  // new one, and to the screen (`#main`) once it loads.
+  const keepFocus = useRef(false);
 
   useEffect(() => () => clearTimeout(holdTimer.current), []);
 
+  useEffect(() => {
+    if (!keepFocus.current) return;
+    const target =
+      document.querySelector<HTMLElement>("[data-retry]") ?? document.getElementById("main");
+    target?.focus();
+    if (retry === null) keepFocus.current = false;
+  }, [attempt, retry]);
+
   const startRetry = useCallback((from: BootState) => {
+    keepFocus.current = Boolean(document.activeElement?.closest("[data-retry]"));
     setRetry({ from, hold: true });
     setNote(undefined);
     setAttempt((n) => n + 1);

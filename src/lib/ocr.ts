@@ -60,6 +60,9 @@ function isRealDate(value: string) {
   return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
 }
 
+/** The longest base64 image the route reads: a phone screenshot is well under 5 MB, base64 adds a third. */
+export const MAX_IMAGE_CHARS = 7_000_000;
+
 /**
  * A rupiah amount from a number or, when the model sends text anyway, from
  * the Indonesian form ("87.450,00", "Rp45.000"). Returns a positive whole
@@ -72,9 +75,14 @@ export function parseAmount(value: unknown): number | null {
   } else if (typeof value === "string") {
     const digits = value.replace(/[^\d.,]/g, "");
     if (!/\d/.test(digits)) return null;
-    // Dots group thousands; a comma starts the cents.
-    const [whole, cents = ""] = digits.split(",");
-    n = Number(`${whole.replace(/\./g, "")}.${cents.replace(/\./g, "") || "0"}`);
+    if (!digits.includes(",") && /^\d+\.\d{1,2}$/.test(digits)) {
+      // "45000.50": one dot with one or two digits after it is cents, not thousands.
+      n = Number(digits);
+    } else {
+      // Dots group thousands; a comma starts the cents.
+      const [whole, cents = ""] = digits.split(",");
+      n = Number(`${whole.replace(/\./g, "")}.${cents.replace(/\./g, "") || "0"}`);
+    }
   } else {
     return null;
   }
@@ -93,7 +101,8 @@ function toLine(item: unknown): OcrLine | null {
   const date = text(raw.date);
   const amount = parseAmount(raw.amount);
   const amountText =
-    text(raw.amountText) || (typeof raw.amount === "string" ? raw.amount.trim() : "");
+    text(raw.amountText) ||
+    (typeof raw.amount === "string" ? raw.amount.trim() : "");
   return {
     date: isRealDate(date) ? date : "",
     store: text(raw.store),

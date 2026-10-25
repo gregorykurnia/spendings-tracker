@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { terminate } from "firebase/firestore";
+import { deleteDoc, doc, terminate } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Category, OcrLine } from "@/types";
 import { clearEmulator, listDocs, writeDocs, type EmulatorDoc } from "../../scripts/test-env";
@@ -218,6 +218,19 @@ describe("editing a waiting line", () => {
 
     await expect.poll(async () => (await byId("w1"))?.description).toBe("for the office");
   });
+  it("keeps what was typed when a write fails, and says so apart from loading", async () => {
+    await writeDocs("transactions", [waitingDoc("w1")]);
+    const { result, unmount } = await openHook();
+
+    // `undefined` is a value Firestore refuses, so this write fails.
+    act(() => result.current.editWaitingLine("w1", { store: "Kopi Senopati", description: undefined }));
+    await waitFor(() => expect(result.current.saveError).not.toBeNull(), { timeout: EDIT_DELAY_MS * 10 });
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.waiting[0].store).toBe("Kopi Senopati");
+    expect((await byId("w1"))?.store).toBe("Kopi Kenangan");
+    unmount();
+  });
 });
 
 describe("accepting waiting lines", () => {
@@ -269,6 +282,36 @@ describe("accepting waiting lines", () => {
 
     const docs = await listDocs("transactions");
     expect(docs.filter((d) => d.data.status === "confirmed").map((d) => d.id).sort()).toEqual(["w1", "w2"]);
+    unmount();
+  });
+
+  it("accepts more than one batch holds", async () => {
+    const many = Array.from({ length: 451 }, (_, i) => waitingDoc(`w${i}`, { seq: i }));
+    await writeDocs("transactions", many);
+    const { result, unmount } = await openHook();
+    await waitFor(() => expect(result.current.waiting).toHaveLength(451));
+
+    await act(() => result.current.acceptLines(many.map((d) => d.id)));
+
+    expect((await listDocs("transactions")).filter((d) => d.data.status === "confirmed")).toHaveLength(451);
+    unmount();
+  });
+
+  it("keeps the edits of a line it couldn't accept, unless the line is gone", async () => {
+    await writeDocs("transactions", [waitingDoc("w1"), waitingDoc("w2", { seq: 1 })]);
+    const { result, unmount } = await openHook();
+    await waitFor(() => expect(result.current.waiting).toHaveLength(2));
+
+    act(() => result.current.editWaitingLine("w1", { store: "Kopi Senopati", description: undefined }));
+    await expect(result.current.acceptLine("w1")).rejects.toThrow();
+    await waitFor(() => expect(result.current.waiting[0].store).toBe("Kopi Senopati"));
+    expect((await byId("w1"))?.status).toBe("pending_review");
+
+    act(() => result.current.editWaitingLine("w2", { store: "Grab" }));
+    await deleteDoc(doc(db, "transactions", "w2"));
+    await expect(result.current.acceptLine("w2")).rejects.toThrow();
+    // Nothing was put back for the line that is gone, so there is nothing left to write.
+    await act(() => result.current.flushEdits("w2"));
     unmount();
   });
 

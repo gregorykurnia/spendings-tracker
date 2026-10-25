@@ -101,6 +101,17 @@ describe("first open", () => {
     await expect.poll(async () => (await listDocs("categories")).map((c) => c.id).sort()).toEqual(["mine", "telecommunications"]);
     unmount();
   });
+  it("leaves a database from before the sentinel as it is, and marks it seeded", async () => {
+    // The live data's shape before seeding had a sentinel: the owner's categories, no meta at all.
+    await writeDocs("categories", [category("Xy12ab", "Kids", 0, "#10b981")]);
+    const { result, unmount } = await freshHook();
+    await waitFor(() => expect(result.current.categories.length).toBeGreaterThanOrEqual(1));
+
+    await expect.poll(async () => (await listDocs("meta")).find((m) => m.id === "categoriesSeeded")?.data.seededAt).toBeTruthy();
+    expect(result.current.seeding).toBeNull();
+    await expect.poll(async () => (await listDocs("categories")).map((c) => c.id).sort()).toEqual(["Xy12ab", "telecommunications"]);
+    unmount();
+  });
 });
 
 describe("adding and changing", () => {

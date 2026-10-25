@@ -81,6 +81,7 @@ describe("matchRanges", () => {
   it("finds nothing for no words or no match", () => {
     expect(matchRanges("Kopi", [])).toEqual([]);
     expect(matchRanges("Kopi", ["tea"])).toEqual([]);
+    expect(matchRanges("Kopi Kenangan", ["KOPI"])).toEqual([[0, 4]]);
   });
   it("keeps the positions right in text that changes length when lowered", () => {
     expect(matchRanges("İstanbul kopi", ["kopi"])).toEqual([[9, 13]]);

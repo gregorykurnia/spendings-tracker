@@ -54,14 +54,15 @@ export function byArrival(a: Transaction, b: Transaction) {
 
 /** Why a line can't be saved as a spend yet, or null when it can. */
 export function cannotSave(line: Transaction): string | null {
-  if (line.amount === null || !(line.amount > 0)) return "no amount";
-  if (!line.categoryId) return "no category";
-  if (!line.store.trim()) return "no store";
-  if (!line.date) return "no date";
+  // Same order as the needs-a-look reasons in src/lib/review.ts.
   if (line.status === "pending_review" && !line.kept) {
     if (line.ownTransfer) return "own transfer";
     if (line.direction === "in") return "incoming";
   }
+  if (line.amount === null || !(line.amount > 0)) return "no amount";
+  if (!line.store.trim()) return "no store";
+  if (!line.date) return "no date";
+  if (!line.categoryId) return "no category";
   return null;
 }
 
@@ -94,10 +95,17 @@ async function writeEdit(id: string, patch: Partial<SpendFields>) {
   await updateDoc(doc(transactionsRef, id), editPayload(patch));
 }
 
+/** The line is gone (thrown away or accepted elsewhere): there is nothing left to keep edits for. */
+function lineIsGone(err: unknown) {
+  return (err as { code?: unknown } | null)?.code === "not-found";
+}
+
 export function useTransactions() {
   const [stored, setStored] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // A write that failed. Kept apart from `error`, which means the data couldn't load.
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Edits to waiting lines, kept here until they are written. They show in
   // the lists straight away; the write waits for a pause in typing.
@@ -169,6 +177,13 @@ export function useTransactions() {
     return patch;
   }
 
+  /** Puts back edits whose write failed, under anything typed since, so nothing typed is lost. */
+  function restorePending(id: string, patch: Partial<SpendFields> | undefined, err: unknown) {
+    if (!patch || lineIsGone(err)) return;
+    pending.current.set(id, { ...patch, ...pending.current.get(id) });
+    bumpPending();
+  }
+
   /** Adds the lines read from one screenshot as waiting lines, in the screenshot's order. */
   async function addScreenshotLines(lines: OcrLine[], categories: Category[]) {
     const createdAt = new Date().toISOString();
@@ -208,7 +223,7 @@ export function useTransactions() {
       setTimeout(() => {
         flushEdits(id).catch((err) => {
           console.error("saving an edit failed:", err);
-          setError(err.message);
+          setSaveError(err.message);
         });
       }, EDIT_DELAY_MS)
     );
@@ -220,10 +235,18 @@ export function useTransactions() {
     const ids = id ? [id] : [...pending.current.keys()];
     const writes = ids.flatMap((lineId) => {
       const patch = takePending(lineId);
-      return patch ? [writeEdit(lineId, patch)] : [];
+      if (!patch) return [];
+      return [
+        writeEdit(lineId, patch).catch((err) => {
+          restorePending(lineId, patch, err);
+          throw err;
+        }),
+      ];
     });
-    if (writes.length) bumpPending();
+    if (!writes.length) return;
+    bumpPending();
     await Promise.all(writes);
+    setSaveError(null);
   }
 
   /** Saves one waiting line as a spend, with any edits not yet written. */
@@ -231,12 +254,17 @@ export function useTransactions() {
     const line = find(id);
     const reason = cannotSave(line);
     if (reason) throw new NotReadyError(line, reason);
-    const patch = takePending(id) ?? {};
+    const patch = takePending(id);
     bumpPending();
-    await updateDoc(doc(transactionsRef, id), {
-      ...editPayload(patch),
-      status: "confirmed",
-    });
+    try {
+      await updateDoc(doc(transactionsRef, id), {
+        ...editPayload(patch ?? {}),
+        status: "confirmed",
+      });
+    } catch (err) {
+      restorePending(id, patch, err);
+      throw err;
+    }
   }
 
   /** Saves many waiting lines as spends in one batch (more than 450 take several). */
@@ -246,15 +274,21 @@ export function useTransactions() {
       const reason = cannotSave(line);
       if (reason) throw new NotReadyError(line, reason);
     }
-    const writes = lines.map((line) => ({
-      id: line.id,
-      data: { ...editPayload(takePending(line.id) ?? {}), status: "confirmed" },
-    }));
+    const writes = lines.map((line) => ({ id: line.id, patch: takePending(line.id) }));
     bumpPending();
-    for (const chunk of inChunks(writes)) {
+    const chunks = inChunks(writes);
+    for (let i = 0; i < chunks.length; i++) {
       const batch = writeBatch(db);
-      for (const w of chunk) batch.update(doc(transactionsRef, w.id), w.data);
-      await batch.commit();
+      for (const w of chunks[i]) {
+        batch.update(doc(transactionsRef, w.id), { ...editPayload(w.patch ?? {}), status: "confirmed" });
+      }
+      try {
+        await batch.commit();
+      } catch (err) {
+        // This chunk and the ones after it weren't saved: their typing stays.
+        for (const w of chunks.slice(i).flat()) restorePending(w.id, w.patch, err);
+        throw err;
+      }
     }
   }
 
@@ -309,6 +343,7 @@ export function useTransactions() {
     waiting,
     loading,
     error,
+    saveError,
     addScreenshotLines,
     editWaitingLine,
     flushEdits,

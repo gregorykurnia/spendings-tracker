@@ -75,6 +75,8 @@ describe("parseAmount", () => {
     expect(parseAmount("87.450,00 DB")).toBe(87_450);
     expect(parseAmount("Rp1.250.000")).toBe(1_250_000);
     expect(parseAmount("12.345,60")).toBe(12_346);
+    expect(parseAmount("45000.50")).toBe(45_001);
+    expect(parseAmount("45.000")).toBe(45_000);
   });
 
   it("returns null for nothing, zero and non-numbers", () => {

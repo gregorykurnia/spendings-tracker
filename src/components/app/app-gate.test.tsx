@@ -144,6 +144,17 @@ describe("AppGate", () => {
     expect(screen.getByText(STILL_OFFLINE).getAttribute("role")).toBe("status");
   });
 
+  it("keeps keyboard focus on Try again through a retry", () => {
+    data.online = false;
+    show();
+    const first = screen.getByRole("button", { name: "Try again" });
+    first.focus();
+    fireEvent.click(first);
+    expect(document.activeElement?.textContent).toContain("Trying again…");
+    act(() => vi.advanceTimersByTime(RETRY_FEEDBACK_MS));
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Try again" }));
+  });
+
   it("keeps the screen, with a notice, when the connection drops after it loaded", () => {
     readyData();
     data.online = false;

@@ -20,7 +20,7 @@ export function useTransactionCounts() {
         else usage.spends++;
       });
       setCounts(next);
-    });
+    }, (err) => console.error("counts onSnapshot failed:", err));
     return () => unsubscribe();
   }, []);
 

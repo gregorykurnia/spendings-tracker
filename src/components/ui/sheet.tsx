@@ -117,9 +117,10 @@ export function Sheet({ label, onClose, busy, role = "dialog", className, childr
       const at = layers.findIndex((layer) => layer.id === id);
       if (at >= 0) layers.splice(at, 1);
       syncInert();
-      if (layers.length) return; // another sheet is still open, and keeps its own focus
-      // Back to what opened it; if that is gone, to the page's main area.
-      const back = opener && opener.isConnected ? opener : document.getElementById("main");
+      // Back to what opened it, which may sit in a sheet still open below (the picker over the
+      // form). If it is gone: the page's main area, or nothing when another sheet is still open.
+      const back =
+        opener && opener.isConnected ? opener : layers.length ? null : document.getElementById("main");
       back?.focus({ preventScroll: true });
     };
   }, [id, dismiss]);
