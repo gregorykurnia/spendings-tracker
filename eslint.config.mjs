@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Test build output and the static design prototype.
+    ".next-test/**",
+    "redesign/**",
   ]),
 ]);
 
