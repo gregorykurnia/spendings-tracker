@@ -1,4 +1,4 @@
-/* wide layout: 960 (see tokens.css). Home is the inbox; the side column (glance card, links) is task 2.3. */
+/* wide layout: 960 (see tokens.css). Home is the inbox in a main column, with the glance card and links in a side column. */
 .home {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -13,6 +13,7 @@
 
 /* the accept bar is fixed to the bottom on a phone: the page makes room for it */
 .inbox {
+  order: 2;
   min-width: 0;
 }
 
@@ -21,7 +22,15 @@
 }
 
 .head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin: 24px 0 8px;
+}
+
+.head > div {
+  min-width: 0;
 }
 
 .head h1 {
@@ -384,8 +393,15 @@
 @media (min-width: 960px) {
   .home {
     grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-rows: auto 1fr;
     column-gap: 56px;
     padding: 12px 40px 0;
+  }
+
+  .inbox {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    order: 0;
   }
 
   .withBar {

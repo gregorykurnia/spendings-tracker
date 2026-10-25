@@ -1,0 +1,156 @@
+/* the import tray: one row per screenshot */
+.tray {
+  margin-top: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-l);
+  padding: 14px 16px 6px;
+}
+
+.tray h2 {
+  font-size: var(--fs-l);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.sub {
+  margin-top: 2px;
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.shots {
+  list-style: none;
+  padding: 0;
+  margin-top: 8px;
+}
+
+.shot {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  column-gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.thumb {
+  width: 44px;
+  height: 62px;
+  display: block;
+  object-fit: cover;
+  background: var(--lemon-soft);
+  border: 1.5px solid var(--lemon-line);
+  border-radius: var(--r-s);
+}
+
+.name {
+  font-size: var(--fs-b);
+  font-weight: 700;
+}
+
+.state {
+  margin-top: 2px;
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.icon {
+  color: var(--ink-2);
+}
+
+.ok .icon {
+  color: var(--petrol);
+}
+
+.ok .state {
+  color: var(--ink);
+}
+
+.fail .state {
+  color: var(--alert);
+  font-weight: 700;
+}
+
+.fail .icon {
+  color: var(--alert);
+}
+
+.reading .state {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.reading .icon {
+  color: var(--petrol);
+}
+
+.body {
+  min-width: 0;
+}
+
+.extra {
+  grid-column: 2 / -1;
+}
+
+.detail {
+  margin-top: 2px;
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.acts {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.bar {
+  position: relative;
+  height: 6px;
+  margin-top: 10px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 36%;
+  border-radius: 3px;
+  background: var(--petrol);
+  animation: slide var(--dur-slide) ease-in-out infinite;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(290%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar::before {
+    animation: none !important;
+    width: 40%;
+  }
+}
+
+@media (min-width: 960px) {
+  .tray {
+    padding: 16px 22px 8px;
+  }
+}

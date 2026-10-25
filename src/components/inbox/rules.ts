@@ -45,14 +45,36 @@ export function inboxGroups(
   return groups;
 }
 
-/** The page title: how many are waiting, or that nothing is. */
-export function inboxTitle(count: number) {
-  return count ? `${count} to check` : "All checked";
+/** Where home stands besides the waiting lines: a tray is showing, or nothing has ever been added. */
+export type HomeContext = {
+  tray?: boolean;
+  firstUse?: boolean;
+  /** Every waiting line came in this visit, from this many screenshots. */
+  freshShots?: number;
+};
+
+/** The line under the title on a first open. */
+export const FIRST_USE_SUB = "Screenshots from your banking app are read for you.";
+
+/** The page title: how many are waiting, or what is going on instead. */
+export function inboxTitle(count: number, { tray, firstUse }: HomeContext = {}) {
+  if (count) return `${count} to check`;
+  if (tray) return "Nothing to check yet";
+  return firstUse ? "Add your first spending" : "All checked";
 }
 
-/** The line under the title: how old the oldest waiting line is. `today` decides whether the year shows. */
-export function inboxSub(lines: readonly Pick<Transaction, "date">[], today: string) {
-  if (!lines.length) return "Nothing is waiting.";
+/**
+ * The line under the title: how old the oldest waiting line is. `today` decides whether the year shows.
+ * With nothing waiting it is quiet while a tray is showing (the tray has the news).
+ */
+export function inboxSub(
+  lines: readonly Pick<Transaction, "date">[],
+  today: string,
+  { tray, firstUse, freshShots }: HomeContext = {}
+) {
+  if (firstUse) return FIRST_USE_SUB;
+  if (!lines.length) return tray ? "" : "Nothing is waiting.";
+  if (freshShots) return `From ${countLabel(freshShots, "screenshot")}, added just now`;
   const dated = lines.map((line) => line.date).filter(Boolean);
   if (!dated.length) return "";
   return `Oldest is from ${formatDay(dated.reduce((a, b) => (b < a ? b : a)), today)}`;

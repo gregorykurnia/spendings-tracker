@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { ToastProvider } from "@/components/ui/toast";
@@ -67,9 +68,20 @@ type Setup = {
   saveError?: string | null;
   editedId?: string | null;
   onCorrect?: Mock<(line: Transaction, focus?: "store" | "amount" | "date") => void>;
+  tray?: ReactNode;
+  firstUse?: boolean;
 };
 
-function ui({ waiting, spends = [], actions = makeActions(), saveError = null, editedId = null, onCorrect = vi.fn() }: Setup) {
+function ui({
+  waiting,
+  spends = [],
+  actions = makeActions(),
+  saveError = null,
+  editedId = null,
+  onCorrect = vi.fn(),
+  tray,
+  firstUse,
+}: Setup) {
   return (
     <ToastProvider>
       <main id="main" tabIndex={-1}>
@@ -81,6 +93,10 @@ function ui({ waiting, spends = [], actions = makeActions(), saveError = null, e
           saveError={saveError}
           editedId={editedId}
           onCorrect={onCorrect}
+          tray={tray}
+          firstUse={firstUse}
+          headAction={<button type="button">Add</button>}
+          emptyPanel={<p>The empty panel</p>}
         />
       </main>
     </ToastProvider>
@@ -466,5 +482,36 @@ describe("a failed save", () => {
   it("is not shown when nothing failed", () => {
     open({ waiting: [line()], saveError: null, editedId: "w1" });
     expect(screen.queryByText(/Couldn't save/)).toBeNull();
+  });
+});
+
+describe("with nothing waiting", () => {
+  it("says all is checked and shows the empty panel", () => {
+    open({ waiting: [] });
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("All checked");
+    expect(screen.getByText("Nothing is waiting.")).toBeTruthy();
+    expect(screen.getByText("The empty panel")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Add" })).toBeTruthy();
+  });
+
+  it("asks for a first spending on a first open", () => {
+    open({ waiting: [], firstUse: true });
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Add your first spending");
+    expect(screen.getByText("Screenshots from your banking app are read for you.")).toBeTruthy();
+  });
+
+  it("shows the tray, and not the empty panel, while one is up", () => {
+    open({ waiting: [], tray: <p>The tray</p> });
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Nothing to check yet");
+    expect(screen.getByText("The tray")).toBeTruthy();
+    expect(screen.queryByText("The empty panel")).toBeNull();
+    expect(screen.queryByText("Nothing is waiting.")).toBeNull();
+  });
+
+  it("shows the empty panel only after the last line has left, and keeps the tray above the lines", () => {
+    open({ waiting: [line()], tray: <p>The tray</p> });
+    expect(screen.queryByText("The empty panel")).toBeNull();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("1 to check");
+    expect(screen.getByText("The tray")).toBeTruthy();
   });
 });

@@ -134,6 +134,23 @@ describe("the title and what is under it", () => {
     expect(inboxSub([{ date: "" }], "2026-10-25")).toBe("");
   });
 
+  it("says what is going on when nothing is waiting: a tray is up, or nothing has ever been added", () => {
+    expect(inboxTitle(0, { tray: true })).toBe("Nothing to check yet");
+    expect(inboxTitle(0, { firstUse: true })).toBe("Add your first spending");
+    expect(inboxTitle(3, { tray: true })).toBe("3 to check");
+    expect(inboxSub([], "2026-10-25", { tray: true })).toBe("");
+    expect(inboxSub([], "2026-10-25", { firstUse: true })).toBe("Screenshots from your banking app are read for you.");
+    expect(inboxSub([{ date: "2026-10-24" }], "2026-10-25", { tray: true })).toBe("Oldest is from Sat 24 Oct");
+  });
+
+  it("says where the lines came from when all of them came in this visit", () => {
+    const lines = [{ date: "2026-10-24" }, { date: "2026-10-23" }];
+    expect(inboxSub(lines, "2026-10-25", { freshShots: 2 })).toBe("From 2 screenshots, added just now");
+    expect(inboxSub(lines, "2026-10-25", { freshShots: 1 })).toBe("From 1 screenshot, added just now");
+    expect(inboxSub(lines, "2026-10-25", { freshShots: 0 })).toBe("Oldest is from Fri 23 Oct");
+    expect(inboxSub([], "2026-10-25", { freshShots: 2 })).toBe("Nothing is waiting.");
+  });
+
   it("words the jump link for one and for many", () => {
     expect(jumpLabel(1)).toBe("1 needs a look");
     expect(jumpLabel(2)).toBe("2 need a look");

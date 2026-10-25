@@ -1,0 +1,248 @@
+/* the card, the links and the empty panels on home. The grid they sit in is `.home` in inbox.module.css. */
+
+/* "Add screenshots" */
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  height: var(--touch);
+  padding: 0 16px 0 13px;
+  border-radius: 22px;
+  border: 1.5px solid var(--petrol);
+  background: transparent;
+  color: var(--petrol);
+  font-weight: 700;
+  font-size: var(--fs-m);
+}
+
+.add .long {
+  display: none;
+}
+
+.add[aria-disabled="true"] {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--ink-2);
+  cursor: default;
+}
+
+.addOffline {
+  opacity: 0.45;
+}
+
+.addBig {
+  height: 48px;
+}
+
+/* this month so far */
+.glance {
+  order: 1;
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  padding: 14px 16px;
+  margin-top: 6px;
+  text-decoration: none;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-m);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.amount {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-big);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.amountLong {
+  font-size: var(--fs-2xl);
+}
+
+.amount small {
+  font-size: 0.5em;
+  font-weight: 700;
+  color: var(--ink-2);
+  letter-spacing: 0;
+  margin-right: 0.2em;
+}
+
+.cmp {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-m);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* links to the other places */
+.links {
+  order: 3;
+  display: grid;
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.link {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  text-align: left;
+  width: 100%;
+}
+
+.link b {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+}
+
+.link small {
+  display: block;
+  font-size: var(--fs-s);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.linkIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-m);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  color: var(--petrol);
+}
+
+/* nothing waiting, or nothing at all yet */
+.empty {
+  margin-top: 18px;
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+  padding: 26px 22px 24px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+}
+
+.first {
+  padding: 24px 22px;
+}
+
+.mark {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--lemon);
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+
+.empty p {
+  max-width: 36ch;
+  color: var(--ink-2);
+  font-size: var(--fs-b);
+}
+
+.steps {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+  margin: 4px 0 0;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  max-width: 42ch;
+  font-size: var(--fs-b);
+  color: var(--ink);
+}
+
+.steps i {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--lemon-soft);
+  border: 1.5px solid var(--lemon-edge);
+  font-size: var(--fs-m);
+  font-weight: 800;
+  font-style: normal;
+}
+
+.act {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+@media (min-width: 960px) {
+  .glance {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+    margin-top: 34px;
+    padding: 22px 24px;
+  }
+
+  .links {
+    grid-column: 2;
+    grid-row: 2;
+    order: 0;
+    align-self: start;
+    margin-top: 22px;
+  }
+
+  .top {
+    font-size: var(--fs-b);
+  }
+
+  .amount {
+    font-size: var(--fs-glance-wide);
+    margin-top: 6px;
+  }
+
+  .amountLong {
+    font-size: var(--fs-h1);
+  }
+
+  .cmp {
+    font-size: var(--fs-b);
+    margin-top: 6px;
+  }
+
+  .add {
+    height: 48px;
+    font-size: var(--fs-b);
+  }
+
+  .add .long {
+    display: inline;
+  }
+}

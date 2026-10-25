@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { FieldError } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { CategoryPicker } from "@/components/spend-form/category-picker";
@@ -52,6 +52,16 @@ type Props = {
   editedId: string | null;
   /** "Edit details", or a fix that needs the form: opens it on that line. */
   onCorrect: (line: Transaction, focus?: "store" | "amount" | "date") => void;
+  /** The "Add" button beside the title. */
+  headAction?: ReactNode;
+  /** The import tray, while there is one (it takes the place of the news when nothing is waiting). */
+  tray?: ReactNode;
+  /** Nothing has ever been added: the title and the panel say how to begin. */
+  firstUse?: boolean;
+  /** Every waiting line came in this visit, from this many screenshots: the line under the title says so. */
+  freshShots?: number;
+  /** Shown instead of the lists when nothing is waiting and no tray is up. */
+  emptyPanel?: ReactNode;
 };
 
 /**
@@ -59,7 +69,20 @@ type Props = {
  * and two buttons on each, and the bar that accepts everything that looks right. Lines keep the order
  * they arrived in, and a line that leaves never moves the ones below it before it has gone.
  */
-export function Inbox({ waiting, spends, categories, actions, saveError, editedId, onCorrect }: Props) {
+export function Inbox({
+  waiting,
+  spends,
+  categories,
+  actions,
+  saveError,
+  editedId,
+  onCorrect,
+  headAction,
+  tray,
+  firstUse = false,
+  freshShots,
+  emptyPanel,
+}: Props) {
   const online = useOnline();
   const { toast, announce } = useToast();
   // This only renders once the data has loaded in the browser, so there is no server-rendered "today".
@@ -277,15 +300,24 @@ export function Inbox({ waiting, spends, categories, actions, saveError, editedI
   const counted = [...groups.lookRight, ...groups.needLook]
     .filter((item) => departing.get(item.line.id)?.phase !== "leaving")
     .map((item) => item.line);
-  const sub = inboxSub(counted, today);
+  const context = { tray: Boolean(tray), firstUse, freshShots };
+  const sub = inboxSub(counted, today, context);
+  const nothingShown = !groups.lookRight.length && !groups.needLook.length && !tray;
 
   return (
     <section ref={root} className={barShown ? `${styles.inbox} ${styles.withBar}` : styles.inbox} aria-labelledby="inbox-title">
       <div className={styles.head}>
-        <h1 id="inbox-title">{inboxTitle(counted.length)}</h1>
-        {sub ? <p>{sub}</p> : null}
-        {lonelySaveError ? <FieldError net>{SAVE_FAILED}</FieldError> : null}
+        <div>
+          <h1 id="inbox-title">{inboxTitle(counted.length, context)}</h1>
+          {sub ? <p>{sub}</p> : null}
+          {lonelySaveError ? <FieldError net>{SAVE_FAILED}</FieldError> : null}
+        </div>
+        {headAction}
       </div>
+
+      {tray}
+
+      {nothingShown ? emptyPanel : null}
 
       {groups.lookRight.length ? (
         <section className={styles.grp} aria-labelledby="inbox-right">

@@ -197,8 +197,11 @@ export function useTransactions() {
     bumpPending();
   }
 
-  /** Adds the lines read from one screenshot as waiting lines, in the screenshot's order. */
-  async function addScreenshotLines(lines: OcrLine[], categories: Category[]) {
+  /**
+   * Adds the lines read from one screenshot as waiting lines, in the screenshot's order. Returns their
+   * `createdAt`, which is how the lines of this batch are told apart from older ones.
+   */
+  async function addScreenshotLines(lines: OcrLine[], categories: Category[]): Promise<string> {
     const createdAt = new Date().toISOString();
     const categoryIds = new Set(categories.map((c) => c.id));
     const docs = lines.map((line, seq) => {
@@ -224,6 +227,7 @@ export function useTransactions() {
       for (const data of chunk) batch.set(doc(transactionsRef), data);
       await batch.commit();
     }
+    return createdAt;
   }
 
   /** Changes a waiting line as the owner types; written after a short pause. */
