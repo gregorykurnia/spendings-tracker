@@ -185,7 +185,8 @@ export function sortSpends<T extends FindSpend>(spends: readonly T[], order: Sor
 
 export type ActiveFilter = { key: "date" | "category" | "amount" | "source"; label: string };
 
-function dateFilterLabel(d: DateFilter, today: string) {
+/** The name of a date filter: `Sun 25 Oct 2026`, `19 to 25 Oct 2026`, `October 2026`, or a span's own label. */
+export function dateFilterLabel(d: DateFilter, today: string) {
   const r = dateFilterRange(d);
   if (!r) return "";
   if (d.kind === "day") return formatDayLong(d.anchor);
