@@ -22,7 +22,7 @@ Added reasons: the amount couldn't be read, no category yet, and (rarely) a miss
 **P6 (adopted 2026-10-25, with the owner's approval of group 1). Incoming money offers "It's a spend", not "Count it".**
 Direction D had "Count it" on incoming money, which contradicts R10 (never counted as spending). The only reason to keep such a line is that the bank's CR/DB was misread, so the button says what the person is declaring: "It's a spend". It then moves to "Look right" and still needs the tick. A repeat's second button stays "Keep it" and works the same way.
 
-**P7 (built in the prototype, waiting for the owner's yes or no). U8 and F6 are one thing: tapping a saved spend anywhere opens the same "Change spend" form.**
+**P7 (adopted 2026-10-25, with the owner's approval of groups 2 and 3). U8 and F6 are one thing: tapping a saved spend anywhere opens the same "Change spend" form.**
 "Open that transaction to check or correct it" (U8) and "change a saved transaction" (F6) end in the same place, so there is no separate read-only detail screen. Tapping one of the biggest spends, a row in a category's list, or (group 3) a row in All transactions opens the form with its fields filled in. Say no and U8 gets a read-only detail view with a "Change" button in front of the form.
 
 ## Stage 1 choice (2026-10-25)
@@ -87,4 +87,6 @@ Built on P7: tapping a row anywhere opens the same "Change spend" form. If P7 is
 1. **Filters open in a sheet on desktop too.** Default: as built. A permanent panel beside the list would suit a wide screen better but is a second layout to maintain.
 2. **The source marks are icons only** (with hidden text for screen readers). Default: as built; a word next to the icon on desktop is an easy addition.
 3. **Search does not look at categories or amounts**, as asked (store or note); the filters cover those.
+
+**Approved:** the owner said groups 2 and 3 "look fine" on 2026-10-25. P7 is built into both, so it counts as adopted; if that was meant for the look only, it goes back to open. The default answers to the questions under groups 2 and 3 stand.
 
