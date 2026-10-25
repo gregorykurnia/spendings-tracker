@@ -1,0 +1,50 @@
+/* the sheet's body is already a grid with gaps; this keeps the form's fields in it as one block */
+.fields {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+/* amount and date side by side from 600 wide (see tokens.css) */
+.two {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.groupLabel {
+  font-size: var(--fs-m);
+  font-weight: 700;
+}
+
+.optional {
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.deleteZone {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}

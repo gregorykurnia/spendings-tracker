@@ -322,6 +322,13 @@ export function useTransactions() {
     return ref.id;
   }
 
+  /** Changes a saved spend. Checked like a new one, and touching the category ends its suggestion. */
+  async function updateSpend(id: string, fields: SpendFields) {
+    checkSpend(fields);
+    await writeEdit(id, fields);
+  }
+
+  // The two functions below are unchecked and go with the old screens (tasks 2.2 to 2.5).
   async function addTransaction(input: Omit<Transaction, "id" | "createdAt">) {
     await addDoc(transactionsRef, { ...input, createdAt: new Date().toISOString() });
   }
@@ -352,6 +359,7 @@ export function useTransactions() {
     throwAway,
     keepLine,
     addSpend,
+    updateSpend,
     addTransaction,
     updateTransaction,
     deleteTransaction,

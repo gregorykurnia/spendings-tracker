@@ -117,7 +117,7 @@ Fresh session. Review the phase diff against the design notes and the prototype;
 
 | Phase.task | Task | Model · effort | Why | Done |
 |---|---|---|---|---|
-| 2.1 | The spend form and category picker (all three modes, delete) | Sonnet 5.5 High | interaction and saving, used everywhere |  |
+| 2.1 | The spend form and category picker (all three modes, delete) | Sonnet 5.5 High | interaction and saving, used everywhere | 2026-10-25, spend form |
 | 2.2 | Home: the inbox, review rows, needs a look, accept bar | Sonnet 5.5 xHigh | the daily screen; densest design |  |
 | 2.3 | Home: import tray, glance card, links, menu, first use, all checked; `e2e/home.spec.ts` | Sonnet 5.5 High | the import flow writes data |  |
 | 2.4 | Spending; `e2e/spending.spec.ts` | Sonnet 5.5 xHigh | chart and number layout |  |

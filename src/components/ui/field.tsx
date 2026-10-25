@@ -38,7 +38,7 @@ export function FieldSummary({ children }: { children: ReactNode }) {
 /* ---------- the frame every field shares ---------- */
 
 type FrameProps = {
-  label: string;
+  label: ReactNode;
   hint?: string;
   error?: string;
   /** The id of the control, for the label. */
@@ -69,7 +69,8 @@ function describedBy(hint: string | undefined, error: string | undefined, hintId
 }
 
 type FieldProps = {
-  label: string;
+  /** Words, or words with a quiet hint beside them, such as `Note (optional)`. */
+  label: ReactNode;
   hint?: string;
   /** Shown under the field, which turns alert-coloured. Ties to the control for screen readers. */
   error?: string;
@@ -146,6 +147,9 @@ type DateFieldProps = FieldProps & {
   placeholder?: string;
   readOnly?: boolean;
   onBlur?: () => void;
+  name?: string;
+  /** The sheet puts focus here when it opens. */
+  autoFocusField?: boolean;
 };
 
 export function DateField({
@@ -158,6 +162,8 @@ export function DateField({
   placeholder = "Choose a date",
   readOnly,
   onBlur,
+  name,
+  autoFocusField,
 }: DateFieldProps) {
   const id = useId();
   const hintId = `${id}-hint`;
@@ -173,6 +179,8 @@ export function DateField({
         <Icon name="calendar" />
         <input
           id={id}
+          name={name}
+          data-autofocus={autoFocusField ? "" : undefined}
           type="date"
           value={value}
           disabled={readOnly}

@@ -105,6 +105,24 @@ describe("saved spends", () => {
     unmount();
   });
 
+  it("changes a spend through updateSpend, which ends a suggestion and refuses an unfinished one", async () => {
+    await writeDocs("transactions", [
+      { id: "t1", data: { ...spend, categorySuggested: true, createdAt: "2026-10-20T08:00:00.000Z" } },
+    ]);
+    const { result, unmount } = await openHook();
+    const fields = { amount: 52_500, store: "Kopi", description: "latte", categoryId: "groceries", date: "2026-10-21" };
+    await act(() => result.current.updateSpend("t1", fields));
+    const stored = (await only()).data;
+    expect(stored).toMatchObject(fields);
+    expect(stored).not.toHaveProperty("categorySuggested");
+
+    for (const missing of [{ amount: null }, { amount: 0 }, { categoryId: "" }, { store: " " }, { date: "" }]) {
+      await expect(result.current.updateSpend("t1", { ...fields, ...missing })).rejects.toThrow(/can't be saved/);
+    }
+    expect((await only()).data).toMatchObject(fields);
+    unmount();
+  });
+
   it("deletes a spend", async () => {
     await writeDocs("transactions", [{ id: "t1", data: { ...spend, createdAt: "2026-10-20T08:00:00.000Z" } }]);
     const { result, unmount } = await openHook();

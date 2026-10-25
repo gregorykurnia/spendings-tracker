@@ -5,8 +5,9 @@ function dots(n: number) {
   return String(Math.abs(Math.round(n))).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-/** `Rp 1.234.567`. A negative amount puts the sign in front: `-Rp 1.000`. */
-export function formatRupiah(amount: number) {
+/** `Rp 1.234.567`. A negative amount puts the sign in front: `-Rp 1.000`. A waiting line whose amount couldn't be read (`null`) says so. */
+export function formatRupiah(amount: number | null | undefined) {
+  if (amount == null) return "No amount";
   const rounded = Math.round(amount);
   return `${rounded < 0 ? "-" : ""}Rp ${dots(rounded)}`;
 }

@@ -16,6 +16,10 @@ describe("formatRupiah", () => {
     expect(formatRupiah(1999.6)).toBe("Rp 2.000");
     expect(formatRupiah(-475650)).toBe("-Rp 475.650");
   });
+  it("says so for a waiting line whose amount couldn't be read", () => {
+    expect(formatRupiah(null)).toBe("No amount");
+    expect(formatRupiah(undefined)).toBe("No amount");
+  });
   it("formats the digits alone for the big total", () => {
     expect(formatDigits(6842350)).toBe("6.842.350");
   });

@@ -37,6 +37,19 @@ describe("Button", () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it("looks off while not ready but still answers a press, so a form can say what is missing", () => {
+    const onClick = vi.fn();
+    render(
+      <Button notReady onClick={onClick}>
+        Add spend
+      </Button>
+    );
+    const button = screen.getByText("Add spend");
+    expect(button.getAttribute("aria-disabled")).toBe("true");
+    fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
   it("shows the verb in progress while busy, and does nothing", () => {
     const onClick = vi.fn();
     render(

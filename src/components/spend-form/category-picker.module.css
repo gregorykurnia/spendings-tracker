@@ -1,0 +1,30 @@
+.list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.list li + li .row {
+  border-top: 1px solid var(--line);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  column-gap: 14px;
+  width: 100%;
+  min-height: 58px;
+  padding: 7px 0;
+  font-size: var(--fs-b);
+  font-weight: 600;
+  text-align: left;
+}
+
+.on {
+  font-weight: 800;
+}
+
+.row > span:nth-child(2) {
+  overflow-wrap: anywhere;
+}

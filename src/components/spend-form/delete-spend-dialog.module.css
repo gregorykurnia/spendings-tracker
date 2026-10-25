@@ -1,0 +1,44 @@
+.card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-l);
+}
+
+.card b {
+  font-size: var(--fs-amt);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.main {
+  display: block;
+  min-width: 0;
+}
+
+.store {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.sub {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.note {
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}

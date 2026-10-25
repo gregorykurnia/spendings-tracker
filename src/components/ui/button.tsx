@@ -34,6 +34,11 @@ type ButtonProps = Look &
      * readable, and pressing it does nothing.
      */
     disabled?: boolean;
+    /**
+     * Looks off like `disabled` but still answers a press, so a form can say what is missing
+     * instead of ignoring the press.
+     */
+    notReady?: boolean;
     /** Waiting for something: a spinner and `busyLabel` (the verb in progress, such as "Saving…"). */
     busy?: boolean;
     busyLabel?: string;
@@ -45,6 +50,7 @@ export function Button({
   variant,
   size,
   disabled,
+  notReady,
   busy,
   busyLabel,
   writes,
@@ -79,7 +85,7 @@ export function Button({
         busy && styles.busy,
         blocked && styles.offline
       )}
-      aria-disabled={inert || undefined}
+      aria-disabled={inert || notReady || undefined}
       aria-busy={busy || undefined}
       onClick={handleClick}
     >
