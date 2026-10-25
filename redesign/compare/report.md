@@ -4,6 +4,9 @@ Run 2026-10-25 with `npm run compare` (`scripts/compare.ts`): 25 states at 390 a
 `redesign/compare/side/<state>-<width>.png` (prototype left, app right; images are not committed, rerun to get them).
 Rerun one state with `npm run compare -- --skip-build --only <state>`; the prototype shots are kept between runs
 (`--refresh-proto` shoots them again). Two states were rerun after the first run (see "Tool notes").
+Task 3.6 reran everything once with unhinted text and fresh prototype shots (see "Tool notes"): the items for
+Spending, All transactions and Categories below were written from the first run's shots, so look at the new
+`side/` images when fixing each one in 3.7; a width-only difference there is probably the same text-rounding artefact.
 
 States: home, home-stress, home-clear, home-import, form-add, form-notready, menu, spend, spend-stress, spend-open,
 spend-none, find, find-stress, find-filters, find-sheet, find-none, find-form, find-delete, org, org-stress, org-add,
@@ -17,14 +20,16 @@ Only layout, sizes, colours, spacing and wording that doesn't depend on data are
 ## To fix (by area; 3.6 takes home and form and whole app, 3.7 the rest)
 
 ### Home and form
-- **H1. Extra space before the links on a phone, when lines are waiting.** After the last waiting line the app leaves
-  about 100 to 130px (`home-390`, `home-stress-390`) before "Spending / All transactions / …". The prototype leaves
-  about 30px. Nothing like it in `home-clear` (no accept bar). Probably the room kept for the accept bar is counted
-  twice (page padding and the bar's own space).
-- **H2. Import tray: the action buttons are a little wider than the prototype's** (`home-import-390`): "Try again" and
-  "Type in a spend" don't fit on one row, so "Type in a spend" drops to a second row with "Dismiss". In the prototype
-  "Try again" and "Type in a spend" share a row and "Dismiss" sits alone under them. Check the button text size and
-  padding against the prototype's `.btn`; the tray width is the same.
+- **H1. Extra space before the links on a phone, when lines are waiting.** *Fixed in 3.6.* The room for the accept
+  bar (`96px` plus the safe area) was padding on the inbox section, so it sat between the last line and the links.
+  It is now padding at the end of the page (`.home:has(.withBar)` in `inbox.module.css`, as the prototype's
+  `body.has-bar`): about 30px before the links, and the bar still clears the last link.
+- **H2. Import tray buttons a little wider than the prototype's.** *Explained, not an app difference.* Both sides use
+  the same button rules (44 high, 18 side padding, 15px, 700), and the prototype loads the same Hanken Grotesk. The
+  widths differed only because headless Chrome on Linux rounds each letter's width to whole pixels, and it rounds the
+  app's variable font and the prototype's static files differently ("Type in a spend": 150 against 144). With text
+  unhinted, as on a phone, every string measures the same on both sides to 1/64 px and "Try again" and "Type in a
+  spend" share a row with "Dismiss" under them, as in the prototype. The tool now shoots unhinted.
 
 ### Spending
 - None found. (The chart difference is the prototype's bug: see "Explained".)
@@ -47,10 +52,12 @@ Only layout, sizes, colours, spacing and wording that doesn't depend on data are
   recheck after.
 
 ### Whole app
-- **A1. No-connection screen at opening** (`app-offline-boot-390`): the prototype's text block is narrower (three
-  lines at about 260px, the app's two lines at about 340px) and starts about 20px lower. Set the text's max width and
-  the top padding from the prototype's `.boot` (`--boot-max` 460, 24px side padding, `padding-top: 12vh`, and 18vh from 960 wide).
-  Same check for "Setting up" and "Couldn't load", which share the layout (not shot here).
+- **A1. No-connection screen at opening** (`app-offline-boot-390`). *Explained, not an app difference.* The app's
+  `.boot` rules are the prototype's own, rule for rule (`--boot-max` 460, `padding: 12vh 24px 48px`, 18vh from 960
+  wide), and so are `.failed` and the setting-up tiles. The prototype's narrower block starting 20px lower is its
+  `.offline` notice rule boxing the page through `<body class="offline">` (72px less width, 8px margin and 12px
+  padding above): see "Explained". With that class removed on the prototype side (`protoSetup`), both sides are
+  identical at 390 and 1280, including "again." on its own line, which is the design's own wrapping.
 
 ## Explained (nothing to fix)
 
@@ -61,7 +68,9 @@ Only layout, sizes, colours, spacing and wording that doesn't depend on data are
 - **Prototype bug: the day chart overflows** its column (`spend-390`, `spend-1280`: bars cut at the right edge, ragged
   heights on a month). Same `.bar` clash. The app's chart fits its column with all days. Don't copy it.
 - **Prototype bug: the whole page sits in a pale yellow rounded panel** in `app-offline-boot` and `app-offline`
-  (`.offline` notice rule applied to the page wrapper). The app has the notice only. Don't copy it.
+  (`.offline` notice rule applied to the page wrapper through `body.offline`). The app has the notice only. Don't copy
+  it. `app-offline-boot` now removes the class on the prototype side; `app-offline` keeps it, since that state needs
+  the read-only look.
 - **The accept bar sits mid-page in tall shots** of both sides: it is fixed to the bottom of the first screen and
   shows over the lines under it. Same on both.
 - **The import tray's screenshot thumbnails are solid coral squares in the app:** the test fixture is a one-pixel PNG
@@ -84,3 +93,6 @@ Add them to `STATES` in `scripts/compare.ts` if 3.6 or 3.7 wants a picture.
   `scripts/a11y.ts` (its "no connection" scan had been scanning the failed-to-load screen; rerun, still clean).
 - `menu` needed a click on the prototype side (`protoSetup`); reshot with `--refresh-proto`.
 - The browser clock is fixed to 2026-10-25 so both sides show the same weeks.
+- Chromium is launched with `--font-render-hinting=none` (task 3.6), so text widths are as on a phone. Without it a
+  headless Linux browser rounds every letter's width to whole pixels and the two sides' fonts disagree by a few
+  pixels per line, which showed up as differences that aren't there. All prototype shots were reshot with it.

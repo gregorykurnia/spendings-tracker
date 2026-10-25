@@ -11,13 +11,13 @@
   outline: 0;
 }
 
-/* the accept bar is fixed to the bottom on a phone: the page makes room for it */
 .inbox {
   order: 2;
   min-width: 0;
 }
 
-.withBar {
+/* the accept bar is fixed to the bottom on a phone: the end of the page, after the links, makes room for it */
+.home:has(.withBar) {
   padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
@@ -404,7 +404,7 @@
     order: 0;
   }
 
-  .withBar {
+  .home:has(.withBar) {
     padding-bottom: 0;
   }
 

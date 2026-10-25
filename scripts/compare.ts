@@ -204,6 +204,8 @@ const STATES: State[] = [
   // Whole app
   { id: "app-first", area: "Whole app", label: "First use: nothing at all yet", proto: "app-first", route: "/", data: "empty", setup: (p) => heading(p, "Add your first spending") },
   { id: "app-offline-boot", area: "Whole app", label: "No connection: opening the app", proto: "app-offline-boot", route: "/", data: "normal", offline: true,
+    // The prototype's `.offline` notice rule also hits `<body class="offline">` and boxes the page in a panel.
+    protoSetup: (p) => p.evaluate(`document.body.classList.remove("offline")`),
     setup: (p) => heading(p, "No connection") },
   { id: "app-offline", area: "Whole app", label: "No connection while using it", proto: "app-offline", route: "/", data: "normal",
     setup: async (p) => {
@@ -346,7 +348,10 @@ async function main() {
   const failures: string[] = [];
   try {
     servers = await startTestServers(args.includes("--skip-build"));
-    browser = await chromium.launch();
+    // Unhinted text, as on a phone: with hinting (the default on Linux) a browser rounds every letter's width
+    // to whole pixels, and the app's variable font and the prototype's static one round differently, so the
+    // same text is a few pixels wider on one side (the first run's "wider tray buttons").
+    browser = await chromium.launch({ args: ["--font-render-hinting=none"] });
     for (const s of states) {
       for (const vp of VIEWPORTS) {
         try {
