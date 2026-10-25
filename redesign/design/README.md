@@ -8,5 +8,5 @@ Inputs: `redesign/handoff/` (priorities and brief both FILLED).
 - `a-kas` one transaction at a time, floating dock.
 - `b-daybook` one home with grouped rows, no tab bar.
 - `c-tick` screenshot beside the result, bottom bar and rail.
-- Next: owner runs `! ./shoot` and picks one, or asks for a mix (one more round). The choice and reason go in `decisions.md`.
-- Open: the proposals in `decisions.md` need an answer.
+- Owner chose B with C's screenshot crop: `d-daybook-crop` (the one mix round). P1 to P4 adopted. Both in `decisions.md`.
+- Next: owner looks at `d-daybook-crop` (live page or `! ./shoot redesign/design/directions/d-daybook-crop`). If it is approved, stage 2: the prototype, one group of jobs at a time.
