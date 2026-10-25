@@ -14,3 +14,7 @@
   opacity: 0.4;
   cursor: default;
 }
+
+.offline {
+  opacity: 0.45;
+}

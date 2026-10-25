@@ -249,7 +249,7 @@ describe("counts", () => {
     const { result, unmount } = renderHook(() => useTransactionCounts());
 
     await waitFor(() =>
-      expect(result.current).toEqual({ a: { spends: 2, waiting: 1 }, b: { spends: 1, waiting: 0 } }),
+      expect(result.current.counts).toEqual({ a: { spends: 2, waiting: 1 }, b: { spends: 1, waiting: 0 } }),
       // The client first shows its cache of earlier tests' documents.
       { timeout: 10_000 }
     );

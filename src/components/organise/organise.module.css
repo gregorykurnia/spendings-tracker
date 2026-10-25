@@ -1,0 +1,351 @@
+/* Categories: the list, the form, the delete question. Wide layout from 960 (see tokens.css). */
+.org {
+  max-width: var(--page-narrow);
+  margin: 0 auto;
+  padding: 6px 20px 64px;
+}
+
+.org:focus {
+  outline: 0;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.head > div {
+  min-width: 0;
+}
+
+.head h1 {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.sub {
+  margin-top: 4px;
+  font-size: var(--fs-m);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.add {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  height: var(--touch);
+  padding: 0 16px 0 13px;
+  border-radius: 22px;
+  border: 1.5px solid var(--petrol);
+  background: transparent;
+  color: var(--petrol);
+  font-weight: 700;
+  font-size: var(--fs-m);
+}
+
+.add .long {
+  display: none;
+}
+
+.add[aria-disabled="true"] {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--ink-2);
+  cursor: default;
+}
+
+.addOffline {
+  opacity: 0.45;
+}
+
+.ctl {
+  margin-top: 14px;
+}
+
+.ctl button[aria-pressed="false"] {
+  border-color: var(--field-line);
+  color: var(--ink);
+}
+
+.note {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-m);
+  background: var(--lemon-soft);
+  border: 1px solid var(--lemon-line);
+  font-size: var(--fs-m);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.list li + li > .line {
+  border-top: 1px solid var(--line);
+}
+
+.list .cut + li > .line {
+  border-top: 0;
+}
+
+/* a row */
+.line {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+}
+
+.moving {
+  padding: 8px 0;
+}
+
+.main {
+  display: block;
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.count {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.go {
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+}
+
+.steps {
+  display: flex;
+  gap: 8px;
+}
+
+/* after the fourth row while the order is being changed */
+.cut {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: var(--fs-s);
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.cut::before,
+.cut::after {
+  content: "";
+  flex: 1;
+  height: 0;
+  border-top: 2px dashed var(--lemon-edge);
+}
+
+.cut span {
+  flex: none;
+}
+
+/* the form */
+.fields {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.formNote {
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+
+.previewRight {
+  display: grid;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  justify-items: start;
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  width: 62%;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.groupLabel {
+  font-size: var(--fs-m);
+  font-weight: 700;
+}
+
+.emoji {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.emo {
+  width: var(--touch);
+  height: var(--touch);
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-m);
+  border: 1.5px solid transparent;
+  font-size: var(--fs-emoji-pick);
+  line-height: 1;
+  background: var(--paper);
+}
+
+.emo[aria-pressed="true"] {
+  border-color: var(--petrol);
+  box-shadow: inset 0 0 0 1.5px var(--petrol);
+  background: var(--lemon-soft);
+}
+
+.own input {
+  max-width: 140px;
+  font-size: var(--fs-emoji);
+  text-align: center;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  width: var(--touch);
+  height: var(--touch);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid;
+  color: var(--ink);
+}
+
+.swatch[aria-checked="true"] {
+  box-shadow: 0 0 0 3px var(--ground), 0 0 0 5px var(--petrol);
+}
+
+.swatch:disabled,
+.emo:disabled {
+  opacity: 0.6;
+}
+
+.deleteZone {
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* the delete question */
+.card {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  background: var(--paper);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-l);
+}
+
+.question {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.checking {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-b);
+  font-weight: 600;
+}
+
+.moveNote {
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+@media (min-width: 960px) {
+  .org {
+    padding: 12px 40px 72px;
+  }
+
+  .head {
+    margin-top: 22px;
+  }
+
+  .head h1 {
+    font-size: var(--fs-h1-wide);
+  }
+
+  .add {
+    height: 48px;
+    font-size: var(--fs-b);
+  }
+
+  .add .long {
+    display: inline;
+  }
+}
+
+@media (hover: hover) {
+  a.line:hover .name,
+  button.line:hover .name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
