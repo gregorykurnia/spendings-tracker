@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daybook: 7 to check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ground:#FFFCEE;
+  --paper:#FFFFFF;
+  --ink:#0F3F54;
+  --ink-2:#4A6672;
+  --petrol:#14586F;
+  --lemon:#FFE88A;
+  --lemon-soft:#FFF4C4;
+  --lemon-line:#F1E3A0;
+  --line:#EDE5C2;
+  --line-2:#DDD2A0;
+  --food-t:#FFE3C8; --groc-t:#D9F0D6; --trans-t:#D6E8FA; --shop-t:#FAD9E6; --home-t:#E4DCF8; --subs-t:#CFF0EB;
+  font-family:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html{background:var(--ground);color:var(--ink);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;font-size:16px;line-height:1.4;font-variant-numeric:tabular-nums;padding-bottom:104px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--petrol);outline-offset:3px;border-radius:10px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+p{margin:0}
+
+/* bar */
+.bar{display:flex;align-items:center;justify-content:space-between;max-width:1120px;margin:0 auto;padding:10px 10px 0 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-.025em;text-decoration:none}
+.tools{display:flex}
+.icon-btn{width:48px;height:48px;display:grid;place-items:center;border-radius:50%}
+
+/* home layout */
+.home{display:grid;grid-template-columns:minmax(0,1fr);max-width:1120px;margin:0 auto;padding:6px 20px 0}
+.glance{order:1}
+.inbox{order:2}
+.hub{order:3}
+
+.glance{display:block;text-decoration:none;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:14px 16px 14px;margin-top:6px}
+.g-top{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600;color:var(--ink-2)}
+.g-amount{display:block;margin-top:2px;font-size:32px;font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.g-amount small{font-size:.5em;font-weight:700;color:var(--ink-2);letter-spacing:0;margin-right:.2em}
+.g-cmp{display:block;margin-top:2px;font-size:15px;font-weight:500;color:var(--ink-2)}
+
+.ib-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:24px 0 8px}
+.ib-head h1{margin:0;font-size:36px;font-weight:800;letter-spacing:-.035em;line-height:1.1}
+.ib-head p{margin-top:4px;font-size:15px;color:var(--ink-2);font-weight:500}
+.add{display:inline-flex;align-items:center;gap:8px;flex:none;height:44px;padding:0 16px 0 13px;border-radius:22px;border:1.5px solid var(--petrol);color:var(--petrol);font-weight:700;font-size:15px}
+.add .long{display:none}
+.ib-head > div{min-width:0}
+
+.grp{margin-top:14px}
+.grp h2{display:flex;align-items:baseline;gap:10px;margin:0;font-size:18px;font-weight:800;letter-spacing:-.01em}
+.grp h2 span{font-size:16px;color:var(--ink-2);font-weight:600}
+.rows{list-style:none;margin:0;padding:0}
+.row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;column-gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}
+.rows .row:first-child{border-top:0}
+.r-main{min-width:0}
+.r-store{margin-bottom:6px;font-size:16px;font-weight:700;letter-spacing:.005em;overflow-wrap:anywhere}
+.pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px 0 8px;border-radius:14px;font-size:14px;font-weight:600}
+.pill i{font-style:normal;font-size:15px;line-height:1}
+.p-food{background:var(--food-t)} .p-groc{background:var(--groc-t)} .p-trans{background:var(--trans-t)} .p-shop{background:var(--shop-t)} .p-home{background:var(--home-t)} .p-subs{background:var(--subs-t)}
+.r-side{text-align:right}
+.r-amt{font-size:17px;font-weight:800;letter-spacing:-.01em}
+.r-date{margin-top:4px;font-size:14px;color:var(--ink-2);font-weight:500}
+.tick{width:44px;height:44px;border-radius:50%;border:2px solid var(--petrol);color:var(--petrol);display:grid;place-items:center}
+
+.row.open{background:var(--paper);border:1px solid var(--line-2);border-radius:20px;padding:14px 14px 6px;margin:6px -12px}
+.rows .row.open:first-child{border-top:1px solid var(--line-2)}
+.row.open + .row{border-top:0}
+.r-edit{grid-column:1 / -1;display:grid;gap:12px;margin-top:14px}
+.note input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--ground);padding:0 16px;font-size:16px}
+.note input::placeholder{color:#5F7A85}
+.chips{display:flex;gap:8px;overflow:hidden}
+.chip{display:inline-flex;align-items:center;gap:6px;flex:none;height:44px;padding:0 15px 0 12px;border-radius:22px;border:1.5px solid var(--line-2);font-weight:600;font-size:15px;white-space:nowrap}
+.chip.on{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.r-links{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin:0 -14px;padding:0 14px}
+.r-links button{height:48px;font-weight:700;font-size:15px;color:var(--petrol)}
+.r-links button + button{color:var(--ink-2)}
+
+.grp.look{background:var(--lemon-soft);border-radius:24px;padding:16px 18px 4px;margin-top:22px}
+.look .row{border-top:1px solid var(--lemon-line);align-items:start;padding:14px 0 16px}
+.look .rows .row:first-child{border-top:0}
+.flag-ic{width:44px;height:44px;border-radius:50%;background:var(--lemon);display:grid;place-items:center;color:var(--ink)}
+.r-why{font-size:15px;color:var(--ink-2);font-weight:500;line-height:1.35}
+.r-act{grid-column:2 / -1;display:flex;gap:10px;margin-top:12px}
+.r-act button{height:44px;padding:0 18px;border-radius:22px;font-weight:700;font-size:15px;border:1.5px solid var(--petrol);color:var(--petrol)}
+.r-act button.solid{background:var(--petrol);color:#fff}
+
+.actionbar{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:12px 20px calc(16px + env(safe-area-inset-bottom));background:var(--ground);border-top:1px solid var(--line)}
+.accept-all{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:56px;border-radius:18px;background:var(--petrol);color:#fff;font-weight:800;font-size:17px}
+
+.hub{display:grid;margin-top:28px;border-top:1px solid var(--line)}
+.hub a{display:grid;grid-template-columns:44px minmax(0,1fr) 24px;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);text-decoration:none}
+.h-ic{width:44px;height:44px;border-radius:14px;background:var(--paper);border:1px solid var(--line);display:grid;place-items:center;color:var(--petrol)}
+.hub b{display:block;font-size:16px;font-weight:700}
+.hub small{display:block;font-size:14px;color:var(--ink-2);font-weight:500}
+
+@media (min-width:960px){
+  body{padding-bottom:40px}
+  .bar{padding:20px 28px 0 40px}
+  .home{grid-template-columns:minmax(0,1fr) 360px;grid-template-rows:auto 1fr;column-gap:56px;padding:12px 40px 0}
+  .inbox{grid-column:1;grid-row:1 / span 2;order:0}
+  .glance{grid-column:2;grid-row:1;order:0;margin-top:34px;padding:22px 24px}
+  .hub{grid-column:2;grid-row:2;order:0;align-self:start;margin-top:22px}
+  .g-top{font-size:16px}
+  .g-amount{font-size:46px;margin-top:6px}
+  .g-cmp{font-size:16px;margin-top:6px}
+  .ib-head{margin-top:30px}
+  .ib-head h1{font-size:52px}
+  .ib-head p{font-size:16px}
+  .add{height:48px;font-size:16px}
+  .add .long{display:inline}
+  .row{padding:15px 0}
+  .r-store{font-size:17px}
+  .row.open{margin:6px -18px;padding:16px 18px 6px}
+  .r-links{margin:0 -18px;padding:0 18px}
+  .r-edit{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);align-items:center}
+  .r-links{grid-column:1 / -1}
+  .grp.look{padding:18px 24px 4px}
+  .actionbar{position:sticky;left:auto;right:auto;bottom:0;margin-top:10px;padding:30px 0 22px;background:linear-gradient(to top,var(--ground) 64%,rgba(255,252,238,0));border:0}
+  .accept-all{height:60px;border-radius:20px;font-size:18px;box-shadow:0 14px 28px -14px rgba(20,88,111,.7)}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M6 20v-7M12 20V5M18 20v-10"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 7h11M9 12h11M9 17h11M4.5 7h.01M4.5 12h.01M4.5 17h.01"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5"/></symbol>
+  <symbol id="i-in" viewBox="0 0 24 24"><path d="M17 7L7 17M7 9v8h8"/></symbol>
+</svg>
+
+<header class="bar">
+  <a class="brand" href="#">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect width="30" height="30" rx="8" fill="#14586F"/><path d="M19 0v15.5l-3.5-3-3.5 3V0z" fill="#FFE88A"/></svg>
+    Daybook
+  </a>
+  <div class="tools">
+    <button class="icon-btn" type="button" aria-label="Search"><svg class="i"><use href="#i-search"/></svg></button>
+    <button class="icon-btn" type="button" aria-label="Menu"><svg class="i"><use href="#i-menu"/></svg></button>
+  </div>
+</header>
+
+<main class="home">
+
+  <a class="glance" href="#" aria-label="October so far, open spending">
+    <span class="g-top">October so far<svg class="i" style="width:20px;height:20px"><use href="#i-right"/></svg></span>
+    <span class="g-amount"><small>Rp</small>6.842.350</span>
+    <span class="g-cmp">Rp 475.650 lower than the same days in September</span>
+  </a>
+
+  <section class="inbox" aria-labelledby="t">
+    <div class="ib-head">
+      <div>
+        <h1 id="t">7 to check</h1>
+        <p>From 2 screenshots, added just now</p>
+      </div>
+      <button class="add" type="button" aria-label="Add screenshots"><svg class="i"><use href="#i-plus"/></svg><span>Add<span class="long"> screenshots</span></span></button>
+    </div>
+
+    <section class="grp" aria-labelledby="g1">
+      <h2 id="g1">Look right <span>5</span></h2>
+      <ul class="rows">
+        <li class="row open">
+          <button class="tick" type="button" aria-label="Accept INDOMARET FRESH BSD"><svg class="i"><use href="#i-check"/></svg></button>
+          <div class="r-main"><p class="r-store">INDOMARET FRESH BSD</p><span class="pill p-groc"><i>🛒</i>Groceries</span></div>
+          <div class="r-side"><p class="r-amt">Rp 87.450</p><p class="r-date">Sun 25 Oct</p></div>
+          <div class="r-edit">
+            <label class="note"><span class="sr">What did you buy?</span><input type="text" placeholder="What did you buy? (optional)"></label>
+            <div class="chips" aria-label="Category">
+              <span class="chip on"><i style="font-style:normal">🛒</i>Groceries</span>
+              <span class="chip"><i style="font-style:normal">🍽️</i>Food &amp; Drink</span>
+              <span class="chip"><i style="font-style:normal">🚗</i>Transport</span>
+              <span class="chip"><i style="font-style:normal">👗</i>Shopping</span>
+            </div>
+            <div class="r-links"><button type="button">Edit date and amount</button><button type="button">Not a spend</button></div>
+          </div>
+        </li>
+        <li class="row">
+          <button class="tick" type="button" aria-label="Accept GRAB* A-7XK2"><svg class="i"><use href="#i-check"/></svg></button>
+          <div class="r-main"><p class="r-store">GRAB* A-7XK2</p><span class="pill p-trans"><i>🚗</i>Transport</span></div>
+          <div class="r-side"><p class="r-amt">Rp 43.000</p><p class="r-date">Sat 24 Oct</p></div>
+        </li>
+        <li class="row">
+          <button class="tick" type="button" aria-label="Accept TOKOPEDIA"><svg class="i"><use href="#i-check"/></svg></button>
+          <div class="r-main"><p class="r-store">TOKOPEDIA</p><span class="pill p-shop"><i>👗</i>Shopping</span></div>
+          <div class="r-side"><p class="r-amt">Rp 1.249.000</p><p class="r-date">Sat 24 Oct</p></div>
+        </li>
+        <li class="row">
+          <button class="tick" type="button" aria-label="Accept PLN PREPAID 5390 4421"><svg class="i"><use href="#i-check"/></svg></button>
+          <div class="r-main"><p class="r-store">PLN PREPAID 5390 4421</p><span class="pill p-home"><i>🏠</i>Home &amp; Utilities</span></div>
+          <div class="r-side"><p class="r-amt">Rp 200.000</p><p class="r-date">Fri 23 Oct</p></div>
+        </li>
+        <li class="row">
+          <button class="tick" type="button" aria-label="Accept NETFLIX.COM"><svg class="i"><use href="#i-check"/></svg></button>
+          <div class="r-main"><p class="r-store">NETFLIX.COM</p><span class="pill p-subs"><i>🔧</i>Subscriptions</span></div>
+          <div class="r-side"><p class="r-amt">Rp 186.000</p><p class="r-date">Fri 23 Oct</p></div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="grp look" aria-labelledby="g2">
+      <h2 id="g2">Need a look <span>2</span></h2>
+      <ul class="rows">
+        <li class="row">
+          <span class="flag-ic"><svg class="i"><use href="#i-repeat"/></svg></span>
+          <div class="r-main"><p class="r-store">KOPI KENANGAN SCBD</p><p class="r-why">You already have this one, saved Sun 25 Oct.</p></div>
+          <div class="r-side"><p class="r-amt">Rp 28.000</p><p class="r-date">Sun 25 Oct</p></div>
+          <div class="r-act"><button class="solid" type="button">Throw away</button><button type="button">Keep it</button></div>
+        </li>
+        <li class="row">
+          <span class="flag-ic"><svg class="i"><use href="#i-in"/></svg></span>
+          <div class="r-main"><p class="r-store">TRSF E-BANKING CR</p><p class="r-why">Money coming in. Left out of spending.</p></div>
+          <div class="r-side"><p class="r-amt">Rp 5.000.000</p><p class="r-date">Fri 23 Oct</p></div>
+          <div class="r-act"><button class="solid" type="button">Throw away</button><button type="button">Count it</button></div>
+        </li>
+      </ul>
+    </section>
+
+    <div class="actionbar">
+      <button class="accept-all" type="button"><svg class="i"><use href="#i-check"/></svg>Accept the 5 that look right</button>
+    </div>
+  </section>
+
+  <nav class="hub" aria-label="More">
+    <a href="#"><span class="h-ic"><svg class="i"><use href="#i-chart"/></svg></span><span><b>Spending</b><small>Totals, categories and biggest spends</small></span><svg class="i" style="width:20px;height:20px"><use href="#i-right"/></svg></a>
+    <a href="#"><span class="h-ic"><svg class="i"><use href="#i-list"/></svg></span><span><b>All transactions</b><small>Search, filter and fix</small></span><svg class="i" style="width:20px;height:20px"><use href="#i-right"/></svg></a>
+    <a href="#"><span class="h-ic"><svg class="i"><use href="#i-grid"/></svg></span><span><b>Categories</b><small>Emoji, colour and order</small></span><svg class="i" style="width:20px;height:20px"><use href="#i-right"/></svg></a>
+  </nav>
+
+</main>
+</body>
+</html>

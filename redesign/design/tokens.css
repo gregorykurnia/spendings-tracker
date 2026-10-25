@@ -1,0 +1,109 @@
+/* Daybook design tokens. The one source for colour, type, shape, layout, motion and layers.
+   The prototype loads this file (prototype/index.html links ../tokens.css) and uses nothing else.
+   Light mode only. Media queries can't read custom properties, so the breakpoints are written here as comments:
+     wide layout    min-width 960px   (two columns, sticky accept bar, bigger titles)
+     dialogs        min-width 700px   (sheets become centred dialogs)
+     form pairs     min-width 600px   (two fields side by side)
+     category chips max-width 519px   (the fourth quick choice is hidden on small phones) */
+:root{
+  color-scheme:light;
+
+  /* ---------- colour: surfaces and ink ---------- */
+  --ground:#FFFCEE;         /* the page: a warm white */
+  --paper:#FFFFFF;          /* cards, inputs, sheets' content */
+  --ink:#0F3F54;            /* text */
+  --ink-2:#4A6672;          /* secondary text, 5.9:1 on the ground */
+  --ink-3:#566F7A;          /* placeholders, 5.2:1 */
+  --petrol:#14586F;         /* every action: buttons, ticks, links, selected */
+  --on-petrol:#FFFFFF;
+
+  /* ---------- colour: lemon means "look at this" (needs a look, the screenshot crop, filters that are on, biggest day) ---------- */
+  --lemon:#FFE88A;
+  --lemon-soft:#FFF4C4;
+  --lemon-line:#F1E3A0;
+  --lemon-edge:#E3B92E;
+
+  /* ---------- colour: alert means "wrong, or can't be undone" (no amount, field errors, deleting) ---------- */
+  --alert:#A52F1B;          /* 6.8:1 on the ground */
+  --alert-soft:#FDE6DF;
+  --alert-line:#F2B9A8;
+
+  /* ---------- colour: lines, fields, charts, overlay ---------- */
+  --line:#EDE5C2;           /* dividers, tracks */
+  --line-2:#DDD2A0;         /* card borders, resting chips */
+  --field-line:#79929C;     /* input and control borders, 3.2:1 on the ground */
+  --bar:#66919B;            /* day bars, 3.4:1 on the ground */
+  --day-on:rgba(20,88,111,.08);   /* the column behind the chosen day */
+  --scrim:rgba(15,63,84,.42);
+
+  /* ---------- colour: category swatches. The owner picks one per category (O2).
+     tint = pills, tiles, previews. solid = bars and rings. data.js mirrors these; check.js keeps them equal ---------- */
+  --sw-apricot-tint:#FFE3C8; --sw-apricot:#D4701C;
+  --sw-mint-tint:#D9F0D6;    --sw-mint:#3F9A4E;
+  --sw-sky-tint:#D6E8FA;     --sw-sky:#2F7FC4;
+  --sw-rose-tint:#FAD9E6;    --sw-rose:#D14F86;
+  --sw-lilac-tint:#E4DCF8;   --sw-lilac:#7C5FD0;
+  --sw-aqua-tint:#CFF0EB;    --sw-aqua:#22998A;
+  --sw-coral-tint:#FFD9D0;   --sw-coral:#DB5B43;
+  --sw-sand-tint:#EFE3CF;    --sw-sand:#A27B4C;
+  --sw-lime-tint:#E6F2C2;    --sw-lime:#74991A;
+  --sw-indigo-tint:#D8DEF8;  --sw-indigo:#4458C0;
+  --sw-slate-tint:#E3E8EA;   --sw-slate:#62767F;
+  --sw-plum-tint:#EBD3EE;    --sw-plum:#9C48A8;
+  --sw-cyan-tint:#D3EEF5;    --sw-cyan:#2490B0;
+
+  /* ---------- type: one family, Hanken Grotesk 400 to 800. Nothing under 14px. ---------- */
+  --font:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fs-s:14px;              /* captions, dates, hints, counts */
+  --fs-m:15px;              /* secondary lines, buttons, chips */
+  --fs-b:16px;              /* body, store names, inputs (16 stops iPhone zooming in) */
+  --fs-amt:17px;            /* amounts in rows */
+  --fs-l:18px;              /* section headings */
+  --fs-xl:22px;             /* sheet titles, the name in the bar */
+  --fs-2xl:28px;            /* titles of full-screen states */
+  --fs-big:32px;            /* the total on the home card (phone) */
+  --fs-h1:36px;             /* page titles (phone) */
+  --fs-hero:40px;           /* the total on Spending (phone) */
+  --fs-readout:26px;        /* the chosen day's amount */
+  --fs-glance-wide:46px;    /* home card, wide */
+  --fs-h1-wide:52px;        /* page titles, wide */
+  --fs-hero-wide:56px;      /* Spending total, wide */
+  --fs-readout-wide:30px;
+  --fs-hero-long:28px;      /* a total of ten digits or more, so it fits (phone) */
+  --fs-hero-long-wide:38px;
+  --fs-emoji-s:20px;        /* emoji sizes */
+  --fs-emoji:22px;
+  --fs-emoji-pick:24px;
+  --fs-emoji-big:28px;
+
+  /* ---------- shape and size ---------- */
+  --r-s:10px;
+  --r-m:14px;               /* inputs, small cards */
+  --r-l:20px;               /* cards */
+  --r-xl:24px;              /* sheets, groups */
+  --touch:44px;             /* the smallest thing you press */
+
+  /* ---------- layout ---------- */
+  --page-max:1120px;        /* home, Spending */
+  --page-narrow:760px;      /* All transactions, Categories */
+  --sheet-max:560px;        /* sheets and dialogs */
+  --boot-max:460px;         /* full-screen states */
+
+  /* ---------- elevation and layers ---------- */
+  --shadow-sheet:0 -12px 40px -16px rgba(15,63,84,.4);
+  --shadow-dialog:0 28px 60px -20px rgba(15,63,84,.5);
+  --shadow-cta:0 14px 28px -14px rgba(20,88,111,.7);
+  --z-bar:5;
+  --z-overlay:20;
+  --z-toast:30;
+  --z-skip:50;
+
+  /* ---------- motion: answers a touch, never decorates. All of it stops under "reduce motion". ---------- */
+  --dur-step:.12s;          /* progress bar steps */
+  --dur-fast:.18s;          /* scrim, toast */
+  --dur-leave:.2s;          /* a row leaving */
+  --dur-sheet:.22s;         /* a sheet rising */
+  --dur-spin:.8s;           /* spinner turn */
+  --dur-slide:1.5s;         /* the reading bar */
+  --dur-pulse:1.8s;         /* loading grey */
+}

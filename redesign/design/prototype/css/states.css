@@ -1,0 +1,52 @@
+/* App-wide states: no connection, loading, failed to load, first use. */
+
+/* no connection while the app is open: read-only */
+.offline{display:flex;align-items:flex-start;gap:10px;width:calc(100% - 40px);max-width:calc(var(--page-max) - 40px);margin:8px auto 0;padding:12px 16px;background:var(--lemon-soft);border:1px solid var(--lemon-line);border-radius:var(--r-m);font-size:var(--fs-m);color:var(--ink)}
+.offline svg.i{margin-top:1px;color:var(--ink)}
+.offline p b{font-weight:800}
+body.offline .tick,body.offline .add,body.offline .accept-all,body.offline .r-act .btn,
+body.offline .shot-act .btn[data-act="tray-retry"],body.offline .r-links button[data-act="throw"],
+body.offline .chip[data-act="set-cat"],body.offline .step[data-act="cat-move"]{opacity:.45}
+.f-err.net{padding:10px 12px;border-radius:var(--r-m);background:var(--alert-soft);border:1px solid var(--alert-line)}
+
+/* the app could not be opened: no connection, or loading failed */
+.boot-btn{margin-top:18px;min-width:180px}
+.boot-note{margin-top:10px;font-size:var(--fs-b);font-weight:700;color:var(--ink)}
+.failed{display:grid;justify-items:center;gap:8px;max-width:var(--boot-max);margin:0 auto;padding:12vh 24px 48px;text-align:center}
+.failed:focus{outline:0}
+.fail-mark{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:var(--alert-soft);box-shadow:inset 0 0 0 1.5px var(--alert-line);color:var(--alert)}
+.failed h1{margin-top:10px;font-size:var(--fs-2xl);font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.failed p{max-width:34ch;font-size:var(--fs-b);color:var(--ink-2)}
+.failed .btn{margin-top:14px;min-width:180px}
+
+/* loading: the same layout in grey */
+.sk{display:block;background:var(--line);border-radius:8px;animation:pulse var(--dur-pulse) ease-in-out infinite}
+@keyframes pulse{50%{opacity:.5}}
+.sk.h1{width:62%;max-width:260px;height:38px;border-radius:12px}
+.sk.l1{width:46%;height:14px}
+.sk.l2{width:30%;height:14px}
+.sk.l2.mid{width:44%;margin:0 auto}
+.sk.gap{margin-top:12px}
+.sk.big{width:56%;height:36px;margin:12px 0 10px;border-radius:10px}
+.sk.pillbtn{flex:none;width:84px;height:var(--touch);border-radius:22px}
+.sk.pillbtn.wide{width:170px}
+.sk.seg{flex:none;width:164px;height:48px;border-radius:24px}
+.sk.circ{flex:none;width:var(--touch);height:var(--touch);border-radius:50%}
+.sk.search{height:54px;margin-top:14px;border-radius:27px}
+.sk-ctl{display:flex;gap:10px;margin-top:12px}
+.sk-card .sk.l1{margin-top:2px}
+.sk-rows{list-style:none;padding:0;margin-top:14px}
+.sk-row{display:grid;grid-template-columns:44px minmax(0,1fr) 64px;gap:14px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.sk-row:first-child{border-top:0}
+.sk.disc{width:44px;height:44px;border-radius:14px}
+.sk-t{display:grid;gap:10px}
+.sk-t .sk.l1{width:72%}
+.sk-t .sk.l2{width:42%}
+.sk.r{width:64px;height:16px}
+.sec-cats .sk-rows{margin-top:6px}
+
+/* first use */
+.empty.first{padding:24px 22px}
+.steps{list-style:none;padding:0;display:grid;gap:14px;margin:4px 0 0}
+.steps li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:start;max-width:42ch;font-size:var(--fs-b);color:var(--ink)}
+.steps .n{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--lemon-soft);border:1.5px solid var(--lemon-edge);font-size:var(--fs-m);font-weight:800}

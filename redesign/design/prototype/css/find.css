@@ -1,0 +1,57 @@
+/* Find and fix: All transactions (search, filters, order, rows), the filters sheet, deleting. */
+.fx{max-width:var(--page-narrow);margin:0 auto;padding:6px 20px 64px}
+.fx:focus{outline:0}
+.fx h1{margin-top:12px;font-size:var(--fs-h1);font-weight:800;letter-spacing:-.035em;line-height:1.1}
+
+.fx-search{position:relative;margin-top:14px}
+.fx-search .input{height:54px;padding:0 52px 0 48px;border-radius:27px}
+.fx-search .input::-webkit-search-cancel-button,.fx-search .input::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
+.fx-ic{position:absolute;left:17px;top:0;height:54px;display:flex;align-items:center;color:var(--ink-2);pointer-events:none}
+.fx-x{position:absolute;right:5px;top:5px;width:var(--touch);height:var(--touch);display:grid;place-items:center;border-radius:50%;color:var(--ink-2)}
+
+.fx-ctl{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.fbtn{gap:8px;padding:0 16px 0 13px}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--petrol);color:var(--on-petrol);font-size:var(--fs-s);font-weight:800}
+.sort{position:relative;display:inline-flex;align-items:center}
+.sort select{-webkit-appearance:none;appearance:none;height:var(--touch);padding:0 42px 0 16px;border-radius:22px;border:1.5px solid var(--field-line);background:var(--paper);color:var(--ink);font-size:var(--fs-m);font-weight:700;cursor:pointer}
+.sort svg.i{position:absolute;right:13px;pointer-events:none;color:var(--ink-2)}
+
+/* filters that are on: lemon, because they hide things */
+.fx-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.fx-chip{display:inline-flex;align-items:center;gap:8px;height:var(--touch);padding:0 10px 0 15px;border-radius:22px;background:var(--lemon-soft);border:1.5px solid var(--lemon-edge);color:var(--ink);font-size:var(--fs-m);font-weight:700;max-width:100%;text-align:left;overflow-wrap:anywhere}
+.fx-chip svg.i{color:var(--ink-2);flex:none}
+.fx-count{margin-top:14px;font-size:var(--fs-m);font-weight:600;color:var(--ink-2)}
+.fx-list{margin-top:2px}
+.fx .empty{margin-top:14px}
+.fx .empty p + p{margin-top:2px}
+.fx .empty b{color:var(--ink);font-size:var(--fs-l)}
+
+/* rows: the shared .tx-line, plus these */
+.tx-line mark{padding:0 2px;border-radius:4px;background:var(--lemon);color:var(--ink)}
+.fx-none{display:inline-flex;align-items:center;gap:4px;color:var(--alert);font-weight:700}
+.tx-side small{display:flex;align-items:center;justify-content:flex-end;gap:5px}
+.tx-side small svg.i{width:14px;height:14px;color:var(--ink-2)}
+
+/* the filters sheet */
+.fs{min-width:0;margin:0;padding:0;border:0}
+.fs legend{margin-bottom:10px;padding:0;font-size:var(--fs-b);font-weight:800}
+.dstep{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}
+.dstep-l{flex:1;min-width:0;text-align:center;font-size:var(--fs-b);font-weight:800}
+.fs .field + .field,.fs .dstep + .field{margin-top:0}
+.fs .f-err{margin-top:8px}
+
+/* deleting */
+.del-zone{margin-top:4px;padding-top:16px;border-top:1px solid var(--line)}
+.btn.danger-o{border-color:var(--alert);color:var(--alert)}
+.btn.danger{background:var(--alert);border-color:var(--alert);color:#fff}
+.btn.danger[aria-disabled="true"]{background:var(--alert);border-color:var(--alert);color:#fff;opacity:.75}
+.del-card{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px;background:var(--paper);border:1px solid var(--line-2);border-radius:var(--r-l)}
+.del-card b{font-size:var(--fs-amt);font-weight:800;letter-spacing:-.01em;text-align:right;overflow-wrap:anywhere}
+
+@media (min-width:960px){
+  .fx{padding:12px 40px 72px}
+  .fx h1{margin-top:22px;font-size:var(--fs-h1-wide)}
+}
+@media (hover:hover){
+  .fx-chip:hover{background:var(--lemon)}
+}
