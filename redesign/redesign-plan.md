@@ -23,10 +23,10 @@ Work one step per session. At the start of each session, check the model against
 - [x] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` (2026-10-25) — you, interviewed by a helper session **Haiku 5.5 Max**
 
 **Design (studio, never sees the old app)**
-- [ ] Step 3a: 3 directions as screenshots; you pick one (or one mix); choice recorded in `decisions.md` — **Sonnet 5.5 xHigh** · studio; screenshots by `! ./shoot`
-- [ ] Step 3b: prototype of every job story and state, phone and desktop — **Sonnet 5.5 xHigh** · studio
-- [ ] Step 3c: `tokens.css` and `design-notes.md` with a coverage table; you approve; version and date added — **Sonnet 5.5 xHigh** · studio
-- [ ] Step 3d: design imported onto `main` — **Haiku 5.5 High** · Claude on `main`
+- [x] Step 3a: 3 directions as screenshots; you pick one (or one mix); choice recorded in `decisions.md` — **Sonnet 5.5 xHigh** · studio; screenshots by `! ./shoot` — chose D (Daybook + screenshot crop), 2026-10-25
+- [x] Step 3b: prototype of every job story and state, phone and desktop — **Sonnet 5.5 xHigh** · studio — 2026-10-25
+- [x] Step 3c: `tokens.css` and `design-notes.md` with a coverage table; you approve; version and date added — **Sonnet 5.5 xHigh** · studio — v1.0 approved 2026-10-25
+- [x] Step 3d: design imported onto `main` — **Haiku 5.5 High** · Claude on `main` — cb3c4a9, 2026-10-25
 
 **Rebuild**
 - [ ] Step 4: `redesign/ui-implementation-plan.md` (3 phases, written for `autorun all`); `autorun check` finds its first task; you approve — **Opus 5.5 High** · Claude on `main`
