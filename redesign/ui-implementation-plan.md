@@ -78,7 +78,7 @@ Sent as needs to `redesign/handoff/needs.md`. Until the studio answers, the task
 
 | Phase.task | Task | Model · effort | Why | Done |
 |---|---|---|---|---|
-| 1.1 | Safe test setup: emulator, Vitest, Playwright on a test build, seed script, one smoke spec | Opus 5.5 High | must provably never touch the live database |  |
+| 1.1 | Safe test setup: emulator, Vitest, Playwright on a test build, seed script, one smoke spec | Opus 5.5 High | must provably never touch the live database | 2026-10-25, test setup |
 | 1.2 | Data layer for the design: types, OCR route, waiting-line actions, categories, counts | Opus 5.5 High | data writes and a live-data compatibility rule |  |
 | 1.3 | Pure logic: money, dates, periods, comparison, review reasons, filters, swatches | Sonnet 5.5 High | well specified, unit-tested maths |  |
 | 1.4 | Tokens, font, layout and shared parts; whole-app states | Sonnet 5.5 xHigh | sets the look every screen builds on |  |
