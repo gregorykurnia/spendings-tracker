@@ -173,7 +173,7 @@ As R1, for the Phase 2 diff; also compare each screen against its prototype stat
 | 3.5 | Screenshot compare tool: app vs prototype, run once, list differences | Sonnet 5.5 High | builds the slow tool once | 2026-10-25, compare run |
 | 3.6 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes | 2026-10-25, home gap |
 | 3.7 | Fix compare differences: Spending, All transactions, Categories | Sonnet 5.5 xHigh | visual fixes | 2026-10-25, add form spacing |
-| 3.8 | Phase 3 end-to-end: full e2e suite once, build | Sonnet 5.5 High | final flow check |  |
+| 3.8 | Phase 3 end-to-end: full e2e suite once, build | Sonnet 5.5 High | final flow check | 2026-10-25, 64 e2e + build |
 | R3 | Phase 3 review | Opus 5.5 High | phase review rule |  |
 
 ### 3.1 Reverse-check leftovers

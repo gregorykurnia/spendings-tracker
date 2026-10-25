@@ -68,7 +68,10 @@ test.describe("from a screenshot to a deleted spend", () => {
     await expect(title(page)).toHaveText("1 to check");
     await page.getByRole("button", { name: "Accept Toko Journey, Rp 9.876.000" }).click();
     await expect(title(page)).toHaveText("All checked");
-    await expect.poll(async () => (await spendNamed("Toko Journey"))?.data.amount ?? 0).toBe(9_876_000);
+    // Two spends carry this store (the old one and the new one), in no fixed order.
+    await expect
+      .poll(async () => (await savedSpends()).filter((d) => d.data.store === "Toko Journey").map((d) => d.data.amount).sort())
+      .toEqual([11_111, 9_876_000]);
     expect((await listDocs("transactions")).filter((d) => d.data.status === "pending_review")).toHaveLength(0);
     expect((await savedSpends()).filter((d) => d.data.store === "Toko Journey")).toHaveLength(2);
 
