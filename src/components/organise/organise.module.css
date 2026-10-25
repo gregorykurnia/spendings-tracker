@@ -217,7 +217,7 @@
 
 .group {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   align-content: start;
 }
 
@@ -248,6 +248,17 @@
   border-color: var(--petrol);
   box-shadow: inset 0 0 0 1.5px var(--petrol);
   background: var(--lemon-soft);
+}
+
+/* the label is a quiet hint, not a field label like "Emoji" and "Colour" */
+.ownLabel {
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.own {
+  margin-top: 8px;
 }
 
 .own input {

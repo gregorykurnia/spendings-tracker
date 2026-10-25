@@ -163,7 +163,7 @@ export function CategoryForm({ mode, categories, actions, spends, onClose }: Pro
               </div>
               <TextField
                 className={styles.own}
-                label="Or type or paste your own"
+                label={<span className={styles.ownLabel}>Or type or paste your own</span>}
                 name="emoji"
                 value={(SUGGESTED_EMOJI as readonly string[]).includes(draft.emoji) ? "" : draft.emoji}
                 placeholder="🙂"

@@ -17,7 +17,7 @@ category chips and wording that depends on them ("Oldest is from…" against "Fr
 the store name" line, "Accept all 3" against "Accept the 5 that look right") always differ and are **not** listed.
 Only layout, sizes, colours, spacing and wording that doesn't depend on data are.
 
-## To fix (by area; 3.6 takes home and form and whole app, 3.7 the rest)
+## To fix (by area; 3.6 took home and form and whole app, 3.7 the rest: all done or explained)
 
 ### Home and form
 - **H1. Extra space before the links on a phone, when lines are waiting.** *Fixed in 3.6.* The room for the accept
@@ -32,24 +32,29 @@ Only layout, sizes, colours, spacing and wording that doesn't depend on data are
   spend" share a row with "Dismiss" under them, as in the prototype. The tool now shoots unhinted.
 
 ### Spending
-- None found. (The chart difference is the prototype's bug: see "Explained".)
+- None found. (The chart difference is the prototype's bug: see "Explained".) Task 3.7 looked again at every Spending
+  pair from the unhinted run (`spend`, `spend-stress`, `spend-open`, `spend-none`, both widths): still none. The
+  smaller total in `spend-stress` is the design's own rule (10 digits or more get the `long` size, as in the
+  prototype's `spending.js`; the prototype's stress total has 9).
 
 ### All transactions
-- **F1. Where focus lands in the delete question.** In `find-delete` (both widths) the prototype shows the focus ring
-  on Cancel; the app shows no ring. The app may have focus there already (a ring shows only for keyboard use after a
-  mouse click). Check that focus lands on Cancel when the question opens, as design notes §6 asks; if it does, no change.
-- **F2. The filters sheet's "Clear all" with no filter on** (`find-sheet`): the app shows a filled beige disabled
-  button. The prototype's state has filters on, so it only shows the enabled look (a plain text button); the disabled
-  look isn't in the prototype. Not a difference to fix unless the design says otherwise; a design question for the
-  studio only if the owner thinks the beige block looks heavy.
+- **F1. Where focus lands in the delete question.** *Explained, not an app difference.* Focus does land on Cancel
+  when the question opens (`data-autofocus` on it; `e2e/transactions.spec.ts` and `e2e/categories.spec.ts` assert
+  `toBeFocused`). The ring is missing only in the shot: the prototype's state loads with no click, so the browser
+  counts it as keyboard use, while the app's shot comes after a mouse click on "Delete this spend", and a ring
+  shows only for keyboard use. The app has the same `:focus-visible` rule as the prototype.
+- **F2. The filters sheet's "Clear all" with no filter on** (`find-sheet`). *Explained, not an app difference.* The
+  prototype's own rule `.btn[aria-disabled="true"]` (beige fill) applies to its quiet "Clear all" when no filter is
+  on (`find.js` sets `aria-disabled`); its shot just has filters on. The app's beige look is that rule. A design
+  question for the studio only if the owner thinks the beige block looks heavy.
 
 ### Categories
-- **C1. "Or type or paste your own" label** (`org-add`, both widths): the prototype's is small, regular weight and
-  muted (the `.hint` style); the app's is bold in the ink colour, like the "Emoji" and "Colour" labels. Make it the
-  hint style.
-- **C2. Spacing in the add form:** the app's "Emoji" grid and the "Or type…" row sit about 4px tighter than the
-  prototype's (`org-add-390`: the field below it starts 4px higher). Follows from C1 once the label is the hint style;
-  recheck after.
+- **C1. "Or type or paste your own" label** (`org-add`, both widths). *Fixed in 3.7.* It is now the hint style
+  (small, regular weight, muted: `.ownLabel` in `organise.module.css`), as the prototype's `.hint` span in the label.
+- **C2. Spacing in the add form.** *Fixed in 3.7.* Not a follow-on of C1: measured on the shots, the app's emoji tiles
+  sat 2px lower (group gap 8px against the prototype's `.field` gap of 6px) and its "Or type…" label 6px higher (the
+  prototype's `.own` adds 8px above it). `.group` is now 6px (also the "Move to" and "Colour" groups) and `.own` has
+  `margin-top: 8px`. Every text row of `org-add-390` now sits on the same pixel row as the prototype's.
 
 ### Whole app
 - **A1. No-connection screen at opening** (`app-offline-boot-390`). *Explained, not an app difference.* The app's
