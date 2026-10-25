@@ -761,6 +761,20 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   ok(/Kebutuhan-rumah-tangga/.test(app()) && /18 categories/.test(text(app())), 'a very long name with no spaces is listed');
   D.stress = false;
 
+  console.log('Lines that are not ready (no store, no date)');
+  D.applyScenario('review-incomplete', true);
+  ph = app(); t = text(ph);
+  validate(ph, 'review-incomplete');
+  ok(/No store name/.test(t) && /The store name is missing\./.test(t) && /Add store/.test(t), 'a line with no store says so and offers to add one');
+  ok(/No date/.test(t) && /The date is missing\./.test(t) && /Add date/.test(t), 'a line with no date says so');
+  ok(/Need a look 4/.test(t) && /Accept the 5 that look right/.test(t), 'neither can be accepted, and neither is in the accept bar');
+  var noStore = D.S.waiting.filter(function (w) { return !w.store; })[0];
+  D.acts.fix({dataset: {id: noStore.id, focus: 'store'}});
+  ok(D.form.focus === 'store' && /data-autofocus/.test(formHtml()) && /Still needed: store\./.test(text(formHtml())), 'the form opens on the store');
+  D.ins['f-store']({value: 'WARUNG BU RINI'});
+  ok(D.problems(noStore).length === 0, 'once it has a store the line is ready');
+  D.overlay.closeAll();
+
   /* ---------- group 5: app-wide states ---------- */
   console.log('First use');
   D.applyScenario('app-first', true);
@@ -897,7 +911,7 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   var man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
   var idx = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   ok(man.display === 'standalone' && man.start_url && man.name === 'Daybook', 'manifest: standalone, named, starts at the app');
-  ok(man.background_color === '#FFFCEE' && man.theme_color === '#FFFCEE' && /--ground:#FFFCEE/.test(fs.readFileSync(path.join(ROOT, 'css/tokens.css'), 'utf8')), 'manifest colours are the ground colour');
+  ok(man.background_color === '#FFFCEE' && man.theme_color === '#FFFCEE' && /--ground:#FFFCEE/.test(fs.readFileSync(path.join(ROOT, '..', 'tokens.css'), 'utf8')), 'manifest colours are the ground colour');
   man.icons.forEach(function (ic) {
     var buf = fs.readFileSync(path.join(ROOT, ic.src)), w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
     ok(buf.slice(1, 4).toString() === 'PNG' && ic.sizes === w + 'x' + h, 'icon ' + ic.src + ' is a real PNG of the size it claims');
@@ -905,6 +919,81 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   ok(man.icons.some(function (i) { return i.purpose === 'maskable'; }) && man.icons.some(function (i) { return i.sizes === '192x192'; }) && man.icons.some(function (i) { return i.sizes === '512x512'; }), 'icons: 192, 512 and a maskable one');
   ok(/rel="manifest"/.test(idx) && /apple-touch-icon/.test(idx) && /apple-mobile-web-app-capable/.test(idx) && /viewport-fit=cover/.test(idx) && /name="theme-color"/.test(idx), 'the page links the manifest, the touch icon and the standalone settings');
   ok(fs.existsSync(path.join(ROOT, 'icons/apple-touch-icon.png')), 'touch icon exists');
+
+  console.log('Tokens and the rules they carry');
+  var tokensCss = fs.readFileSync(path.join(ROOT, '..', 'tokens.css'), 'utf8');
+  var tok = {};
+  tokensCss.replace(/(--[a-z0-9-]+):\s*([^;]+);/g, function (_, k, v) { tok[k] = v.trim(); });
+  Object.keys(D.SWATCHES).forEach(function (k) {
+    ok(tok['--sw-' + k + '-tint'] && tok['--sw-' + k + '-tint'].toLowerCase() === D.SWATCHES[k][0].toLowerCase() && tok['--sw-' + k].toLowerCase() === D.SWATCHES[k][1].toLowerCase(), 'swatch ' + k + ' is the same in tokens.css and data.js');
+  });
+  ok(Object.keys(tok).filter(function (k) { return /^--sw-.*-tint$/.test(k); }).length === Object.keys(D.SWATCHES).length, 'no swatch only in one place');
+  var cssFiles = ['base', 'capture', 'spending', 'find', 'org', 'states'].map(function (f) { return [f, fs.readFileSync(path.join(ROOT, 'css', f + '.css'), 'utf8')]; });
+  ok(!fs.existsSync(path.join(ROOT, 'css', 'tokens.css')), 'tokens live in one file');
+  var used = {}, defined = tok;
+  cssFiles.forEach(function (f) {
+    f[1].replace(/var\((--[a-z0-9-]+)/g, function (_, k) { used[k] = f[0]; if (!(k in defined)) ok(false, f[0] + '.css uses ' + k + ', which tokens.css does not define'); });
+    f[1].replace(/font-size:\s*(\d+(?:\.\d+)?)px/g, function (_, n) { ok(+n >= 14, f[0] + '.css has a font-size of ' + n + 'px, under 14'); });
+  });
+  Object.keys(tok).filter(function (k) { return !/^--sw-/.test(k); }).forEach(function (k) {
+    ok(used[k] || ['--ink-3'].indexOf(k) >= 0 || tokensCss.indexOf('var(' + k) >= 0, 'token ' + k + ' is used somewhere');
+  });
+  Object.keys(tok).filter(function (k) { return /^--fs-/.test(k); }).forEach(function (k) {
+    var v = parseFloat(tok[k]); ok(v >= 14, k + ' is ' + v + 'px, under 14');
+  });
+  /* controls you press are at least 44px tall: find each rule and read its height */
+  var allCss = cssFiles.map(function (f) { return f[1]; }).join('\n');
+  [['.btn', 'height:var(--touch)'], ['.add', 'height:var(--touch)'], ['.jump', 'height:var(--touch)'], ['.step', 'height:var(--touch)'], ['.tick', 'height:var(--touch)'],
+   ['.icon-btn', 'height:48px'], ['.chip', 'min-height:var(--touch)'], ['.emo', 'height:var(--touch)'], ['.swatch', 'height:var(--touch)'], ['.fx-chip', 'height:var(--touch)'],
+   ['.fx-x', 'height:var(--touch)'], ['.sort select', 'height:var(--touch)'], ['.seg button', 'height:var(--touch)'], ['.back', 'height:48px'], ['.r-links button', 'height:48px']].forEach(function (c) {
+    var sel = c[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var re = new RegExp('(^|\\n|\\})\\s*' + sel + '\\{[^}]*' + c[1].replace(/[()]/g, '\\$&'));
+    ok(re.test(allCss), 'control ' + c[0] + ' is at least 44px tall (' + c[1] + ')');
+  });
+  ok(tok['--touch'] === '44px', 'the touch size is 44px');
+
+  console.log('Contrast, as the design notes quote it');
+  function lum(hex) { var c = [1, 3, 5].map(function (i) { var v = parseInt(hex.slice(i, i + 2), 16) / 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+  function ratio(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  var tk = function (n) { return tok['--' + n]; };
+  [['ink', 'ground', 10.9], ['ink-2', 'ground', 5.9], ['ink-2', 'paper', 4.5], ['ink-3', 'ground', 5.1], ['petrol', 'ground', 7.6], ['on-petrol', 'petrol', 7.8], ['alert', 'alert-soft', 5.8],
+   ['alert', 'ground', 4.5], ['alert', 'lemon-soft', 4.5], ['ink', 'lemon', 9], ['ink', 'lemon-soft', 9], ['ink-2', 'lemon-soft', 4.5], ['ink-2', 'line', 4.8]].forEach(function (p) {
+    ok(ratio(tk(p[0]), tk(p[1])) >= p[2], p[0] + ' on ' + p[1] + ' is ' + ratio(tk(p[0]), tk(p[1])).toFixed(2) + ', needs ' + p[2]);
+  });
+  Object.keys(D.SWATCHES).forEach(function (k) {
+    ok(ratio(tk('ink'), tk('sw-' + k + '-tint')) >= 8.1, 'ink on the ' + k + ' tint is at least 8.1');
+    ok(ratio(tk('sw-' + k), '#FFFFFF') >= 3.3, 'the solid ' + k + ' is at least 3.3 against white');
+  });
+  ok(ratio(tk('field-line'), tk('ground')) >= 3.1 && ratio(tk('field-line'), tk('paper')) >= 3.1 && ratio(tk('bar'), tk('ground')) >= 3.3, 'control borders and day bars are at least 3:1');
+
+  console.log('Design notes: coverage');
+  var notes = fs.readFileSync(path.join(ROOT, '..', 'design-notes.md'), 'utf8');
+  var inv = fs.readFileSync(path.join(ROOT, '..', '..', 'handoff', 'inventory.md'), 'utf8');
+  var cov = notes.slice(notes.indexOf('## 8. Coverage'));
+  var storyIds = (inv.match(/^- \*\*[CRUFO]\d+\*\*/gm) || []).map(function (m) { return m.replace(/\W/g, ''); });
+  ok(storyIds.length === 36, 'the inventory has 36 stories');
+  storyIds.forEach(function (id) {
+    var row = cov.split('\n').filter(function (l) { return l.indexOf('| ' + id + ' |') === 0; })[0];
+    ok(row, 'coverage table has a row for ' + id);
+    ok(row && /`[a-z]+(-[a-z0-9]+)+`|`picker`/.test(row), id + ' points at a state id you can open');
+  });
+  var stateBlock = inv.split('## States')[1].split('## Hard constraints')[0];
+  var stateRows = cov.split('### States')[1].split('### Hard constraints')[0];
+  var stateNames = (stateBlock.match(/^- \*\*[^*]+\*\*/gm) || []).map(function (m) { return m.replace(/^- \*\*|[:*,.]+\*?\*?$/g, '').replace(/\*\*/g, ''); });
+  ok(stateNames.length === 16, 'the inventory lists 16 state groups (' + stateNames.length + ')');
+  var wanted = ['Nothing yet', 'Starter categories being set up', 'Loading', 'Failed to load', 'No connection', 'No results', 'No earlier spending to compare with', 'Import in progress',
+    'Import failed', 'Waiting for review', 'Amount couldn', 'Not ready to save', 'Saving or deleting in progress', 'Checking a category before deleting', 'Missing category', 'A day with no spending'];
+  wanted.forEach(function (w) { ok(stateRows.indexOf('| ' + w) >= 0, 'state "' + w + '" has a row in the table'); });
+  var hard = inv.split('## Hard constraints')[1].match(/^- \*\*[^*]+\*\*/gm).map(function (m) { return m.replace(/^- \*\*|[.,]?\*\*$/g, ''); });
+  var hardRows = cov.split('### Hard constraints')[1].split('### Gaps')[0].toLowerCase();
+  ok(hard.length === 7, 'the inventory has 7 hard constraints');
+  hard.forEach(function (h) { ok(hardRows.indexOf('| ' + h.toLowerCase()) >= 0, 'hard constraint "' + h + '" has its own row'); });
+  var mentioned = {}, ids = {};
+  D.scenarios.forEach(function (sc) { ids[sc.id] = 1; });
+  notes.replace(/`([a-z]+(?:-[a-z0-9]+)+|picker)`/g, function (_, id) { mentioned[id] = 1; });
+  Object.keys(mentioned).filter(function (id) { return /^(review|import|form|spend|find|org|app)-/.test(id) || id === 'picker'; }).forEach(function (id) { ok(ids[id], 'the notes name state "' + id + '" and it exists'); });
+  D.scenarios.forEach(function (sc) { ok(mentioned[sc.id], 'state "' + sc.id + '" is in the notes'); });
+  ok(/^\*\*Status:\*\*/m.test(notes), 'the notes carry a status line');
 
   /* money formatting */
   ok(D.rp(1234567) === 'Rp 1.234.567' && D.rp(5000) === 'Rp 5.000' && D.rp(48250000) === 'Rp 48.250.000', 'rupiah formatting');

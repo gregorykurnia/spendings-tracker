@@ -117,3 +117,11 @@ Built on P7: tapping a row anywhere opens the same "Change spend" form. If P7 is
 1. **Read-only while offline.** The inventory says data can't load, save or import offline, so I made nothing queue up for later. Default: as built.
 2. **The "Try again" on a failed load doesn't say how long to wait.** Default: as built; "in a moment" is the only promise.
 
+## Stage 3: design notes (2026-10-25)
+- **Tokens are one file, `redesign/design/tokens.css`,** and the prototype uses nothing else. Checked: switching the prototype to it changed only what is listed here.
+- **Three things changed on the way, all to make the system consistent:** the "need a look" button was 40px high and is now 44 (every control you press is at least 44); page titles on Categories and All transactions were 44px wide and are now 52 like the other two; the white used on petrol buttons is now a token.
+- **One state was added to show a path that had no screen:** `review-incomplete` (a waiting line with no store name or no date).
+- **The coverage tables are checked by the prototype's script** against the inventory, so a story or state can't go missing without it failing.
+- **Nothing in the notes is new design.** Where a rule came from a decision, the notes point at `decisions.md`; the open questions there still have their defaults.
+- **Not frozen.** The notes carry "draft for approval". Approving them freezes groups 4 and 5 as built too, which you haven't looked at yet.
+

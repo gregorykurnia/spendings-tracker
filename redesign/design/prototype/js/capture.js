@@ -682,6 +682,11 @@
 
   addScenario({id: 'review-fresh', group: 'Review', label: 'A fresh batch: 7 to check', run: function (s) { D.batchFor(s); s.ui.openId = firstRight(s); }});
   addScenario({id: 'review-problems', group: 'Review', label: 'Lines that need you: no amount, no category', run: function (s) { batchProblems(s); s.ui.openId = null; }});
+  addScenario({id: 'review-incomplete', group: 'Review', label: 'Lines with no store name or no date', run: function (s) {
+    batchFresh(s); s.ui.openId = null;
+    s.waiting.push(D.mkLine(s, {store: '', amount: 56000, date: '2026-10-24', cat: 'food', fresh: true}));
+    s.waiting.push(D.mkLine(s, {store: 'WARUNG MAKAN SINAR', amount: 72000, date: '', cat: 'food', fresh: true}));
+  }});
   addScenario({id: 'review-later', group: 'Review', label: 'Coming back later: 12 waiting', run: function (s) { batchLater(s); s.ui.openId = null; }});
   addScenario({id: 'review-clear', group: 'Review', label: 'All checked: nothing waiting', run: function (s) { s.waiting = []; }});
   addScenario({id: 'review-saving', group: 'Review', label: 'Saving: accepting the ones that look right', run: function (s) {

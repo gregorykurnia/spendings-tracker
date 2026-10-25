@@ -1,5 +1,5 @@
 /* Find and fix: All transactions (search, filters, order, rows), the filters sheet, deleting. */
-.fx{max-width:760px;margin:0 auto;padding:6px 20px 64px}
+.fx{max-width:var(--page-narrow);margin:0 auto;padding:6px 20px 64px}
 .fx:focus{outline:0}
 .fx h1{margin-top:12px;font-size:var(--fs-h1);font-weight:800;letter-spacing:-.035em;line-height:1.1}
 
@@ -11,7 +11,7 @@
 
 .fx-ctl{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
 .fbtn{gap:8px;padding:0 16px 0 13px}
-.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--petrol);color:#fff;font-size:var(--fs-s);font-weight:800}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--petrol);color:var(--on-petrol);font-size:var(--fs-s);font-weight:800}
 .sort{position:relative;display:inline-flex;align-items:center}
 .sort select{-webkit-appearance:none;appearance:none;height:var(--touch);padding:0 42px 0 16px;border-radius:22px;border:1.5px solid var(--field-line);background:var(--paper);color:var(--ink);font-size:var(--fs-m);font-weight:700;cursor:pointer}
 .sort svg.i{position:absolute;right:13px;pointer-events:none;color:var(--ink-2)}
@@ -46,11 +46,11 @@
 .btn.danger{background:var(--alert);border-color:var(--alert);color:#fff}
 .btn.danger[aria-disabled="true"]{background:var(--alert);border-color:var(--alert);color:#fff;opacity:.75}
 .del-card{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px;background:var(--paper);border:1px solid var(--line-2);border-radius:var(--r-l)}
-.del-card b{font-size:17px;font-weight:800;letter-spacing:-.01em;text-align:right;overflow-wrap:anywhere}
+.del-card b{font-size:var(--fs-amt);font-weight:800;letter-spacing:-.01em;text-align:right;overflow-wrap:anywhere}
 
 @media (min-width:960px){
   .fx{padding:12px 40px 72px}
-  .fx h1{margin-top:22px;font-size:44px}
+  .fx h1{margin-top:22px;font-size:var(--fs-h1-wide)}
 }
 @media (hover:hover){
   .fx-chip:hover{background:var(--lemon)}
