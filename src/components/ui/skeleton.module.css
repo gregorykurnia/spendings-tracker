@@ -1,0 +1,120 @@
+/* the grey that stands in for loading: the same layout as the screen, so nothing jumps when it arrives */
+.sk {
+  display: block;
+  background: var(--line);
+  border-radius: 8px;
+  animation: pulse var(--dur-pulse) ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.block {
+  width: 46%;
+  height: 14px;
+}
+
+.short {
+  width: 30%;
+  height: 14px;
+}
+
+.mid {
+  width: 44%;
+  height: 14px;
+  margin: 0 auto;
+}
+
+.title {
+  width: 62%;
+  max-width: 260px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.amount {
+  width: 56%;
+  height: 36px;
+  margin: 12px 0 10px;
+  border-radius: 10px;
+}
+
+.search {
+  height: 54px;
+  margin-top: 14px;
+  border-radius: 27px;
+}
+
+.button {
+  flex: none;
+  width: 84px;
+  height: var(--touch);
+  border-radius: 22px;
+}
+
+.buttonWide {
+  flex: none;
+  width: 170px;
+  height: var(--touch);
+  border-radius: 22px;
+}
+
+.segment {
+  flex: none;
+  width: 164px;
+  height: 48px;
+  border-radius: 24px;
+}
+
+.circle {
+  flex: none;
+  width: var(--touch);
+  height: var(--touch);
+  border-radius: 50%;
+}
+
+.disc {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+.figure {
+  width: 64px;
+  height: 16px;
+}
+
+.rows {
+  list-style: none;
+  padding: 0;
+  margin-top: 14px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 64px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.row:first-child {
+  border-top: 0;
+}
+
+.text {
+  display: grid;
+  gap: 10px;
+}
+
+.text > :first-child {
+  width: 72%;
+}
+
+.text > :last-child {
+  width: 42%;
+}

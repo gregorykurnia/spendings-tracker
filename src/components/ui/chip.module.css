@@ -1,0 +1,58 @@
+/* category chips: the fourth quick choice hides at 519 and below (see tokens.css) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--touch);
+  max-width: 100%;
+  padding: 5px 15px 5px 12px;
+  border-radius: 22px;
+  border: 1.5px solid var(--line-2);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: var(--fs-m);
+  line-height: 1.25;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.chip i {
+  font-style: normal;
+}
+
+.on {
+  background: var(--petrol);
+  border-color: var(--petrol);
+  color: var(--on-petrol);
+}
+
+.more {
+  border-style: dashed;
+  border-color: var(--field-line);
+  color: var(--ink-2);
+  padding: 0 12px 0 15px;
+}
+
+.chip[aria-disabled="true"] {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--ink-2);
+  cursor: default;
+}
+
+.offline {
+  opacity: 0.45;
+}
+
+@media (max-width: 519px) {
+  .fourth {
+    display: none;
+  }
+}

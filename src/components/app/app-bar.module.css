@@ -1,0 +1,39 @@
+/* wide: 960 (see tokens.css) */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  /* the notch, when installed */
+  padding: calc(10px + env(safe-area-inset-top)) 10px 0 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: var(--fs-xl);
+  letter-spacing: -0.025em;
+  text-decoration: none;
+}
+
+.tools {
+  display: flex;
+}
+
+.iconBtn {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
+@media (min-width: 960px) {
+  .bar {
+    padding: calc(20px + env(safe-area-inset-top)) 28px 0 40px;
+  }
+}

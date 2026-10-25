@@ -1,17 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Nav from "@/components/Nav";
+import { Hanken_Grotesk } from "next/font/google";
+import AppShell from "@/components/app/app-shell";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import "@/styles/tokens.css";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// A variable font: weights 400 to 800 come from one file.
+const hanken = Hanken_Grotesk({
+  variable: "--font-hanken",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,11 +27,14 @@ export const metadata: Metadata = {
   },
 };
 
+// viewport-fit=cover lets the page reach the edges of a notched phone; the bars add the safe-area
+// padding. Zooming is left on.
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  themeColor: "#10b981",
+  viewportFit: "cover",
+  themeColor: "#FFFCEE",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -42,13 +43,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
-        <main className="flex-1 pb-20">{children}</main>
-        <Nav />
+    <html lang="en" className={hanken.variable}>
+      <body>
+        <AppShell>{children}</AppShell>
         <ServiceWorkerRegister />
       </body>
     </html>

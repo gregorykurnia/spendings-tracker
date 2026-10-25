@@ -1,0 +1,205 @@
+/* form fields pair up from 600 wide (see tokens.css); that is the form's layout, not the field's */
+.field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.label {
+  font-size: var(--fs-m);
+  font-weight: 700;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  height: 52px;
+  border-radius: var(--r-m);
+  border: 1.5px solid var(--field-line);
+  background: var(--paper);
+  padding: 0 16px;
+  /* 16 stops iPhone zooming in on focus */
+  font-size: var(--fs-b);
+}
+
+.input::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--alert);
+  background: var(--alert-soft);
+}
+
+/* read-only while saving, or with no connection */
+.input[readonly] {
+  background: var(--line);
+  border-color: var(--line-2);
+}
+
+/* messages */
+.err {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  color: var(--alert);
+  font-size: var(--fs-m);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.err svg {
+  margin-top: 1px;
+}
+
+.net {
+  padding: 10px 12px;
+  border-radius: var(--r-m);
+  background: var(--alert-soft);
+  border: 1px solid var(--alert-line);
+}
+
+.hint {
+  font-size: var(--fs-s);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.sum {
+  font-size: var(--fs-m);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+/* amount */
+.amountBox {
+  position: relative;
+}
+
+.rp {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+
+.amount {
+  padding-left: 48px;
+  font-weight: 700;
+  font-size: var(--fs-l);
+}
+
+/* date: the native input lies over the box, invisible, so its picker opens from anywhere on it */
+.dateBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 52px;
+  padding: 0 16px;
+  border-radius: var(--r-m);
+  border: 1.5px solid var(--field-line);
+  background: var(--paper);
+  font-size: var(--fs-b);
+}
+
+.dateBox input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+}
+
+.dateBox:focus-within {
+  outline: 3px solid var(--petrol);
+  outline-offset: 3px;
+}
+
+.dateBox[data-invalid="true"] {
+  border-color: var(--alert);
+  background: var(--alert-soft);
+}
+
+.dateBox svg {
+  color: var(--ink-2);
+}
+
+/* search */
+.search {
+  position: relative;
+}
+
+.searchInput {
+  height: 54px;
+  padding: 0 52px 0 48px;
+  border-radius: 27px;
+}
+
+.searchInput::-webkit-search-cancel-button,
+.searchInput::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 17px;
+  top: 0;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+
+.clear {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: var(--touch);
+  height: var(--touch);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink-2);
+}
+
+/* select */
+.select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+}
+
+.select select {
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--touch);
+  padding: 0 42px 0 16px;
+  border-radius: 22px;
+  border: 1.5px solid var(--field-line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--fs-m);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.select svg {
+  position: absolute;
+  right: 13px;
+  pointer-events: none;
+  color: var(--ink-2);
+}

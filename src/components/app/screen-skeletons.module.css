@@ -1,0 +1,211 @@
+/* wide layout: 960 (see tokens.css) */
+.gap {
+  margin-top: 12px;
+}
+
+/* home */
+.home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 6px 20px 0;
+}
+
+.home:focus,
+.sp:focus,
+.list:focus,
+.org:focus {
+  outline: 0;
+}
+
+.glance {
+  order: 1;
+  display: block;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  padding: 14px 16px;
+  margin-top: 6px;
+}
+
+.glance > :last-child,
+.hero > :last-child {
+  margin-top: 2px;
+}
+
+.inbox {
+  order: 2;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 24px 0 8px;
+}
+
+.head > div {
+  min-width: 0;
+}
+
+/* Spending */
+.sp {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 6px 20px 56px;
+}
+
+.spLeft,
+.spRight {
+  display: contents;
+}
+
+.spHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hero {
+  order: 1;
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+
+.cats {
+  order: 2;
+  margin-top: 30px;
+}
+
+.catRows {
+  margin-top: 6px;
+}
+
+/* All transactions */
+.list {
+  max-width: var(--page-narrow);
+  margin: 0 auto;
+  padding: 6px 20px 64px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Categories */
+.org {
+  max-width: var(--page-narrow);
+  margin: 0 auto;
+  padding: 6px 20px 64px;
+}
+
+.orgHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.orgHead > div {
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-rows: auto 1fr;
+    column-gap: 56px;
+    padding: 12px 40px 0;
+  }
+
+  .inbox {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    order: 0;
+  }
+
+  .glance {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+    margin-top: 34px;
+    padding: 22px 24px;
+  }
+
+  .head {
+    margin-top: 30px;
+  }
+
+  .sp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    column-gap: 56px;
+    align-items: start;
+    padding: 12px 40px 64px;
+  }
+
+  .spTop {
+    grid-column: 1 / -1;
+  }
+
+  .spLeft {
+    display: block;
+    grid-column: 1;
+  }
+
+  .spRight {
+    display: block;
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .spHead {
+    margin-top: 16px;
+  }
+
+  .pnav {
+    max-width: 520px;
+    margin-top: 14px;
+  }
+
+  .hero {
+    margin-top: 18px;
+    padding: 22px 26px 24px;
+  }
+
+  .cats {
+    margin-top: 18px;
+  }
+
+  .list {
+    padding: 12px 40px 72px;
+  }
+
+  .org {
+    padding: 12px 40px 72px;
+  }
+
+  .orgHead {
+    margin-top: 22px;
+  }
+}

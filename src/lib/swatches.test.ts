@@ -1,7 +1,15 @@
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { SWATCH_NAMES, SWATCH_SOLID, isSwatchName, leastUsedSwatch, swatchFor } from "./swatches";
+import {
+  SWATCH_NAMES,
+  SWATCH_SOLID,
+  isSwatchName,
+  leastUsedSwatch,
+  swatchFor,
+  swatchSolid,
+  swatchTint,
+} from "./swatches";
 
 describe("swatchFor", () => {
   it("returns a swatch name as it is", () => {
@@ -34,6 +42,15 @@ describe("leastUsedSwatch", () => {
     const all = SWATCH_NAMES.map((color) => ({ color }));
     expect(leastUsedSwatch(all)).toBe("apricot");
     expect(leastUsedSwatch([...all, { color: "apricot" }, { color: "mint" }])).toBe("sky");
+  });
+});
+
+describe("swatchTint and swatchSolid", () => {
+  it("point at the tokens of the swatch a stored colour stands for", () => {
+    expect(swatchTint("mint")).toBe("var(--sw-mint-tint)");
+    expect(swatchSolid("mint")).toBe("var(--sw-mint)");
+    expect(swatchTint("#D4701C")).toBe("var(--sw-apricot-tint)"); // an old hex value
+    expect(swatchSolid(undefined)).toBe("var(--sw-slate)");
   });
 });
 

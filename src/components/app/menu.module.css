@@ -1,0 +1,42 @@
+.list {
+  display: grid;
+}
+
+.list > * + * {
+  border-top: 1px solid var(--line);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 24px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  text-decoration: none;
+  text-align: left;
+  width: 100%;
+}
+
+.item b {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+}
+
+.item small {
+  display: block;
+  font-size: var(--fs-s);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-m);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  color: var(--petrol);
+}

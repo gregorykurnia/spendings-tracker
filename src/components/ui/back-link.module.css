@@ -1,0 +1,12 @@
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 48px;
+  margin-left: -6px;
+  padding: 0 14px 0 4px;
+  color: var(--petrol);
+  font-size: var(--fs-b);
+  font-weight: 700;
+  text-decoration: none;
+}

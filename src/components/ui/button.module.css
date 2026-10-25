@@ -1,0 +1,92 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--touch);
+  padding: 0 18px;
+  border-radius: 22px;
+  border: 1.5px solid var(--petrol);
+  background: transparent;
+  color: var(--petrol);
+  font-weight: 700;
+  font-size: var(--fs-m);
+  white-space: nowrap;
+  text-decoration: none;
+  text-align: center;
+}
+
+.solid {
+  background: var(--petrol);
+  color: var(--on-petrol);
+}
+
+.big {
+  height: 52px;
+  border-radius: 26px;
+  font-size: var(--fs-b);
+}
+
+.quiet {
+  border-color: transparent;
+  color: var(--ink-2);
+}
+
+.danger {
+  background: var(--alert);
+  border-color: var(--alert);
+  color: #fff;
+}
+
+.dangerOutline {
+  border-color: var(--alert);
+  color: var(--alert);
+}
+
+/* not ready, or busy: grey and still readable (secondary ink on the grey is 4.8:1) */
+.btn[aria-disabled="true"] {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--ink-2);
+  cursor: default;
+}
+
+.danger[aria-disabled="true"] {
+  background: var(--alert);
+  border-color: var(--alert);
+  color: #fff;
+  opacity: 0.75;
+}
+
+.busy,
+.busy[aria-disabled="true"] {
+  cursor: progress;
+}
+
+/* no connection: dimmed, and pressing it says why */
+.offline {
+  opacity: 0.45;
+}
+
+.spin {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  animation: spin var(--dur-spin) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* the one thing that keeps moving when motion is reduced: a slow turn shows it is still working */
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: spin 2s linear infinite !important;
+  }
+}

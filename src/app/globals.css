@@ -1,23 +1,100 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-}
-
+/* Colours, sizes, radii, shadows and durations are defined only in src/styles/tokens.css (imported by
+   layout.tsx). This file lets Tailwind utilities read them; a component that needs more than utilities
+   has a CSS module that uses only var(--…). The breakpoints repeat the comment at the top of tokens.css,
+   because media queries can't read custom properties. The default Tailwind palette stays until the old
+   screens are gone (phase 2). */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-hanken), var(--font);
+
+  --color-ground: var(--ground);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-petrol: var(--petrol);
+  --color-on-petrol: var(--on-petrol);
+  --color-lemon: var(--lemon);
+  --color-lemon-soft: var(--lemon-soft);
+  --color-lemon-line: var(--lemon-line);
+  --color-lemon-edge: var(--lemon-edge);
+  --color-alert: var(--alert);
+  --color-alert-soft: var(--alert-soft);
+  --color-alert-line: var(--alert-line);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-field-line: var(--field-line);
+  --color-bar: var(--bar);
+  --color-day-on: var(--day-on);
+  --color-scrim: var(--scrim);
+
+  --text-s: var(--fs-s);
+  --text-m: var(--fs-m);
+  --text-b: var(--fs-b);
+  --text-amt: var(--fs-amt);
+  --text-l: var(--fs-l);
+  --text-xl: var(--fs-xl);
+  --text-2xl: var(--fs-2xl);
+  --text-big: var(--fs-big);
+  --text-h1: var(--fs-h1);
+  --text-hero: var(--fs-hero);
+
+  --radius-s: var(--r-s);
+  --radius-m: var(--r-m);
+  --radius-l: var(--r-l);
+  --radius-xl: var(--r-xl);
+
+  --breakpoint-pair: 600px;
+  --breakpoint-dialog: 700px;
+  --breakpoint-wide: 960px;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    /* no pull-to-refresh, no bounce */
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    /* the installed app's bottom edge on a notched phone */
+    padding-bottom: env(safe-area-inset-bottom);
+    font-size: var(--fs-b);
+    line-height: 1.4;
+    /* figures line up */
+    font-variant-numeric: tabular-nums;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--petrol);
+    outline-offset: 3px;
+    border-radius: 10px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
+/* Reduced motion stops the animations. The one exception is the spinner (`ui/button.module.css`): a slow
+   turn shows that something is still happening. The loading grey keeps its colour without pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

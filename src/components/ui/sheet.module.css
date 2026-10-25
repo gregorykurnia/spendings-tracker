@@ -1,0 +1,130 @@
+/* a sheet below 700 wide, a dialog from 700 (see tokens.css) */
+.ov {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  animation: fade var(--dur-fast) ease-out;
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  max-width: var(--sheet-max);
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  background: var(--ground);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: var(--shadow-sheet);
+  animation: rise var(--dur-sheet) ease-out;
+  outline: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 10px 6px 20px;
+}
+
+.head h2 {
+  font-size: var(--fs-xl);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.close {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.body {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 6px 20px 18px;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.foot {
+  padding: 12px 20px calc(16px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--ground);
+  display: grid;
+  gap: 10px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* the buttons in a sheet's foot are the big ones */
+.buttons > * {
+  height: 52px;
+  border-radius: 26px;
+  font-size: var(--fs-b);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0.4;
+  }
+}
+
+@media (min-width: 700px) {
+  .ov {
+    align-items: center;
+  }
+
+  .panel {
+    border-radius: var(--r-xl);
+    max-height: min(88vh, 780px);
+    box-shadow: var(--shadow-dialog);
+  }
+
+  .head {
+    padding: 20px 16px 6px 28px;
+  }
+
+  .body {
+    padding: 8px 28px 22px;
+  }
+
+  .foot {
+    padding: 14px 28px 22px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .buttons > * {
+    min-width: 150px;
+  }
+}

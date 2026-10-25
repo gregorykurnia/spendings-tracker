@@ -89,3 +89,13 @@ export function leastUsedSwatch(categories: readonly { color: string }[]): Swatc
   }
   return best;
 }
+
+/** The tint of a category's swatch as a CSS value (`var(--sw-mint-tint)`): pills, tiles, previews. */
+export function swatchTint(color: string | null | undefined) {
+  return `var(--sw-${swatchFor(color)}-tint)`;
+}
+
+/** The solid colour of a category's swatch as a CSS value (`var(--sw-mint)`): bars and rings. */
+export function swatchSolid(color: string | null | undefined) {
+  return `var(--sw-${swatchFor(color)})`;
+}
