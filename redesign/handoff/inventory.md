@@ -9,7 +9,7 @@ The user is one person tracking their own spending from a BCA (Indonesian bank) 
 - **C1** When I've paid for several things from my bank account, I want to bring in one or more banking-app screenshots at once and have the transactions extracted for me, so that I don't type each one.
 - **C2** When I paid in cash, or a spend isn't in any screenshot, I want to record it by hand with its date (today unless I change it), store, amount, category and an optional note, so that my record is complete.
 - **C3** When screenshots are being read, I want to know the import is still working, so that I don't leave or send the same screenshots again.
-- **C4** When a screenshot can't be read, or holds no transactions, I want to be told so, so that I can retake it or type those spends in myself.
+- **C4** When one screenshot in a batch can't be read, or holds no transactions, I want to be told which one while the rest are still read, so that I can retake just that one or type those spends in myself.
 
 ## Review
 
@@ -19,15 +19,22 @@ The user is one person tracking their own spending from a BCA (Indonesian bank) 
 - **R4** When something extracted isn't a real spend (a duplicate, an incoming transfer, a misread line), I want to throw it away before it counts, so that my totals stay honest.
 - **R5** When I come back later, I want transactions I haven't checked yet to still be waiting, and to know how many there are, so that I can finish reviewing in my own time.
 - **R6** When I've corrected part of an extracted transaction and get interrupted, I want my corrections kept, so that I don't redo them.
+- **R7** When a whole batch of extracted transactions looks correct, I want to accept them all at once, so that a clean import takes one step.
+- **R8** When transactions are extracted, I want each to arrive with a suggested category based on its store, so that most of the time I only confirm it.
+- **R9** When an extracted transaction looks like one I already have (same date, amount and store), I want to be warned, so that I don't count it twice.
+- **R10** When a screenshot includes money coming in, I want it skipped or clearly marked as incoming, so that it's never counted as spending.
+- **R11** When I check an extracted transaction, I want to add what I actually bought as a note and set its category while checking it, so that each record says more than the bank's store name.
 
 ## Understand
 
 - **U1** When I want to know where I stand, I want the total I've spent in the current month or week, so that I can judge whether to slow down.
-- **U2** When I see a period's total, I want it compared with the period before (how much higher or lower, and what the earlier total was), so that I know whether I'm spending more or less than usual.
+- **U2** When I see a period's total, I want it compared with the period before (how much higher or lower, and what the earlier total was), like for like: while a period is still running, against the same number of days of the period before, so that I know whether I'm spending more or less than usual.
 - **U3** When I want to know where the money went, I want the period's spending split by category, each with its amount, biggest first, and each category recognisable by its emoji and colour, so that the heaviest areas stand out.
 - **U4** When I want to know when I spent, I want spending shown day by day across the period, with the exact amount for any single day, so that I notice spikes.
 - **U5** When I want to know what hit hardest, I want the period's biggest spends, each with its date, store and category, so that I remember the large purchases.
 - **U6** When I want to look back, I want to move to any earlier (or later) week or month, and switch between week and month while staying around the same date, so that I can compare past periods.
+- **U7** When a category stands out, I want to go straight to its transactions for that period, so that I see what made it up.
+- **U8** When I see one of the biggest spends, I want to open that transaction, so that I can check or correct it.
 
 ## Find & fix
 
@@ -62,6 +69,7 @@ Every one of these needs a designed moment:
 - **Import in progress,** possibly several screenshots in one go.
 - **Import failed** for a screenshot, or **found nothing** in it.
 - **Waiting for review:** some extracted transactions not yet checked, with their count.
+- **Amount couldn't be read** in an extracted transaction: obvious at a glance, and it can't be accepted until fixed.
 - **Not ready to save:** a transaction missing its amount (must be above zero), store, category or date; a category missing its name.
 - **Saving or deleting in progress.**
 - **Checking a category before deleting it,** then either "no transactions, delete it" or "has transactions, choose where they go".

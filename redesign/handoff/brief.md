@@ -1,24 +1,34 @@
 # Brief
 
-Status: DRAFT
+Status: FILLED
 
 ## Who uses it
-You, on your phone (and desktop?): when and where do you open it, and for how long?
+Me, on my phone, mostly just after paying: I take a screenshot in the banking app and import and check it on the spot, in a short session. Several times a week I glance at where my money is going; about once a week I search for or fix older transactions. Sometimes on a desktop browser.
 
 ## Language
-English, Indonesian or both?
+English. Store names stay as the bank writes them.
 
 ## Personality
-Pick one or two: calm, dense, playful, warm, clinical (or your own word).
+Calm and quiet. Modern, clean and bright: visually polished and pretty, never old-fashioned, never experimental or gimmicky.
+- **Density:** balanced. Key numbers big, details close by.
+- **Colour:** soft and warm, but not playful or experimental.
+- **Type:** modern and clean.
+- **Voice:** plain and brief.
 
 ## References
-2–3 apps you admire that aren't this one, and what you like about each.
+No particular apps. What I want: clear, modern and light, and not too much like a banking app.
+
+## Dislikes
+- Clutter: too many numbers and charts competing at once
+- Too many taps for the everyday job
+- Gimmicks: gamification, confetti, heavy animation
+- Tiny or faint text
 
 ## Constraints
-Phone and desktop? Installable? Light mode, dark mode, or both?
+Phone first; desktop sometimes, where it must still work well. Installable. Light mode only.
 
 ## Branding
-Name, logo and colours are open. Write only what you want to keep.
+All open: name, logo and colours.
 
 ## Permission to challenge
-The designer may propose merging, splitting or removing concepts. Proposals come to you and are never adopted silently. Anything you want kept off the table?
+The designer may propose merging, splitting or removing concepts. Proposals come to me and are never adopted silently. Nothing is off the table.

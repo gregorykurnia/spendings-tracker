@@ -101,3 +101,25 @@ Each has a suggested default; Step 2 decides.
 
 | # | Decision | Story change |
 |---|---|---|
+| 1 | Use each category's own colour everywhere | none (U3 already says so) |
+| 2 | No share % in the category split | none |
+| 3 | Design question only | none |
+| 4 | Like-for-like comparison while a period is running; full period for past ones | U2 reworded |
+| 5 | Extraction suggests a category from the store; you confirm or change it | R8 added |
+| 6 | Extraction skips or flags incoming money | R10 added |
+| 7 | Flag likely duplicates (same date, amount, store) in review | R9 added |
+| 8 | A bad or empty screenshot doesn't stop the batch; report per screenshot | C4 reworded |
+| 9 | Add "accept all" | R7 added |
+| 10 | Bug: "today" uses Jakarta time, not UTC (fix in rebuild) | none |
+| 11 | Unreadable (zero) amount made obvious; still blocks accepting | state added |
+| 12 | A real "no connection" message and a failed-to-load state; offline cache optional | none (states already listed) |
+| 13 | Shrink images in the browser before sending | none |
+| 14 | Source isn't editable; drop that rule from `CLAUDE.md` at Step 6 | none |
+| 15 | Summary leads on: a category opens its transactions, a big spend opens that transaction | U7, U8 added |
+| 16 | No total for filtered results | none |
+| 17 | Filters not remembered | none |
+| 18 | Design question only | none |
+| 19 | Allow pinch zoom | none |
+| 20 | One consistent label for a missing category (designer picks it) | none |
+| 21 | Out of scope | none |
+| — | Manual entry kept but rare (C2); while reviewing an import, add what was bought as a note and set the category on the spot | R11 added |

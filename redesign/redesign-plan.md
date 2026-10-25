@@ -20,7 +20,7 @@ Work one step per session. At the start of each session, check the model against
 - [x] Step 1: `inventory.md` job stories, owner-only `inventory-notes.md`, starter `priorities.md`, `brief.md`, `needs.md`; banned-word scan clean (2026-10-25) — **Opus 5.5 Medium** · Claude on `main`
 
 **Your input (without opening the app)**
-- [ ] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` — you, interviewed by a helper session **Haiku 5.5 Max**
+- [x] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` (2026-10-25) — you, interviewed by a helper session **Haiku 5.5 Max**
 
 **Design (studio, never sees the old app)**
 - [ ] Step 3a: 3 directions as screenshots; you pick one (or one mix); choice recorded in `decisions.md` — **Sonnet 5.5 xHigh** · studio; screenshots by `! ./shoot`
