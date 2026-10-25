@@ -86,7 +86,7 @@
     return '<header class="bar"><a class="brand" href="#/">' + D.logo + 'Daybook</a><div class="tools">' +
       '<a class="icon-btn" href="#/transactions?focus=search" aria-label="Search">' + icon('search') + '</a>' +
       '<button class="icon-btn" type="button" data-act="menu" data-key="menu-btn" aria-label="Menu">' + icon('menu') + '</button>' +
-      '</div></header>';
+      '</div></header>' + D.offlineBanner();
   };
 
   function crop(w) {
@@ -111,7 +111,7 @@
 
   function panel(w) {
     return '<div class="r-edit" id="p-' + w.id + '">' + crop(w) +
-      '<label class="note"><span class="sr">What did you buy?</span><input class="input" type="text" data-in="note" data-id="' + w.id + '" data-key="note-' + w.id + '" value="' + esc(w.note) + '" placeholder="What did you buy? (optional)" maxlength="120" autocomplete="off"></label>' +
+      '<label class="note"><span class="sr">What did you buy?</span><input class="input" type="text" data-in="note" data-id="' + w.id + '" data-key="note-' + w.id + '" value="' + esc(w.note) + '" placeholder="What did you buy? (optional)" maxlength="120" autocomplete="off"' + (D.offline() ? ' readonly' : '') + '></label>' +
       '<div class="cat-wrap">' + (w.suggested ? '<p class="hint">Suggested from the store name</p>' : '') + catChips(w.cat, {set: 'set-cat', more: 'cat-more', id: w.id, key: w.id}) + '</div>' +
       '<div class="r-links"><button type="button" data-act="edit" data-id="' + w.id + '">Edit details</button><button type="button" data-act="throw" data-id="' + w.id + '">Throw away</button></div>' +
       '</div>';
@@ -121,7 +121,7 @@
     var ui = S().ui, open = ui.openId === w.id, busy = ui.accepting.has(w.id), leaving = ui.leaving.has(w.id);
     var tick = busy
       ? '<span class="tick is-busy" role="img" aria-label="Accepting ' + esc(w.store) + '"><span class="spin"></span></span>'
-      : '<button type="button" class="tick" data-act="accept" data-id="' + w.id + '" data-key="tick-' + w.id + '" aria-label="Accept ' + esc(w.store) + ', ' + rp(w.amount) + '">' + icon('check') + '</button>';
+      : '<button type="button" class="tick" data-act="accept" data-id="' + w.id + '" data-key="tick-' + w.id + '"' + (D.offline() ? ' aria-disabled="true"' : '') + ' aria-label="Accept ' + esc(w.store) + ', ' + rp(w.amount) + '">' + icon('check') + '</button>';
     return '<li class="row' + (open ? ' open' : '') + (busy ? ' busy' : '') + (leaving ? ' leaving' : '') + '" data-id="' + w.id + '"><div class="row-in"><div class="r-head">' + tick +
       '<div class="r-main"><button type="button" class="r-store r-open" data-act="toggle" data-id="' + w.id + '" data-key="open-' + w.id + '" aria-expanded="' + open + '" aria-controls="p-' + w.id + '">' + esc(w.store) + '</button>' + D.pill(D.catById(w.cat)) + '</div>' +
       '<div class="r-side"><p class="r-amt">' + rp(w.amount) + '</p><p class="r-date">' + D.dshort(w.date) + '</p></div></div>' +
@@ -186,6 +186,16 @@
       '<ul class="shots">' + items.map(shotLi).join('') + '</ul></section>';
   }
 
+  /* nothing at all yet: no spends and nothing waiting */
+  D.firstUse = function () { var s = S(); return !s.saved.length && !s.waiting.length && !s.imports; };
+  function firstUseHtml() {
+    return '<div class="empty first"><span class="empty-mark">' + icon('image') + '</span>' +
+      '<ol class="steps"><li><span class="n" aria-hidden="true">1</span>Take a screenshot of your transactions in the banking app.</li>' +
+      '<li><span class="n" aria-hidden="true">2</span>Add it here. It is read for you.</li>' +
+      '<li><span class="n" aria-hidden="true">3</span>Check what was found, then accept it.</li></ol>' +
+      '<div class="empty-act"><button class="add" type="button" data-act="add" data-key="add-2"' + (addOff() ? ' aria-disabled="true"' : '') + '>' + icon('plus') + '<span>Add screenshots</span></button>' +
+      '<button class="btn" type="button" data-act="type-in" data-key="type-2">Type in a spend</button></div></div>';
+  }
   function emptyHtml() {
     return '<div class="empty"><span class="empty-mark">' + icon('check') + '</span>' +
       "<p>Add screenshots from your banking app and the spending in them shows up here to check.</p>" +
@@ -197,7 +207,7 @@
     var T = S().imports;
     return !!T && T.items.some(function (i) { return i.status === 'reading' || i.status === 'wait'; });
   }
-  function addOff() { return importing(); }
+  function addOff() { return importing() || D.offline(); }
 
   function inboxSub(W) {
     var s = S();
@@ -212,7 +222,7 @@
     if (right.length < 2) return '';
     var n = right.length, busy = S().ui.acceptingAll;
     var label = busy ? 'Accepting ' + n + '…' : look.length ? 'Accept the ' + n + ' that look right' : 'Accept all ' + n;
-    return '<div class="actionbar"><button class="accept-all' + (busy ? ' is-busy' : '') + '" type="button" data-act="accept-all" data-key="accept-all"' + (busy ? ' aria-disabled="true"' : '') + '>' +
+    return '<div class="actionbar"><button class="accept-all' + (busy ? ' is-busy' : '') + '" type="button" data-act="accept-all" data-key="accept-all"' + (busy || D.offline() ? ' aria-disabled="true"' : '') + '>' +
       (busy ? '<span class="spin"></span>' : icon('check')) + label + '</button></div>';
   }
 
@@ -220,12 +230,13 @@
     var s = S(), W = sortWaiting(s.waiting), n = W.length;
     var look = W.filter(function (w) { return D.problems(w).length; });
     var right = W.filter(function (w) { return !D.problems(w).length; });
-    var title = n ? n + ' to check' : (s.imports ? 'Nothing to check yet' : 'All checked');
-    var sub = inboxSub(W);
+    var first = D.firstUse();
+    var title = n ? n + ' to check' : (s.imports ? 'Nothing to check yet' : first ? 'Add your first spending' : 'All checked');
+    var sub = first ? 'Screenshots from your banking app are read for you.' : inboxSub(W);
     var out = '<section class="inbox" aria-labelledby="t"><div class="ib-head"><div><h1 id="t">' + title + '</h1>' + (sub ? '<p>' + sub + '</p>' : '') + '</div>' +
       '<button class="add" type="button" data-act="add" data-key="add-1" aria-label="Add screenshots"' + (addOff() ? ' aria-disabled="true"' : '') + '>' + icon('plus') + '<span>Add<span class="long"> screenshots</span></span></button></div>';
     out += trayHtml();
-    if (!n && !s.imports) out += emptyHtml();
+    if (!n && !s.imports) out += first ? firstUseHtml() : emptyHtml();
     if (right.length) {
       out += '<section class="grp" aria-labelledby="g1"><div class="grp-head"><h2 id="g1" tabindex="-1">Look right <span>' + right.length + '</span></h2>' +
         (look.length ? '<button type="button" class="jump" data-act="jump" data-key="jump"><i class="dot"></i>' + look.length + ' need a look</button>' : '') + '</div>' +
@@ -249,7 +260,7 @@
 
   D.screens = D.screens || {};
   D.screens.home = {
-    render: function () { return D.barHtml() + '<main id="main" class="home" tabindex="-1">' + D.glance() + inboxHtml() + hubHtml() + '</main>'; }
+    render: function () { return D.barHtml() + '<main id="main" class="home" tabindex="-1">' + (D.firstUse() ? '' : D.glance()) + inboxHtml() + hubHtml() + '</main>'; }
   };
 
   /* ---------- actions on waiting lines ---------- */
@@ -335,7 +346,7 @@
   D.acts.edit = function (el) { D.openForm('edit-waiting', {id: el.dataset.id}); };
   D.acts.fix = function (el) { D.openForm('edit-waiting', {id: el.dataset.id, focus: el.dataset.focus || 'amount'}); };
   D.acts['type-in'] = function () { D.openForm('add'); };
-  D.ins.note = function (el) { var w = find(el.dataset.id); if (w) w.note = el.value; }; // kept as typed (R6)
+  D.ins.note = function (el) { var w = find(el.dataset.id); if (w && !D.offline()) w.note = el.value; }; // kept as typed (R6)
 
   /* ---------- adding screenshots and reading them (C1, C3, C4) ---------- */
   var POOL = [
@@ -477,7 +488,7 @@
 
     if (f.mode === 'edit-saved' && !busy) body += '<div class="del-zone"><button type="button" class="btn danger-o" data-act="tx-delete" data-key="f-delete">' + icon('trash') + 'Delete this spend</button></div>';
 
-    var foot = '<p class="f-sum" id="f-sum"' + (keys.length ? '' : ' hidden') + '>Still needed: ' + names(keys) + '.</p>' +
+    var foot = (f.error ? '<p class="f-err net" role="alert">' + icon('alert', 18) + '<span>' + esc(f.error) + '</span></p>' : '') + '<p class="f-sum" id="f-sum"' + (keys.length ? '' : ' hidden') + '>Still needed: ' + names(keys) + '.</p>' +
       '<div class="foot-row"><button type="button" class="btn big" data-act="ov-close" data-key="f-cancel"' + (busy ? ' aria-disabled="true"' : '') + '>' + secondary + '</button>' +
       '<button type="button" class="btn solid big' + (busy ? ' is-busy' : '') + '" id="f-primary" data-act="form-submit" data-key="f-primary" aria-disabled="' + (keys.length || busy ? 'true' : 'false') + '">' + (busy ? '<span class="spin"></span>' : '') + primary + '</button></div>';
     return '<div class="ov-head"><h2>' + title + '</h2>' + D.closeBtn() + '</div><div class="ov-body">' + body + '</div><div class="ov-foot">' + foot + '</div>';
@@ -537,6 +548,8 @@
       D.live('Not saved. Still needed: ' + names(keys) + '.');
       return;
     }
+    if (D.offline()) { f.error = D.netError; D.overlay.refresh('form'); D.live(D.netError); return; }
+    f.error = '';
     f.saving = true;
     D.overlay.refresh('form');
     if (S().frozen) return;
@@ -584,6 +597,7 @@
   };
   D.acts['cat-choose'] = function (el) {
     var ctx = D.pickerCtx, id = el.dataset.cat;
+    if (ctx.kind === 'line' && D.offline()) { D.toast(D.netShort); return; }
     if (ctx.kind === 'line') { var w = find(ctx.id); if (w) { w.cat = id; w.suggested = false; } }
     else if (D.form) { D.form.data.cat = id; D.form.data.suggested = false; }
     D.overlay.close();
@@ -682,9 +696,11 @@
       D.mkLine(s, {store: 'GOJEK*TRIP 5523', amount: 38000, date: s.today, fresh: true}),
       D.mkLine(s, {store: 'STARBUCKS GI', amount: 89000, date: s.today, fresh: true})
     ];
-    D.startImport(['ok', 'ok', 'ok'], {freeze: true});
-    var T = s.imports; T.items[0].status = 'ok'; T.items[0].found = 3; T.items[1].status = 'reading';
-    s.freshShots = 3;
+    var n = D.stress ? 12 : 3;
+    D.startImport(new Array(n).fill('ok'), {freeze: true});
+    var T = s.imports;
+    T.items.forEach(function (it, i) { it.status = i < n - 2 ? 'ok' : i === n - 2 ? 'reading' : 'wait'; it.found = it.status === 'ok' ? 3 : 0; });
+    s.freshShots = n;
   }});
   addScenario({id: 'import-live', group: 'Import', label: 'Run it live: one fails, then try again', run: function (s) {
     s.waiting = [];
@@ -696,9 +712,11 @@
       D.mkLine(s, {store: 'GOJEK*TRIP 5523', amount: 38000, date: s.today, fresh: true}),
       D.mkLine(s, {store: 'STARBUCKS GI', amount: 89000, date: s.today, fresh: true})
     ];
-    D.startImport(['ok', 'fail', 'empty'], {freeze: true});
-    var T = s.imports; T.items[0].status = 'ok'; T.items[0].found = 3; T.items[1].status = 'fail'; T.items[2].status = 'empty';
-    s.freshShots = 3;
+    var pat = ['ok', 'fail', 'empty'], n = D.stress ? 12 : 3, plan = [];
+    for (var i = 0; i < n; i++) plan.push(pat[i % 3]);
+    D.startImport(plan, {freeze: true});
+    var T = s.imports; T.items.forEach(function (it) { it.status = it.outcome; it.found = it.outcome === 'ok' ? 3 : 0; });
+    s.freshShots = n;
   }});
   addScenario({id: 'import-failed', group: 'Import', label: "One screenshot, couldn't be read", run: function (s) {
     D.startImport(['fail'], {freeze: true}); s.imports.items[0].status = 'fail';

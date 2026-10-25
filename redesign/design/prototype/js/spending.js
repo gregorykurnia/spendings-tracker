@@ -132,7 +132,7 @@
   D.subBarHtml = function (href, label) {
     return '<header class="bar"><a class="back" href="' + href + '">' + icon('left') + esc(label) + '</a><div class="tools">' +
       '<a class="icon-btn" href="#/transactions?focus=search" aria-label="Search">' + icon('search') + '</a>' +
-      '<button class="icon-btn" type="button" data-act="menu" data-key="menu-btn" aria-label="Menu">' + icon('menu') + '</button></div></header>';
+      '<button class="icon-btn" type="button" data-act="menu" data-key="menu-btn" aria-label="Menu">' + icon('menu') + '</button></div></header>' + D.offlineBanner();
   };
 
   /* a row in "Biggest spends": store, date and category, amount (All transactions has its own, fuller row) */
@@ -204,6 +204,11 @@
   }
 
   function spendingHtml() {
+    if (D.firstUse()) {
+      return D.subBarHtml('#/', 'Home') + '<main id="main" class="sp" tabindex="-1"><div class="sp-top"><div class="sp-head"><h1>Spending</h1></div></div>' +
+        '<div class="sp-left"><div class="empty sp-empty"><span class="empty-mark">' + icon('chart') + '</span><p><b>Nothing to show yet.</b></p>' +
+        '<p>Once you have accepted some spending, you will see where it went here.</p><div class="empty-act"><a class="btn solid" href="#/">Add your first screenshots</a></div></div></div></main>';
+    }
     var s = S(), sp = D.spend(), p = D.period(sp.mode, sp.anchor, s.today), m = D.summary(sp.mode, sp.anchor);
     var agg = aggregate(p), label = heroLabel(p, s.today), unit = sp.mode;
     D._sp = {agg: agg, sp: sp};

@@ -27,8 +27,14 @@ var doc = {
   createElement: function () { return new FakeEl(); },
   querySelector: function () { return null; },
   querySelectorAll: function () { return []; },
-  addEventListener: function () {}
+  handlers: {},
+  addEventListener: function (type, fn) { (doc.handlers[type] = doc.handlers[type] || []).push(fn); }
 };
+/* send an event through the page's own listeners: click({act: 'accept', id: 'w101'}) */
+function click(data) {
+  var el = {dataset: data, getAttribute: function (k) { return k === 'aria-disabled' ? (data.disabled || null) : null; }};
+  (doc.handlers.click || []).forEach(function (fn) { fn({target: {closest: function (sel) { return sel === '[data-act]' ? el : null; }}}); });
+}
 global.window = global;
 global.document = doc;
 global.location = {hash: '', search: '', pathname: '/index.html'};
@@ -38,7 +44,7 @@ global.scrollTo = function () {};
 global.addEventListener = function () {};
 ['app', 'overlays', 'toast', 'live', 'picker'].forEach(function (i) { doc.getElementById(i); });
 
-['icons', 'data', 'ui', 'capture', 'spending', 'find', 'org', 'app'].forEach(function (f) {
+['icons', 'data', 'ui', 'capture', 'spending', 'find', 'org', 'states', 'app'].forEach(function (f) {
   vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), {filename: f + '.js'});
 });
 var D = window.Daybook;
@@ -746,7 +752,7 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   D.applyScenario('org-setup-live', true);
   ok(D.S.boot && D.S.boot.done === 0, 'the live version starts at nothing');
   await sleep(3200);
-  ok(D.S.boot === null && /to check|All checked/.test(text(app())), 'then the app opens');
+  ok(D.S.boot === null && /Add your first spending/.test(text(app())), 'then the app opens on the first-use screen');
 
   console.log('Stress data on categories');
   D.stress = true;
@@ -754,6 +760,151 @@ function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'"
   validate(app(), 'stress categories');
   ok(/Kebutuhan-rumah-tangga/.test(app()) && /18 categories/.test(text(app())), 'a very long name with no spaces is listed');
   D.stress = false;
+
+  /* ---------- group 5: app-wide states ---------- */
+  console.log('First use');
+  D.applyScenario('app-first', true);
+  ph = app(); t = text(ph);
+  validate(ph, 'app-first');
+  ok(/Add your first spending/.test(t) && /Screenshots from your banking app are read for you/.test(t), 'home says what to do');
+  ok(/<ol class="steps">/.test(ph) && (ph.match(/class="n"/g) || []).length === 3, 'three steps, because it is a sequence');
+  ok(!/class="glance"/.test(ph) && !/Rp 0/.test(t), 'no empty total on the first screen');
+  ok(/Add screenshots/.test(t) && /Type in a spend/.test(t), 'both ways in');
+  D.applyScenario('app-first-spending', true);
+  t = text(app()); validate(app(), 'first use spending');
+  ok(/Nothing to show yet/.test(t) && !/Day by day/.test(t) && /Add your first screenshots/.test(t), 'Spending says there is nothing yet and where to start');
+  D.applyScenario('app-first-list', true);
+  t = text(app()); validate(app(), 'first use list');
+  ok(/No spends yet/.test(t) && !/Filters/.test(t), 'All transactions has no search or filters to show yet');
+  D.applyScenario('review-clear', true);
+  ok(/All checked/.test(text(app())) && !/Add your first spending/.test(text(app())), 'accepting everything later is "All checked", not first use');
+
+  console.log('Loading');
+  var screens = [['app-loading', /class="glance sk-card"/, 'Loading your transactions'], ['app-loading-spending', /class="hero sk-card"/, 'Loading your spending'],
+    ['app-loading-list', /class="sk search"/, 'Loading your transactions'], ['app-loading-cats', /class="org-head"/, 'Loading your categories']];
+  screens.forEach(function (x) {
+    D.applyScenario(x[0], true);
+    ph = app(); t = text(ph);
+    validate(ph, x[0]);
+    ok(x[1].test(ph) && /aria-busy="true"/.test(ph) && t.indexOf(x[2]) >= 0, x[0] + ': the layout in grey, announced as "' + x[2] + '"');
+    ok(!/Rp \d/.test(t) && !/INDOMARET/.test(t), x[0] + ': no real data yet');
+  });
+  D.applyScenario('app-loading', true);
+  ok(/class="bar"|class="brand"/.test(app()), 'the top bar is already there');
+  D.applyScenario('app-loading-spending', true);
+  ok(/class="back"/.test(app()), 'and the way back, on a screen under home');
+  D.applyScenario('review-fresh', true);
+  D.runLoading(200);
+  ok(/aria-busy="true"/.test(app()), 'loading runs');
+  await sleep(350);
+  ok(D.S.boot === null && /7 to check/.test(text(app())), 'then the real screen is there');
+
+  console.log('Failed to load');
+  D.applyScenario('app-failed', true);
+  ph = app(); t = text(ph); validate(ph, 'app-failed');
+  ok(/Couldn.t load your transactions/.test(t) && /Something went wrong while loading\. Try again in a moment\./.test(t) && /Try again/.test(t), 'transactions: what happened and what to do');
+  D.applyScenario('app-failed-cats', true);
+  ok(/Couldn.t load your categories/.test(text(app())) && /class="back"/.test(app()), 'categories');
+  D.applyScenario('app-failed-retrying', true);
+  ok(/Trying again…/.test(text(app())) && /data-key="boot-retry"[^>]*aria-disabled="true"/.test(app()), 'trying again shows progress and cannot be pressed twice');
+  D.applyScenario('app-failed-live', true);
+  click({act: 'boot-retry'});
+  ok(D.S.boot.retrying, 'pressing Try again');
+  await sleep(1150);
+  ok(D.S.boot && D.S.boot.kind === 'loading', 'it loads');
+  await sleep(1250);
+  ok(D.S.boot === null && /to check/.test(text(app())), 'and the app is back');
+
+  console.log('No connection: opening the app');
+  D.applyScenario('app-offline-boot', true);
+  ph = app(); t = text(ph); validate(ph, 'app-offline-boot');
+  ok(/No connection/.test(t) && /Daybook needs the internet to load your spending/.test(t), 'says what is wrong');
+  ok(!/class="bar"/.test(ph), 'no other screen behind it');
+  D.applyScenario('app-offline-boot-live', true);
+  click({act: 'boot-retry'});
+  await sleep(1150);
+  ok(D.S.boot.kind === 'offline' && /Still no connection\./.test(text(app())), 'the first try fails and says so');
+  click({act: 'boot-retry'});
+  await sleep(1150);
+  ok(D.S.online === true && D.S.boot.kind === 'loading', 'the second works');
+  await sleep(1250);
+  ok(D.S.boot === null && /to check/.test(text(app())), 'and the app opens');
+
+  console.log('No connection: using it');
+  D.applyScenario('app-offline', true);
+  ph = app(); t = text(ph); validate(ph, 'app-offline');
+  ok(/No connection\. You can look around\. Adding, saving, deleting and importing wait until you are online\./.test(t), 'a banner says what still works');
+  ok(/class="offline" role="status"/.test(ph), 'announced politely');
+  ok(/data-act="accept"[^>]*aria-disabled="true"/.test(ph) && /data-key="accept-all"[^>]*aria-disabled="true"/.test(ph) && /data-key="add-1"[^>]*aria-disabled="true"/.test(ph), 'tick, accept all and Add look off');
+  ok(/data-in="note"[^>]*readonly/.test(ph), 'the note cannot be typed in');
+  var w0 = D.S.waiting[0], nSaved = D.S.saved.length, nWait = D.S.waiting.length;
+  click({act: 'accept', id: w0.id});
+  ok(D.S.saved.length === nSaved && D.S.waiting.length === nWait && !D.S.ui.accepting.has(w0.id), 'a tick does nothing');
+  ok(doc.getElementById('toast').textContent === D.netShort && doc.getElementById('toast').classList.contains('show'), 'and says why');
+  click({act: 'accept-all'}); click({act: 'throw', id: w0.id}); click({act: 'keep', id: w0.id}); click({act: 'set-cat', id: w0.id, cat: 'food'}); click({act: 'add'}); click({act: 'cat-move', id: 'food', d: '1'});
+  ok(D.S.waiting.length === nWait && D.S.waiting[0].cat === w0.cat && !D.S.ui.accepting.size, 'accept all, throw away, keep, change category, add and move do nothing');
+  D.ins.note({dataset: {id: w0.id}, value: 'typed offline'});
+  ok(w0.note === '', 'typing a note is not kept');
+  D.route = 'spending'; D.render();
+  ok(/class="offline"/.test(app()), 'the banner is on every screen');
+  D.route = 'home';
+
+  console.log('No connection: saving');
+  D.applyScenario('app-offline-save', true);
+  var fo = D.form;
+  ok(fo && fo.error === D.netError && /No connection\. Nothing was saved\./.test(text(formHtml())), 'a form says nothing was saved');
+  ok(!fo.saving && D.overlay.top().cfg.key === 'form', 'and stays open with what was typed');
+  ok(/role="alert"/.test(formHtml()), 'announced at once');
+  D.overlay.closeAll();
+  D.applyScenario('find-form', true);
+  D.S.online = false;
+  var tx1 = D.form.id, am1 = byId(tx1).amount;
+  D.ins['f-amount']({value: '1234'});
+  D.acts['form-submit']();
+  ok(D.form.error === D.netError && byId(tx1).amount === am1, 'a changed spend is not saved offline');
+  D.acts['tx-delete']();
+  D.acts['tx-delete-yes']();
+  ok(D.del.error === D.netError && !D.del.busy && byId(tx1), 'a spend is not deleted offline, and the question says why');
+  ok(/No connection\. Nothing was saved/.test(text(D.overlay.top().cfg.render())), 'shown in the question');
+  D.overlay.closeAll();
+  D.applyScenario('org-edit', true);
+  D.S.online = false;
+  D.ins['cf-name']({value: 'Whatever'});
+  D.acts['cf-submit']();
+  ok(D.catform.error === D.netError && D.S.cats[1].name === 'Food & Drink', 'a category is not saved offline');
+  D.acts['cat-delete']();
+  D.catDel.step = 'has'; D.catDel.dest = 'groceries';
+  D.acts['cd-yes'](T1);
+  ok(D.catDel.error === D.netError && D.S.cats.some(function (c) { return c.id === 'food'; }), 'a category is not deleted offline');
+  D.overlay.closeAll();
+
+  console.log('Stress: every state');
+  D.stress = true;
+  D.scenarios.forEach(function (sc) {
+    D.applyScenario(sc.id, true);
+    validate(app(), 'stress ' + sc.id);
+    var top = D.overlay.top();
+    if (top) validate('<div>' + top.cfg.render() + '</div>', 'stress overlay of ' + sc.id);
+    D.overlay.closeAll();
+  });
+  D.applyScenario('import-mixed', true);
+  ok(D.S.imports.items.length === 12 && (app().match(/class="shot is-/g) || []).length === 12, 'stress: twelve screenshots in the tray');
+  D.applyScenario('import-reading', true);
+  ok(/Reading 12 screenshots/.test(text(app())), 'stress: twelve being read');
+  D.stress = false;
+
+  console.log('Installable');
+  var man = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
+  var idx = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  ok(man.display === 'standalone' && man.start_url && man.name === 'Daybook', 'manifest: standalone, named, starts at the app');
+  ok(man.background_color === '#FFFCEE' && man.theme_color === '#FFFCEE' && /--ground:#FFFCEE/.test(fs.readFileSync(path.join(ROOT, 'css/tokens.css'), 'utf8')), 'manifest colours are the ground colour');
+  man.icons.forEach(function (ic) {
+    var buf = fs.readFileSync(path.join(ROOT, ic.src)), w = buf.readUInt32BE(16), h = buf.readUInt32BE(20);
+    ok(buf.slice(1, 4).toString() === 'PNG' && ic.sizes === w + 'x' + h, 'icon ' + ic.src + ' is a real PNG of the size it claims');
+  });
+  ok(man.icons.some(function (i) { return i.purpose === 'maskable'; }) && man.icons.some(function (i) { return i.sizes === '192x192'; }) && man.icons.some(function (i) { return i.sizes === '512x512'; }), 'icons: 192, 512 and a maskable one');
+  ok(/rel="manifest"/.test(idx) && /apple-touch-icon/.test(idx) && /apple-mobile-web-app-capable/.test(idx) && /viewport-fit=cover/.test(idx) && /name="theme-color"/.test(idx), 'the page links the manifest, the touch icon and the standalone settings');
+  ok(fs.existsSync(path.join(ROOT, 'icons/apple-touch-icon.png')), 'touch icon exists');
 
   /* money formatting */
   ok(D.rp(1234567) === 'Rp 1.234.567' && D.rp(5000) === 'Rp 5.000' && D.rp(48250000) === 'Rp 48.250.000', 'rupiah formatting');

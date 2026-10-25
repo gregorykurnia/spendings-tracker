@@ -126,7 +126,7 @@
       '<div class="field"><span class="field-label" id="l-sw">Colour</span><div class="swatches" role="radiogroup" aria-labelledby="l-sw">' + swatches + '</div></div>';
     if (edit && !busy && S().cats.length > 1) body += '<div class="del-zone"><button type="button" class="btn danger-o" data-act="cat-delete" data-key="cf-delete">' + icon('trash') + 'Delete this category</button></div>';
     var primary = busy ? 'Saving…' : edit ? 'Save changes' : 'Add category';
-    var foot = '<p class="f-sum" id="cf-sum"' + (keys.length ? '' : ' hidden') + '>Still needed: ' + (keys.length === 2 ? 'a name and an emoji' : keys[0] === 'name' ? 'a name' : 'an emoji') + '.</p>' +
+    var foot = (f.error ? '<p class="f-err net" role="alert">' + icon('alert', 18) + '<span>' + esc(f.error) + '</span></p>' : '') + '<p class="f-sum" id="cf-sum"' + (keys.length ? '' : ' hidden') + '>Still needed: ' + (keys.length === 2 ? 'a name and an emoji' : keys[0] === 'name' ? 'a name' : 'an emoji') + '.</p>' +
       '<div class="foot-row"><button type="button" class="btn big" data-act="ov-close" data-key="cf-cancel"' + (busy ? ' aria-disabled="true"' : '') + '>Cancel</button>' +
       '<button type="button" class="btn solid big' + (busy ? ' is-busy' : '') + '" id="cf-primary" data-act="cf-submit" data-key="cf-primary" aria-disabled="' + (keys.length || busy ? 'true' : 'false') + '">' + (busy ? '<span class="spin"></span>' : '') + primary + '</button></div>';
     return '<div class="ov-head"><h2>' + (edit ? 'Change category' : 'Add a category') + '</h2>' + D.closeBtn() + '</div><div class="ov-body">' + body + '</div><div class="ov-foot">' + foot + '</div>';
@@ -168,6 +168,8 @@
       D.live('Not saved. Still needed: ' + (keys.length === 2 ? 'a name and an emoji' : keys[0] === 'name' ? 'a name' : 'an emoji') + '.');
       return;
     }
+    if (D.offline()) { f.error = D.netError; D.overlay.refresh('catform'); D.live(D.netError); return; }
+    f.error = '';
     f.saving = true;
     D.overlay.refresh('catform');
     if (S().frozen) return;
@@ -214,6 +216,7 @@
       foot = '<div class="foot-row"><button type="button" class="btn big" data-act="ov-close" data-key="cd-cancel"' + (busy ? ' aria-disabled="true"' : ' data-autofocus') + '>Cancel</button>' +
         '<button type="button" class="btn danger big' + (busy ? ' is-busy' : '') + '" data-act="cd-yes" data-key="cd-yes" aria-disabled="' + (busy || !dest ? 'true' : 'false') + '">' + label + '</button></div>';
     }
+    if (d.error) body += '<p class="f-err net" role="alert">' + icon('alert', 18) + '<span>' + esc(d.error) + '</span></p>';
     return '<div class="ov-head"><h2>Delete ' + esc(c.name) + '?</h2>' + (step === 'busy' ? '' : D.closeBtn()) + '</div><div class="ov-body">' + body + '</div><div class="ov-foot">' + foot + '</div>';
   }
   D.acts['cat-delete'] = function () {
@@ -237,6 +240,8 @@
   D.acts['cd-yes'] = function (el) {
     var d = D.catDel;
     if (!d || d.step === 'busy' || el.getAttribute('aria-disabled') === 'true') return;
+    if (D.offline()) { d.error = D.netError; D.overlay.refresh('catdel'); D.live(D.netError); return; }
+    d.error = '';
     d.step = 'busy';
     D.overlay.refresh('catdel');
     if (S().frozen) return;
@@ -306,5 +311,5 @@
   D.addScenario({id: 'org-del-moving', group: G, route: R, label: 'Delete: moving and deleting', run: function (s) { base(s); s.frozen = true; },
     after: function () { startDelete('food', 'has'); D.catDel.dest = 'groceries'; D.catDel.step = 'busy'; D.overlay.refresh('catdel'); }});
   D.addScenario({id: 'org-setup', group: G, route: 'home', label: 'First open: setting up the starter categories', run: function (s) { base(s); s.frozen = true; s.boot = {kind: 'setup', done: 9}; }});
-  D.addScenario({id: 'org-setup-live', group: G, route: 'home', label: 'First open, running', run: base, after: function () { D.runSetup(); }});
+  D.addScenario({id: 'org-setup-live', group: G, route: 'home', label: 'First open, running, then first use', run: function (s) { s.saved = []; s.waiting = []; s.org = {reorder: false}; }, after: function () { D.runSetup(); }});
 })();

@@ -18,8 +18,8 @@
 
 /* filters that are on: lemon, because they hide things */
 .fx-chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
-.fx-chip{display:inline-flex;align-items:center;gap:8px;height:var(--touch);padding:0 10px 0 15px;border-radius:22px;background:var(--lemon-soft);border:1.5px solid var(--lemon-edge);color:var(--ink);font-size:var(--fs-m);font-weight:700;max-width:100%;text-align:left}
-.fx-chip svg.i{color:var(--ink-2)}
+.fx-chip{display:inline-flex;align-items:center;gap:8px;height:var(--touch);padding:0 10px 0 15px;border-radius:22px;background:var(--lemon-soft);border:1.5px solid var(--lemon-edge);color:var(--ink);font-size:var(--fs-m);font-weight:700;max-width:100%;text-align:left;overflow-wrap:anywhere}
+.fx-chip svg.i{color:var(--ink-2);flex:none}
 .fx-count{margin-top:14px;font-size:var(--fs-m);font-weight:600;color:var(--ink-2)}
 .fx-list{margin-top:2px}
 .fx .empty{margin-top:14px}

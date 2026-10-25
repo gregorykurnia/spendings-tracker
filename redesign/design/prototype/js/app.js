@@ -36,6 +36,7 @@
     var scr = boot || D.screens[D.route] || D.screens.home;
     app.innerHTML = '<a class="skip" href="#/" data-act="skip">Skip to the content</a>' + scr.render();
     document.body.classList.toggle('has-bar', !!app.querySelector('.actionbar'));
+    document.body.classList.toggle('offline', D.offline());
     if (scr.after) scr.after();
     if (key) {
       var t = app.querySelector('[data-key="' + key + '"]');
@@ -54,9 +55,12 @@
   });
 
   /* ---------- one listener for each kind of event ---------- */
+  /* with no connection the app is read-only: these change data, so they say why they did nothing */
+  var WRITES = {accept: 1, 'accept-all': 1, throw: 1, keep: 1, 'set-cat': 1, add: 1, 'tray-retry': 1, 'cat-move': 1};
   document.addEventListener('click', function (e) {
     var el = e.target.closest && e.target.closest('[data-act]');
     if (!el) return;
+    if (WRITES[el.dataset.act] && D.offline()) { D.toast(D.netShort); D.live(D.netShort); return; }
     var fn = D.acts[el.dataset.act];
     if (fn) fn(el, e);
   });

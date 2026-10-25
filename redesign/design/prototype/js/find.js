@@ -142,6 +142,10 @@
 
   D.screens.transactions = {
     render: function () {
+      if (D.firstUse()) {
+        return D.subBarHtml('#/', 'Home') + '<main id="main" class="fx" tabindex="-1"><h1>All transactions</h1><div class="empty"><span class="empty-mark">' + icon('list') + '</span><p><b>No spends yet.</b></p>' +
+          '<p>Accepted and typed-in spends show up here, ready to search.</p><div class="empty-act"><a class="btn solid" href="#/">Add screenshots</a></div></div></main>';
+      }
       applyParams();
       var f = D.find(), n = active(f).length, p = D.params || {};
       var back = p.back === 'spending' ? ['#/spending', 'Spending'] : ['#/', 'Home'];
@@ -302,7 +306,7 @@
     var d = D.del, t = savedById(d.id), c = D.catOrMissing(t.cat), sw = D.SWATCHES[c.sw] || D.SWATCHES.slate, busy = d.busy;
     return '<div class="ov-head"><h2>Delete this spend?</h2>' + (busy ? '' : D.closeBtn()) + '</div><div class="ov-body">' +
       '<div class="del-card"><span class="cat-em" style="background:' + sw[0] + '" aria-hidden="true">' + c.emoji + '</span><span class="tx-main"><span class="tx-store">' + esc(t.store) + '</span><span class="tx-sub">' + esc(dateText(t.date)) + '</span></span><b>' + rp(t.amount) + '</b></div>' +
-      "<p class=\"f-note\">It is removed for good and stops counting in your totals.</p></div>" +
+      "<p class=\"f-note\">It is removed for good and stops counting in your totals.</p>" + (d.error ? '<p class="f-err net" role="alert">' + icon('alert', 18) + '<span>' + esc(d.error) + '</span></p>' : '') + "</div>" +
       '<div class="ov-foot"><div class="foot-row"><button type="button" class="btn big" data-act="ov-close" data-key="del-cancel"' + (busy ? ' aria-disabled="true"' : ' data-autofocus') + '>Cancel</button>' +
       '<button type="button" class="btn danger big' + (busy ? ' is-busy' : '') + '" data-act="tx-delete-yes" data-key="del-yes"' + (busy ? ' aria-disabled="true"' : '') + '>' + (busy ? '<span class="spin"></span>Deleting…' : 'Delete') + '</button></div></div>';
   }
@@ -316,6 +320,8 @@
   D.acts['tx-delete-yes'] = function () {
     var d = D.del;
     if (!d || d.busy) return;
+    if (D.offline()) { d.error = D.netError; D.overlay.refresh('confirm'); D.live(D.netError); return; }
+    d.error = '';
     d.busy = true;
     D.overlay.refresh('confirm');
     if (S().frozen) return;
