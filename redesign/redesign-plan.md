@@ -17,7 +17,7 @@ Work one step per session. At the start of each session, check the model against
 - [x] Step 0b: firewall check in a fresh `./start` session reports ALL BLOCKED (2026-10-25) — **Haiku 5.5 High** · studio
 
 **Needs (sees the old app)**
-- [ ] Step 1: `inventory.md` job stories, owner-only `inventory-notes.md`, starter `priorities.md`, `brief.md`, `needs.md`; banned-word scan clean — **Opus 5.5 Medium** · Claude on `main`
+- [x] Step 1: `inventory.md` job stories, owner-only `inventory-notes.md`, starter `priorities.md`, `brief.md`, `needs.md`; banned-word scan clean (2026-10-25) — **Opus 5.5 Medium** · Claude on `main`
 
 **Your input (without opening the app)**
 - [ ] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` — you · helper session **Haiku 5.5 Max**
