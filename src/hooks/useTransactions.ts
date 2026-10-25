@@ -12,12 +12,10 @@ import {
   query,
   updateDoc,
   writeBatch,
-  type DocumentData,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { inChunks } from "@/lib/batches";
-import { isISODate } from "@/lib/dates";
-import { suggestCategoryId } from "@/lib/suggest";
+import { toTransaction, waitingLineDocs } from "@/lib/waiting-lines";
 import { Category, OcrLine, Transaction } from "@/types";
 
 const transactionsRef = collection(db, "transactions");
@@ -32,32 +30,6 @@ export type SpendFields = Pick<
   Transaction,
   "amount" | "store" | "description" | "categoryId" | "date"
 >;
-
-/** Reads a stored document, old shapes included. */
-/**
- * Dates are stored as `YYYY-MM-DD`. Lines saved by the old OCR page could hold whatever the reader
- * returned: a date with a time keeps its day, and anything else reads as no date.
- */
-function readDate(value: unknown) {
-  if (typeof value !== "string") return "";
-  const day = value.slice(0, 10);
-  return isISODate(day) ? day : "";
-}
-
-export function toTransaction(id: string, data: DocumentData): Transaction {
-  return {
-    ...data,
-    id,
-    amount: typeof data.amount === "number" ? data.amount : null,
-    store: data.store ?? "",
-    description: data.description ?? "",
-    categoryId: data.categoryId ?? "",
-    date: readDate(data.date),
-    source: data.source === "ocr" ? "ocr" : "manual",
-    status: data.status === "pending_review" ? "pending_review" : "confirmed",
-    createdAt: data.createdAt ?? "",
-  };
-}
 
 /** Waiting lines keep the order they arrived in: screenshot by screenshot, then the bank's order. */
 export function byArrival(a: Transaction, b: Transaction) {
@@ -221,24 +193,10 @@ export function useTransactions() {
    */
   async function addScreenshotLines(lines: OcrLine[], categories: Category[]): Promise<string> {
     const createdAt = new Date().toISOString();
-    const categoryIds = new Set(categories.map((c) => c.id));
-    const docs = lines.map((line, seq) => {
-      const suggested = suggestCategoryId(line.store, spends, categoryIds);
-      return {
-        amount: line.amount,
-        store: line.store,
-        description: line.description,
-        categoryId: suggested ?? "",
-        date: line.date,
-        source: "ocr",
-        status: "pending_review",
-        createdAt,
-        seq,
-        direction: line.direction,
-        bankLine: { store: line.store, date: line.date, amountText: line.amountText },
-        ...(suggested ? { categorySuggested: true } : {}),
-        ...(line.ownTransfer ? { ownTransfer: true } : {}),
-      };
+    const docs = waitingLineDocs(lines, {
+      spends,
+      categoryIds: new Set(categories.map((c) => c.id)),
+      createdAt,
     });
     for (const chunk of inChunks(docs)) {
       const batch = writeBatch(db);

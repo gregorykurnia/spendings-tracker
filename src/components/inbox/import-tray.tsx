@@ -4,11 +4,15 @@ import { Button, Spinner } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Icon } from "@/components/ui/icon";
 import styles from "./tray.module.css";
-import { shotDetail, shotState, trayHeading } from "./tray";
-import type { TrayShot } from "./use-import-tray";
+import { shotDetail, shotState, trayHeading, type Shot } from "./tray";
+
+/** A tray row: a screenshot, with its thumbnail where there is one. */
+type TrayShot = Shot & { url?: string | null };
 
 type Props = {
   shots: readonly TrayShot[];
+  /** Replaces the heading worked out from the rows (shared screenshots have their own). */
+  heading?: { title: string; sub: string };
   onRetry: (n: number) => void;
   onDismiss: (n: number) => void;
   onTypeIn: () => void;
@@ -21,7 +25,7 @@ function Mark({ status }: { status: TrayShot["status"] }) {
   return <Icon name="dash" />;
 }
 
-function Row({ shot, onRetry, onDismiss, onTypeIn }: { shot: TrayShot } & Omit<Props, "shots">) {
+function Row({ shot, onRetry, onDismiss, onTypeIn }: { shot: TrayShot } & Omit<Props, "shots" | "heading">) {
   const { n, status } = shot;
   const stuck = status === "fail" || status === "empty";
   return (
@@ -65,8 +69,8 @@ function Row({ shot, onRetry, onDismiss, onTypeIn }: { shot: TrayShot } & Omit<P
 }
 
 /** The tray at the top of the inbox: how reading is going, and one row per screenshot. */
-export function ImportTray({ shots, onRetry, onDismiss, onTypeIn }: Props) {
-  const { title, sub } = trayHeading(shots);
+export function ImportTray({ shots, heading, onRetry, onDismiss, onTypeIn }: Props) {
+  const { title, sub } = heading ?? trayHeading(shots);
   return (
     <section className={styles.tray} aria-labelledby="tray-title">
       <h2 id="tray-title">{title}</h2>

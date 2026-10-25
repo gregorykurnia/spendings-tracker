@@ -70,7 +70,7 @@ Sent as needs to `redesign/handoff/needs.md`. Until the studio answers, the task
 |---|---|---|---|
 | G1 unknown address | N1 | the full-screen state shape of `app-failed`, the mark, one line, one button to home | open |
 | G2 unexpected error | N2 | the same shape, "Try again" (reset) and a link home | open |
-| G3 share from iPhone | N3 | no new screen: shared screenshots arrive as waiting lines, and home's tray says "From your phone: read 2 screenshots" in the `import-done` shape (task 3.3) | open |
+| G3 share from iPhone | N3 | no new screen: shared screenshots arrive as waiting lines, and home's tray says "From your phone: read 2 screenshots" in the `import-done` shape, with a finished row per screenshot (no thumbnail), once per device (task 3.3, built) | open |
 | G4 GoPay and Krom | N4 | nothing new to show: the crop shows each app's own printed amount (task 1.2) | open |
 | G5 own-account transfer | N5 | one more needs-a-look reason in the P5/P6 shape: "Money moving between your own accounts, so it isn't counted yet.", "Throw away" first, then "It's a spend"; icon: two opposite arrows in the set's style (tasks 1.3, 2.2) | open |
 | G6 more screenshots while some failed | N6 | the tray keeps rows that failed or found nothing and adds the new screenshots below them, numbered on; rows already read are dropped (task 2.3, `use-import-tray.ts`) | open |
@@ -168,7 +168,7 @@ As R1, for the Phase 2 diff; also compare each screen against its prototype stat
 |---|---|---|---|---|
 | 3.1 | Reverse-check leftovers: provisional G1/G2, metadata, unused files | Haiku 5.5 Max | mechanical, from design pieces | 2026-10-25, reverse check |
 | 3.2 | Installable: manifest, icons, favicon, service worker for the new shell | Sonnet 5.5 High | offline opening must work |2026-10-25, 846ce7c |
-| 3.3 | Share from iPhone: `/api/import` with a token, Shortcut guide (G3) | Opus 5.5 High | a public endpoint that writes data |  |
+| 3.3 | Share from iPhone: `/api/import` with a token, Shortcut guide (G3) | Opus 5.5 High | a public endpoint that writes data | 2026-10-25, share route |
 | 3.4 | Accessibility pass: axe scan script over every screen, fixes | Sonnet 5.5 High | design notes §6 |  |
 | 3.5 | Screenshot compare tool: app vs prototype, run once, list differences | Sonnet 5.5 High | builds the slow tool once |  |
 | 3.6 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes |  |

@@ -153,6 +153,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
 NEXT_PUBLIC_FIREBASE_APP_ID
 ANTHROPIC_API_KEY
+IMPORT_TOKEN (turns on `/api/import` for sharing from the iPhone; see docs/iphone-shortcut.md)
 
 ## Build Order
 Build in this order — each depends on the previous:

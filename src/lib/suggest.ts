@@ -10,7 +10,7 @@ function storeKey(store: string) {
  */
 export function suggestCategoryId(
   store: string,
-  transactions: Transaction[],
+  transactions: readonly Transaction[],
   categoryIds: ReadonlySet<string>
 ): string | null {
   const key = storeKey(store);

@@ -40,6 +40,8 @@ export type Transaction = {
   categorySuggested?: boolean;
   /** The reader saw money moving between the owner's own BCA, GoPay and Krom accounts. */
   ownTransfer?: boolean;
+  /** `"share"`: the screenshot was shared from the phone to `/api/import`, not added in the app. */
+  importedVia?: "share";
 };
 
 /** One line read from a screenshot by `/api/ocr`. */

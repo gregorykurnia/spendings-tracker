@@ -18,7 +18,9 @@ import { ImportTray } from "./import-tray";
 import { Inbox } from "./inbox";
 import styles from "./inbox.module.css";
 import { freshShotCount } from "./rules";
+import { shareHeading } from "./share-notice";
 import { useImportTray } from "./use-import-tray";
+import { useShareNotice } from "./use-share-notice";
 
 type FormTarget =
   | { kind: "add" }
@@ -42,6 +44,7 @@ export function HomeScreen() {
     save: (lines) => tx.addScreenshotLines(lines, categories),
     announce,
   });
+  const shared = useShareNotice(waiting);
 
   function chosen(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
@@ -110,6 +113,15 @@ export function HomeScreen() {
                   tray.dismiss(n);
                   addButton.current?.focus();
                 }}
+                onTypeIn={typeIn}
+              />
+            ) : shared.length ? (
+              // Screenshots shared from the phone while the app was closed: the tray says so, finished.
+              <ImportTray
+                shots={shared}
+                heading={shareHeading(shared)}
+                onRetry={() => {}}
+                onDismiss={() => {}}
                 onTypeIn={typeIn}
               />
             ) : null
