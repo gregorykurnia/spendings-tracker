@@ -21,13 +21,13 @@ Written 2026-10-25 for `autorun all` (Step 4 of `redesign/redesign-plan.md`). It
 - **Rewritten:** all rendering, from `redesign/design/tokens.css` copied to `src/styles/tokens.css` (the only place colours, sizes, radii, shadows and durations are defined). Tailwind utilities point at the tokens through `@theme inline`; a component needing more than utilities gets a CSS module that uses only `var(--…)`. Font: Hanken Grotesk 400–800 through `next/font/google`.
 - **Routes:** `/` home (the inbox: import tray, review, glance card, links), `/spending`, `/transactions` (All transactions; filters in the query string so Spending can open it filtered, U7), `/categories`. `/ocr` permanently redirects to `/` (`next.config.ts`). Whole-app states (setting up, loading, failed, no connection) render in place of a screen, as `state.boot` does in the prototype.
 - **Data model** (in `src/types/index.ts`; old documents stay valid):
-  - Waiting lines stay in `transactions` with `status: "pending_review"`. New optional fields: `direction: "out" | "in"` (a missing value means out), `bankLine: { store, date, amountText }` (what the screenshot said, for the "From the screenshot" crop; old lines without it show their current values), `seq` (order within one screenshot, so lines keep the order they arrived: `createdAt`, then `seq`), `kept: true` (after "Keep it" or "It's a spend"), `categorySuggested: true` (until the category is touched). A waiting line's `amount` may be `null` (couldn't be read) and its `categoryId` may be `""`.
-  - Needs-a-look reasons are computed, not stored: incoming (`direction: "in"`, not kept), repeat (a confirmed spend with the same date, amount and store, not kept), no amount, no category, no store, no date (P5).
+  - Waiting lines stay in `transactions` with `status: "pending_review"`. New optional fields: `direction: "out" | "in"` (a missing value means out), `bankLine: { store, date, amountText }` (what the screenshot said, for the "From the screenshot" crop; old lines without it show their current values), `seq` (order within one screenshot, so lines keep the order they arrived: `createdAt`, then `seq`), `kept: true` (after "Keep it" or "It's a spend"), `categorySuggested: true` (until the category is touched). `ownTransfer: true` (the reader saw money moving between the owner's own accounts, such as a GoPay top-up from BCA or a transfer to or from Krom). A waiting line's `amount` may be `null` (couldn't be read) and its `categoryId` may be `""`. Which bank or wallet a line came from is not stored or shown (N4).
+  - Needs-a-look reasons are computed, not stored: own transfer (`ownTransfer`, not kept; G5), incoming (`direction: "in"`, not kept), repeat (a confirmed spend with the same date, amount and store, not kept), no amount, no category, no store, no date (P5).
   - Suggested category: the category of the latest confirmed spend with the same store (trimmed, capitals ignored), if that category still exists.
   - Category `color` holds a swatch name (`apricot`, `mint`, `sky`, `rose`, `lilac`, `aqua`, `coral`, `sand`, `lime`, `indigo`, `slate`, `plum`, `cyan`). Old hex values are read through `swatchFor()` (nearest swatch), so the live data needs no migration; every write stores a name. Starter categories get swatch names.
   - Category names are unique, capitals ignored. Counts per category are split into spends (confirmed) and waiting lines.
   - Deleting a category moves every transaction in it, waiting lines too, in chunked batches (at most 450 writes each), then deletes the category; running it again after a failure finishes the job.
-- **OCR route:** one screenshot per request, read one at a time. The prompt also asks for `direction` (`DB` or `CR`), `amountText` as printed, and `amount: null` when it can't be read. An empty array means "Nothing found"; a non-2xx or unparsable reply means "Couldn't read this one". The model stays `claude-sonnet-4-6`. (The prompt quoted in the project `CLAUDE.md` is updated at Step 6.)
+- **OCR route:** one screenshot per request, read one at a time. Screenshots come from BCA, GoPay or Krom (N4); the prompt recognises which and returns, for every line, `direction` (`out` or `in`, from that app's own marks: BCA's DB/CR, a minus sign or the wording in GoPay and Krom), `amountText` as printed (the crop shows it as is), `amount: null` when it can't be read, and `ownTransfer` for top-ups and transfers between the owner's own BCA, GoPay and Krom (N5). The reading lives in `src/lib/ocr.ts`, shared by `/api/ocr` and `/api/import`. An empty array means "Nothing found"; a non-2xx or unparsable reply means "Couldn't read this one". The model stays `claude-sonnet-4-6`. (The prompt quoted in the project `CLAUDE.md` is updated at Step 6.)
 - **Connection:** `useOnline()` (`navigator.onLine` and its events). Offline, nothing is written: every write control is dimmed and says why, forms keep what was typed (design notes §7). Opening offline before any data arrives shows the no-connection screen. The service worker keeps the app shell only, never data or `/api/`.
 - **Tests:** Vitest for unit tests (`npm test`, no emulator); emulator tests for the data layer (`npm run test:db`, through `firebase emulators:exec --only firestore --project demo-spendings`); Playwright e2e (`npm run test:e2e`) against a production build in `.next-test` (`next build` then `next start -p 3100`) with the emulator on port 8181. The test build gets fake Firebase settings, `NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-spendings` and `NEXT_PUBLIC_FIRESTORE_EMULATOR=127.0.0.1:8181`; `firebase.ts` connects to the emulator when that is set and throws if the project ID doesn't start with `demo-`. E2e never calls the Claude API: specs answer `/api/ocr` with `page.route` fixtures. `scripts/seed-emulator.ts` loads a normal and a stress data set.
 - **File layout at the end:** `src/app/{page,spending/page,transactions/page,categories/page,layout,not-found,error}.tsx`, `src/styles/tokens.css`, `src/components/ui/` (button, field, chip, pill, sheet and dialog, toast, back link, skeleton), `src/components/app/` (boot states, offline notice, menu), `src/components/inbox/`, `src/components/spend-form/`, `src/components/spending/`, `src/components/find/`, `src/components/organise/`, `src/hooks/`, `src/lib/` (`periods.ts`, `money.ts`, `dates.ts`, `review.ts`, `filters.ts`, `swatches.ts`), `e2e/`, `scripts/`. Nothing is left in the old flat `src/components/*.tsx`.
@@ -70,6 +70,9 @@ Sent as needs to `redesign/handoff/needs.md`. Until the studio answers, the task
 |---|---|---|---|
 | G1 unknown address | N1 | the full-screen state shape of `app-failed`, the mark, one line, one button to home | open |
 | G2 unexpected error | N2 | the same shape, "Try again" (reset) and a link home | open |
+| G3 share from iPhone | N3 | no new screen: shared screenshots arrive as waiting lines, and home's tray says "From your phone: read 2 screenshots" in the `import-done` shape (task 3.3) | open |
+| G4 GoPay and Krom | N4 | nothing new to show: the crop shows each app's own printed amount (task 1.2) | open |
+| G5 own-account transfer | N5 | one more needs-a-look reason in the P5/P6 shape: "Money moving between your own accounts, so it isn't counted yet.", "Throw away" first, then "It's a spend" (tasks 1.3, 2.2) | open |
 
 ## Phase 1: test setup, data, tokens and app shell
 
@@ -88,13 +91,13 @@ Do: dev-install `vitest`, `@testing-library/react`, `jsdom`, `firebase-tools`, `
 Done when: all three test scripts pass; a grep of `.next-test` finds `demo-spendings` and no real project ID; nothing is left running.
 
 ### 1.2 Data layer for the design
-Files: `src/types/index.ts`, `src/app/api/ocr/route.ts`, `src/hooks/useTransactions.ts`, `src/hooks/useCategories.ts`, `src/hooks/useTransactionCounts.ts`, `src/lib/seedCategories.ts`, new `src/hooks/useOnline.ts`, emulator tests beside each hook. Read: "Architecture" (Data model, OCR route, Connection); design notes §7; `decisions.md` P1–P7 and group 4.
-Do: the fields and rules in "Data model". Actions: add lines from one screenshot (with `seq`, suggestion), edit a waiting line (debounced, kept as typed), accept one, accept many (one batch), throw away, keep, add a spend, change, delete; add, change (unique names), reorder, check usage (spends and waiting lines), move-and-delete in chunks; seeding reports progress (`n of 16`). The OCR route returns `{ transactions }` in the new shape and the two failure kinds.
+Files: `src/types/index.ts`, `src/app/api/ocr/route.ts`, `src/hooks/useTransactions.ts`, `src/hooks/useCategories.ts`, `src/hooks/useTransactionCounts.ts`, `src/lib/seedCategories.ts`, new `src/hooks/useOnline.ts`, new `src/lib/ocr.ts`, `scripts/ocr-try.ts`, emulator tests beside each hook. Read: "Architecture" (Data model, OCR route, Connection), "Design gaps" G4 and G5; design notes §7; `decisions.md` P1–P7 and group 4.
+Do: the fields and rules in "Data model". Actions: add lines from one screenshot (with `seq`, suggestion), edit a waiting line (debounced, kept as typed), accept one, accept many (one batch), throw away, keep, add a spend, change, delete; add, change (unique names), reorder, check usage (spends and waiting lines), move-and-delete in chunks; seeding reports progress (`n of 16`). The OCR route returns `{ transactions }` in the new shape and the two failure kinds; fixture replies for BCA, GoPay and Krom layouts, including a top-up and an own transfer. `npm run ocr:try <folder>` reads real screenshots through the real API and prints what it found (for the owner; needs `ANTHROPIC_API_KEY`, never run by tests).
 Done when: emulator tests cover every action, including an old-shape document (hex colour, no `direction`) and a 507-spend move-and-delete; `npm test` covers the route's parsing with fixture replies.
 
 ### 1.3 Pure logic
 Files: `src/lib/{money,dates,periods,review,filters,swatches}.ts` and their `.test.ts`. Read: design notes §5 (Numbers, Dates, Comparisons), §7; `decisions.md` groups 2 and 3; prototype `js/data.js`, `js/spending.js`, `js/find.js` for the rules (not the markup).
-Do: `Rp 1.234.567`, the bank form `87.450,00 DB`, counts ("1 spend"); `Sun 25 Oct`, the year only when not this year, spans ("1 to 25 September", "19 to 25 Oct 2026"); week (Monday to Sunday) and month periods, earlier/later, keep the date when switching; like-for-like comparison while a period runs; day series with no-spending and still-to-come days; category split with "No category", top five and the rest; needs-a-look reasons; search (all words, store and note, capitals ignored, match ranges for highlighting), filters and the four orders; `swatchFor()` and least-used colour.
+Do: `Rp 1.234.567`, the bank form `87.450,00 DB`, counts ("1 spend"); `Sun 25 Oct`, the year only when not this year, spans ("1 to 25 September", "19 to 25 Oct 2026"); week (Monday to Sunday) and month periods, earlier/later, keep the date when switching; like-for-like comparison while a period runs; day series with no-spending and still-to-come days; category split with "No category", top five and the rest; needs-a-look reasons (own transfer first, G5); search (all words, store and note, capitals ignored, match ranges for highlighting), filters and the four orders; `swatchFor()` and least-used colour.
 Done when: unit tests cover each rule, including month ends, a running week, a ten-digit total and a deleted category.
 
 ### 1.4 Tokens, font, layout and shared parts
@@ -128,7 +131,7 @@ Files: `src/components/spend-form/*`; delete `TransactionFormModal.tsx`, `Delete
 Done when: unit tests for not-ready rules, the mode buttons, kept-as-typed for a waiting line and the offline error.
 
 ### 2.2 Home: the inbox
-Files: `src/app/page.tsx`, `src/components/inbox/*`. Read: design notes §4 (Tick, Review row, Need-a-look row, Group heading, Accept bar), §6, §7; `decisions.md` P1–P3, P5, P6, group 1; prototype `js/capture.js`, `css/capture.css`; states `review-fresh`, `review-problems`, `review-incomplete`, `review-later`, `review-saving`.
+Files: `src/app/page.tsx`, `src/components/inbox/*`. Read: design notes §4 (Tick, Review row, Need-a-look row, Group heading, Accept bar), §6, §7; `decisions.md` P1–P3, P5, P6, group 1; prototype `js/capture.js`, `css/capture.css`; states `review-fresh`, `review-problems`, `review-incomplete`, `review-later`, `review-saving`; "Design gaps" G5 (provisional own-transfer reason).
 Done when: unit tests for grouping, the accept bar's wording and scope, and the tick's label; the screen matches the states at 390 and 1280 wide.
 
 ### 2.3 Home: import tray and the rest of home
@@ -159,11 +162,12 @@ As R1, for the Phase 2 diff; also compare each screen against its prototype stat
 |---|---|---|---|---|
 | 3.1 | Reverse-check leftovers: provisional G1/G2, metadata, unused files | Haiku 5.5 Max | mechanical, from design pieces |  |
 | 3.2 | Installable: manifest, icons, favicon, service worker for the new shell | Sonnet 5.5 High | offline opening must work |  |
-| 3.3 | Accessibility pass: axe scan script over every screen, fixes | Sonnet 5.5 High | design notes §6 |  |
-| 3.4 | Screenshot compare tool: app vs prototype, run once, list differences | Sonnet 5.5 High | builds the slow tool once |  |
-| 3.5 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes |  |
-| 3.6 | Fix compare differences: Spending, All transactions, Categories | Sonnet 5.5 xHigh | visual fixes |  |
-| 3.7 | Phase 3 end-to-end: full e2e suite once, build | Sonnet 5.5 High | final flow check |  |
+| 3.3 | Share from iPhone: `/api/import` with a token, Shortcut guide (G3) | Opus 5.5 High | a public endpoint that writes data |  |
+| 3.4 | Accessibility pass: axe scan script over every screen, fixes | Sonnet 5.5 High | design notes §6 |  |
+| 3.5 | Screenshot compare tool: app vs prototype, run once, list differences | Sonnet 5.5 High | builds the slow tool once |  |
+| 3.6 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes |  |
+| 3.7 | Fix compare differences: Spending, All transactions, Categories | Sonnet 5.5 xHigh | visual fixes |  |
+| 3.8 | Phase 3 end-to-end: full e2e suite once, build | Sonnet 5.5 High | final flow check |  |
 | R3 | Phase 3 review | Opus 5.5 High | phase review rule |  |
 
 ### 3.1 Reverse-check leftovers
@@ -172,16 +176,21 @@ Files: `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/layout.tsx` (metad
 ### 3.2 Installable
 Files: `src/app/manifest.ts`, `public/icons/`, `src/app/icon.svg` (replaces `favicon.ico`), `public/sw.js`, `src/components/app/service-worker*`. Read: design notes §3 (Installed), §8 Hard constraints; prototype `manifest.webmanifest`, `icons/`. Do: copy the icons; the manifest values; a service worker that caches the app shell for the four routes, never data or `/api/`, and replaces the old cache. Done when: in the test build, going offline after one visit and reloading shows the no-connection screen, not the browser's.
 
-### 3.3 Accessibility pass
+### 3.3 Share from iPhone
+Files: `src/app/api/import/route.ts`, `src/lib/ocr.ts`, `src/components/inbox/*` (tray message), `docs/iphone-shortcut.md`, tests. Read: "Design gaps" G3; "Architecture" (OCR route, Data model). iPhone web apps can't receive shares, so an iOS Shortcut in the share sheet posts the screenshot to `/api/import`.
+Do: `POST /api/import` takes one image (the body as sent by Shortcuts' "Get Contents of URL"), refuses anything without `Authorization: Bearer $IMPORT_TOKEN` (constant-time compare; no token set means the route is off), reads it with `src/lib/ocr.ts` and writes the lines as waiting lines with the same fields as an import in the app (including `seq` and the suggestion), tagged `importedVia: "share"` with a batch time. Answers in plain words the Shortcut can show ("Read 4 transactions. They're waiting in Daybook.", "Couldn't read this one.", "Nothing found."). Home's tray shows the provisional G3 message for share batches not yet seen. `docs/iphone-shortcut.md`: step-by-step for building the Shortcut (Receive images from the share sheet, Get Contents of URL with the header, Show Result).
+Done when: tests (emulator, with the Claude call pointed at a local fake through an env setting) cover a good token, a wrong or missing token, a failed read and nothing found; no test calls the Claude API.
+
+### 3.4 Accessibility pass
 Files: `scripts/a11y.ts` (axe through Playwright over every screen and the main overlays, normal and stress data; `--only <route>`), fixes. Read: design notes §6. Done when: the scan reports nothing serious or critical; keyboard checks of the inbox, the form and the day chart pass. Device checks go to the owner line below.
 
-### 3.4 Screenshot compare tool
+### 3.5 Screenshot compare tool
 Files: `scripts/compare.ts`, `redesign/compare/` (gitignored images, committed `report.md`). Do: shoot about 20 key prototype states (served from `redesign/design/`) and the same states in the app (seeded emulator, stress set where the state uses it) at 390 and 1280 wide; side-by-side images; `--only <state>`; keep prototype shots between runs. Run it once and list each difference in `report.md` by area (home and form; Spending; All transactions; Categories; whole app). Fix nothing here.
 
-### 3.5 and 3.6 Fix compare differences
+### 3.6 and 3.7 Fix compare differences
 Read: `redesign/compare/report.md` (your area only), the matching prototype files. Fix each difference in the area, rerunning only its states with `--only`. Done when: the area's report items are fixed or explained.
 
-### 3.7 Phase 3 end-to-end
+### 3.8 Phase 3 end-to-end
 Run the full e2e suite once and `npm run build`; fix failures, rerunning only failed tests. Done when: one clean run.
 
 ### R3 Phase 3 review
@@ -190,7 +199,9 @@ As R1, for Phase 3; also the reverse check and design gaps are up to date, `npm 
 ## Owner lines
 
 - *owner*: on your phone, open the `redesign` preview deploy (needs the Firebase and `ANTHROPIC_API_KEY` variables set for Preview in Vercel) and run the device checks in design notes §6: VoiceOver or TalkBack through the inbox and a form, 200% text size, the installed app on a notched phone, the date picker. Report anything off as a fix.
-- *owner*: send N1 and N2 to the studio (design-gap loop) whenever convenient; nothing waits on them.
+- *owner*: send N1 to N5 to the studio (design-gap loop) whenever convenient; nothing waits on them, the provisional builds in "Design gaps" stand until then.
+- *owner* (after 1.2): put two or three real screenshots each from BCA, GoPay and Krom (including a GoPay top-up and a transfer to Krom) in a folder that isn't committed, and run `npm run ocr:try <folder>` with `ANTHROPIC_API_KEY` set; report any line read wrong as a fix.
+- *owner* (after 3.3): set `IMPORT_TOKEN` (a long random string) in Vercel for Preview and Production, then build the Shortcut on your iPhone from `docs/iphone-shortcut.md`.
 - *owner*: the merge to `main` (Step 6), when you say so.
 
 ## Rollback
