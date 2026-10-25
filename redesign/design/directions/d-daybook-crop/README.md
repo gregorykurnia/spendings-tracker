@@ -3,3 +3,4 @@
 - **What changed:** the open row now starts with "From the screenshot": the bank's own line for this transaction, highlighted, with its date and amount. Compare it with the fields below before accepting.
 - **Moving around, density, type, colour:** as in B (no tab bar, Hanken Grotesk, lemon-white and petrol blue). The highlight on the crop is lemon, the same colour that marks "needs a look".
 - **Also fixed:** the extra space in the "Add screenshots" button (phone shows "Add", desktop shows "Add screenshots").
+- **Also:** a "2 need a look" pill next to "Look right" (it jumps to that group), and a one-line comparison on the glance: lower than 1 to 25 September.

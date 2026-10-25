@@ -61,6 +61,9 @@ p{margin:0}
 .grp{margin-top:14px}
 .grp h2{display:flex;align-items:baseline;gap:10px;margin:0;font-size:18px;font-weight:800;letter-spacing:-.01em}
 .grp h2 span{font-size:16px;color:var(--ink-2);font-weight:600}
+.grp-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
+.jump{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 15px 0 12px;border-radius:20px;background:var(--lemon-soft);border:1px solid var(--lemon-line);font-size:15px;font-weight:700;text-decoration:none}
+.jump .dot{width:10px;height:10px;border-radius:50%;background:var(--lemon);box-shadow:0 0 0 1.5px #E3B92E}
 .rows{list-style:none;margin:0;padding:0}
 .row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;column-gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}
 .rows .row:first-child{border-top:0}
@@ -81,8 +84,8 @@ p{margin:0}
 .note input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line-2);background:var(--ground);padding:0 16px;font-size:16px}
 .note input::placeholder{color:#5F7A85}
 .crop{margin:0;background:#fff;border:1px solid var(--line-2);border-radius:14px;font-family:Arial,Helvetica,sans-serif;color:#222}
-.crop figcaption{padding:10px 14px 0;font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:14px;font-weight:600;color:var(--ink-2)}
-.crop-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 12px 12px;padding:10px 12px;background:var(--lemon);border-radius:8px;box-shadow:inset 5px 0 0 #E3B92E}
+.crop figcaption{padding:8px 14px 0;font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:14px;font-weight:600;color:var(--ink-2)}
+.crop-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:6px 12px 10px;padding:8px 12px;background:var(--lemon);border-radius:8px;box-shadow:inset 5px 0 0 #E3B92E}
 .crop-row p{font-size:15px;font-weight:700}
 .crop-row small{display:block;margin-top:2px;font-size:14px;font-weight:400;color:#555}
 .crop-row b{font-size:15px;white-space:nowrap}
@@ -172,7 +175,7 @@ p{margin:0}
   <a class="glance" href="#" aria-label="October so far, open spending">
     <span class="g-top">October so far<svg class="i" style="width:20px;height:20px"><use href="#i-right"/></svg></span>
     <span class="g-amount"><small>Rp</small>6.842.350</span>
-    <span class="g-cmp">Rp 475.650 lower than the same days in September</span>
+    <span class="g-cmp">Rp 475.650 lower than 1 to 25 September</span>
   </a>
 
   <section class="inbox" aria-labelledby="t">
@@ -185,7 +188,7 @@ p{margin:0}
     </div>
 
     <section class="grp" aria-labelledby="g1">
-      <h2 id="g1">Look right <span>5</span></h2>
+      <div class="grp-head"><h2 id="g1">Look right <span>5</span></h2><a class="jump" href="#g2"><i class="dot"></i>2 need a look</a></div>
       <ul class="rows">
         <li class="row open">
           <button class="tick" type="button" aria-label="Accept INDOMARET FRESH BSD"><svg class="i"><use href="#i-check"/></svg></button>
