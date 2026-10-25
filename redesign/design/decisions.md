@@ -16,10 +16,10 @@ Correcting a waiting line, changing a saved one and typing one by hand use the s
 
 Adopted when the owner said "I'll go with your rec" after the designer recommended yes to all four. If that was meant for the direction only, say so and these go back to open.
 
-**P5 (built in the prototype, waiting for the owner's yes or no). Every line that can't be accepted yet goes in "Need a look", not only the three in P2.**
+**P5 (adopted 2026-10-25, with the owner's approval of group 1). Every line that can't be accepted yet goes in "Need a look", not only the three in P2.**
 Added reasons: the amount couldn't be read, no category yet, and (rarely) a missing store or date. Each shows one plain reason and two buttons: the fix first ("Add amount", "Choose category"), then "Throw away". "Accept the 5 that look right" then always means exactly the lines in "Look right", with nothing hidden that would fail. Say no and these lines go back into the main list with a disabled tick instead.
 
-**P6 (built in the prototype, waiting for the owner's yes or no). Incoming money offers "It's a spend", not "Count it".**
+**P6 (adopted 2026-10-25, with the owner's approval of group 1). Incoming money offers "It's a spend", not "Count it".**
 Direction D had "Count it" on incoming money, which contradicts R10 (never counted as spending). The only reason to keep such a line is that the bank's CR/DB was misread, so the button says what the person is declaring: "It's a spend". It then moves to "Look right" and still needs the tick. A repeat's second button stays "Keep it" and works the same way.
 
 ## Stage 1 choice (2026-10-25)
@@ -43,6 +43,8 @@ Choices that follow from the approved direction; none changes the inventory.
 - **Category chips**: the first three or four of the owner's order, then "More" for all 16. The chosen one is always visible. "Suggested from the store name" shows until the person touches the category (R8).
 - **"Nothing waiting" (All checked)** is designed in this group because the inbox owns it. First use, loading, failed to load and no connection stay in group 5.
 - **Toasts** only for "Accepted 5. Rp 1.765.450 added." and for a typed-in spend. A single tick has no toast: the row leaves, the count drops and the glance total moves.
+
+**Approved:** the owner approved group 1 on 2026-10-25 after looking at it. P5 and P6 are built into it, so they count as adopted; if "Approved" was meant for the look only, they go back to open. The three questions below stay on their defaults.
 
 ### Questions for the owner (each has a default, nothing waits on them)
 1. **No undo, no confirmation on "Throw away" for waiting lines.** Default: as built. A thrown-away line can be brought back by adding that screenshot again. (F7 still confirms once for saved ones.)

@@ -8,8 +8,8 @@ Inputs: `redesign/handoff/` (priorities and brief both FILLED). Decisions: `deci
 
 ## Stage 2: prototype (in progress, started 2026-10-25)
 Built in `prototype/`, expanded only from `directions/d-daybook-crop`. One group per session, in this order:
-1. **Capture and review: C1 to C4, R1 to R11 (done 2026-10-25, waiting for the owner's look).** States: import in progress, failed, found nothing, amount couldn't be read, not ready to save, saving, and nothing waiting.
-2. Understand: U1 to U8. States: no spending, nothing to compare with, a day with no spending.
+1. **Capture and review: C1 to C4, R1 to R11 (done and approved 2026-10-25).** States: import in progress, failed, found nothing, amount couldn't be read, not ready to save, saving, and nothing waiting.
+2. **Understand: U1 to U8 (next, new session via `./start`).** States: no spending, nothing to compare with, a day with no spending.
 3. Find and fix: F1 to F7. States: no results, deleting, missing category. (The form for F6 already exists from group 1: `D.openForm('edit-saved', {id})`.)
 4. Organise: O1 to O6. States: starter categories being set up, checking a category before deleting.
 5. App-wide states (first use, loading, failed to load, no connection) and the `?stress` data set. (`?stress` already makes the inbox 48 lines with very long names and huge amounts; extend it to the other screens.)
