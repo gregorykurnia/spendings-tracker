@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubBar } from "@/components/app/app-bar";
 import { ScreenSkeleton } from "@/components/app/screen-skeletons";
 import { SpendForm } from "@/components/spend-form/spend-form";
@@ -38,6 +38,16 @@ type Choice = {
 
 type FormTarget = { kind: "add" } | { kind: "change"; spend: Transaction };
 
+const FIRST_CHOICE: Choice = { mode: "month", anchor: null, picked: null, showAll: false };
+// What was being looked at, so coming back from a category's spends (back link or the browser's Back)
+// shows the same period. Kept for this visit only: a reload opens on this month again.
+let lastChoice: Choice = FIRST_CHOICE;
+
+/** For tests: open on this month again. */
+export function forgetSpendingChoice() {
+  lastChoice = FIRST_CHOICE;
+}
+
 /**
  * Spending: the total for a week or month and how it compares with the one before, where it went,
  * day by day, and the biggest spends. Week or month, earlier or later; a category opens its spends
@@ -47,8 +57,12 @@ export function SpendingScreen() {
   const { spends, waiting, loading, ...tx } = useTransactions();
   const { categories, loading: loadingCategories } = useCategories();
   const { announce } = useToast();
-  const [choice, setChoice] = useState<Choice>({ mode: "month", anchor: null, picked: null, showAll: false });
+  const [choice, setChoice] = useState<Choice>(() => lastChoice);
   const [form, setForm] = useState<FormTarget | null>(null);
+
+  useEffect(() => {
+    lastChoice = choice;
+  }, [choice]);
 
   // The app's gate has the data already, but this screen's own listeners start empty for a moment:
   // without this it would say "Nothing to show yet" before they fill.

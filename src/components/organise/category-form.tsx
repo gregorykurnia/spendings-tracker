@@ -39,6 +39,8 @@ type Props = {
   /** Every category, in the owner's order. */
   categories: readonly Category[];
   actions: CategoryFormActions;
+  /** How many spends the list shows for the category being changed (for the delete question). */
+  spends?: number;
   /** Closed without a change, saved or deleted. */
   onClose: () => void;
 };
@@ -50,7 +52,7 @@ const swatchLabel = (name: SwatchName) => name[0].toUpperCase() + name.slice(1);
  * one typed or pasted) and one of 13 colours. A change also offers the delete question. Render it
  * only while it is open.
  */
-export function CategoryForm({ mode, categories, actions, onClose }: Props) {
+export function CategoryForm({ mode, categories, actions, spends, onClose }: Props) {
   const online = useOnline();
   const { toast, announce } = useToast();
   const changing = mode.kind === "change";
@@ -229,6 +231,7 @@ export function CategoryForm({ mode, categories, actions, onClose }: Props) {
           category={mode.category}
           others={categories.filter((c) => c.id !== mode.category.id)}
           actions={actions}
+          knownSpends={spends}
           onCancel={() => setDeleting(false)}
           onDeleted={onClose}
         />

@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { NET_SHORT } from "@/lib/offline";
 import { Button } from "./button";
 import { Chip } from "./chip";
+import { StepButton } from "./step-button";
 import { ToastProvider } from "./toast";
 
 const online = vi.hoisted(() => ({ value: true }));
@@ -115,6 +116,21 @@ describe("Chip", () => {
     );
     fireEvent.click(screen.getByText("Food"));
     expect(onClick).not.toHaveBeenCalled();
+    expect(document.getElementById("toast")?.textContent).toBe(NET_SHORT);
+  });
+});
+
+describe("StepButton that writes (moving a category)", () => {
+  it("does nothing with no connection and says why", () => {
+    online.value = false;
+    const onPress = vi.fn();
+    render(
+      <ToastProvider>
+        <StepButton direction="up" label="Move Groceries up" writes onPress={onPress} />
+      </ToastProvider>
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Move Groceries up" }));
+    expect(onPress).not.toHaveBeenCalled();
     expect(document.getElementById("toast")?.textContent).toBe(NET_SHORT);
   });
 });

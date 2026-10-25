@@ -91,6 +91,7 @@ function dayMonth(iso: string) {
 
 /** `Sun 25 Oct`, with the year (`Sun 25 Oct 2025`) only when it isn't this year. */
 export function formatDay(iso: string, today: string) {
+  if (!isISODate(iso)) return "No date";
   const d = parse(iso);
   const text = `${DAY_NAMES[d.getUTCDay()]} ${dayMonth(iso)}`;
   return iso.slice(0, 4) === today.slice(0, 4) ? text : `${text} ${iso.slice(0, 4)}`;
@@ -98,6 +99,7 @@ export function formatDay(iso: string, today: string) {
 
 /** `Sun 25 Oct 2026`: always with the year. */
 export function formatDayLong(iso: string) {
+  if (!isISODate(iso)) return "No date";
   const d = parse(iso);
   return `${DAY_NAMES[d.getUTCDay()]} ${dayMonth(iso)} ${iso.slice(0, 4)}`;
 }

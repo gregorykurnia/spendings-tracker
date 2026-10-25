@@ -112,10 +112,24 @@ export function acceptBarLabel({
   return needLook > 0 ? `Accept the ${ready} that look right` : `Accept all ${ready}`;
 }
 
+/**
+ * "From 2 screenshots, added just now": how many screenshots the waiting lines came from, while every
+ * one of them came in this visit (`stamps`, one per screenshot read), and 0 otherwise.
+ */
+export function freshShotCount(waiting: readonly Pick<Transaction, "createdAt">[], stamps: ReadonlySet<string>) {
+  if (!waiting.length || !waiting.every((line) => stamps.has(line.createdAt))) return 0;
+  return new Set(waiting.map((line) => line.createdAt)).size;
+}
+
 /** The toast after accepting many. */
 export function acceptedManyMessage(lines: readonly Pick<Transaction, "amount">[]) {
   const total = lines.reduce((sum, line) => sum + (line.amount ?? 0), 0);
   return `Accepted ${lines.length}. ${formatRupiah(total)} added.`;
+}
+
+/** Announced after accepting many (the toast says the amount). */
+export function acceptedManyAnnouncement(accepted: number, left: number) {
+  return `Accepted ${accepted}. ${leftToCheck(left)}`;
 }
 
 function leftToCheck(left: number) {

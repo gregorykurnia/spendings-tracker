@@ -57,7 +57,7 @@ export function DeleteSpendDialog({ spend, category, deleteTransaction, onCancel
 
   return (
     <Sheet label="Delete this spend?" role="alertdialog" onClose={onCancel} busy={busy}>
-      <SheetHead title="Delete this spend?" />
+      <SheetHead title="Delete this spend?" noClose={busy} />
       <SheetBody>
         <div className={styles.card}>
           <CategoryDisc emoji={category?.emoji ?? "❔"} color={category?.color ?? "slate"} />

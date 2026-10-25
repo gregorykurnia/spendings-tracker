@@ -125,7 +125,7 @@ Fresh session. Review the phase diff against the design notes and the prototype;
 | 2.5 | All transactions; `e2e/transactions.spec.ts` | Sonnet 5.5 High | filters, edit and delete | 2026-10-25, all transactions |
 | 2.6 | Categories; `e2e/categories.spec.ts` | Sonnet 5.5 High | reorder, move-and-delete | 2026-10-25, categories |
 | 2.7 | Phase 2 end-to-end: `e2e/journey.spec.ts` across screens and offline | Sonnet 5.5 High | the screens together | 2026-10-25, journey spec |
-| R2 | Phase 2 review | Opus 5.5 High | phase review rule |  |
+| R2 | Phase 2 review | Opus 5.5 High | phase review rule | 2026-10-25, phase 2 review |
 
 ### 2.1 The spend form and category picker
 Files: `src/components/spend-form/*`; delete `TransactionFormModal.tsx`, `DeleteTransactionModal.tsx`, `Modal.tsx` once nothing imports them. Read: design notes §4 (Text field, Message, Sheet), §5, §7; `decisions.md` P4, P7, group 1 and 3 (Change, Delete); prototype `js/capture.js` (form), `js/find.js` (delete); states `form-correct`, `form-add`, `form-saved`, `form-amount`, `form-notready`, `form-saving`, `find-form`, `find-delete`, `find-deleting`, `find-missing-form`, `picker`, `app-offline-save`.
@@ -181,6 +181,7 @@ Files: `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/layout.tsx` (metad
 
 ### 3.2 Installable
 Files: `src/app/manifest.ts`, `public/icons/`, `src/app/icon.svg` (replaces `favicon.ico`), `public/sw.js`, `src/components/app/service-worker*`. Read: design notes §3 (Installed), §8 Hard constraints; prototype `manifest.webmanifest`, `icons/`. Do: copy the icons; the manifest values; a service worker that caches the app shell for the four routes, never data or `/api/`, and replaces the old cache. Done when: in the test build, going offline after one visit and reloading shows the no-connection screen, not the browser's.
+Also (R2): `src/components/ServiceWorkerRegister.tsx` moves into `src/components/app/` (the last file in the old flat folder).
 
 ### 3.3 Share from iPhone
 Files: `src/app/api/import/route.ts`, `src/lib/ocr.ts`, `src/components/inbox/*` (tray message), `docs/iphone-shortcut.md`, tests. Read: "Design gaps" G3; "Architecture" (OCR route, Data model). iPhone web apps can't receive shares, so an iOS Shortcut in the share sheet posts the screenshot to `/api/import`.
@@ -189,6 +190,7 @@ Done when: tests (emulator, with the Claude call pointed at a local fake through
 
 ### 3.4 Accessibility pass
 Files: `scripts/a11y.ts` (axe through Playwright over every screen and the main overlays, normal and stress data; `--only <route>`), fixes. Read: design notes §6. Done when: the scan reports nothing serious or critical; keyboard checks of the inbox, the form and the day chart pass. Device checks go to the owner line below.
+Also (R2): on a phone, Spending's sections are reordered with CSS `order` (total, categories, days, biggest), unlike the reading and tab order (total, chart, biggest, categories), as in the prototype. Make them agree (WCAG 1.3.2, 2.4.3), or record a design gap.
 
 ### 3.5 Screenshot compare tool
 Files: `scripts/compare.ts`, `redesign/compare/` (gitignored images, committed `report.md`). Do: shoot about 20 key prototype states (served from `redesign/design/`) and the same states in the app (seeded emulator, stress set where the state uses it) at 390 and 1280 wide; side-by-side images; `--only <state>`; keep prototype shots between runs. Run it once and list each difference in `report.md` by area (home and form; Spending; All transactions; Categories; whole app). Fix nothing here.

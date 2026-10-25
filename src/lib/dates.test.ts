@@ -25,6 +25,11 @@ describe("formatDay", () => {
   it("adds the year when it isn't this year", () => {
     expect(formatDay("2025-12-31", TODAY)).toBe("Wed 31 Dec 2025");
   });
+  it("says 'No date' for a missing or unreadable date instead of failing", () => {
+    expect(formatDay("", TODAY)).toBe("No date");
+    expect(formatDay("5 Oct", TODAY)).toBe("No date");
+    expect(formatDayLong("")).toBe("No date");
+  });
   it("always has the year in the long forms", () => {
     expect(formatDayLong("2026-10-25")).toBe("Sun 25 Oct 2026");
     expect(formatDayYear("2026-10-25")).toBe("25 Oct 2026");

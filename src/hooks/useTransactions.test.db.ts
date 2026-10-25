@@ -96,15 +96,6 @@ describe("saved spends", () => {
     unmount();
   });
 
-  it("changes a spend", async () => {
-    await writeDocs("transactions", [{ id: "t1", data: { ...spend, createdAt: "2026-10-20T08:00:00.000Z" } }]);
-    const { result, unmount } = await openHook();
-    await act(() => result.current.updateTransaction("t1", { amount: 52_500, store: "Kopi Janji Jiwa" }));
-
-    expect((await only()).data).toMatchObject({ amount: 52_500, store: "Kopi Janji Jiwa", categoryId: "food-drink" });
-    unmount();
-  });
-
   it("changes a spend through updateSpend, which ends a suggestion and refuses an unfinished one", async () => {
     await writeDocs("transactions", [
       { id: "t1", data: { ...spend, categorySuggested: true, createdAt: "2026-10-20T08:00:00.000Z" } },
@@ -288,6 +279,20 @@ describe("accepting waiting lines", () => {
     unmount();
   });
 
+  it("saves the store and note without stray spaces, one or many", async () => {
+    await writeDocs("transactions", [waitingDoc("w1"), waitingDoc("w2", { seq: 1, description: " latte " })]);
+    const { result, unmount } = await openHook();
+    await waitFor(() => expect(result.current.waiting).toHaveLength(2));
+
+    act(() => result.current.editWaitingLine("w1", { store: "  Kopi Senopati ", description: "oat  " }));
+    await act(() => result.current.acceptLine("w1"));
+    await act(() => result.current.acceptLines(["w2"]));
+
+    expect(await byId("w1")).toMatchObject({ store: "Kopi Senopati", description: "oat" });
+    expect(await byId("w2")).toMatchObject({ description: "latte" });
+    unmount();
+  });
+
   it("won't accept a line that still needs something", async () => {
     await writeDocs("transactions", [
       waitingDoc("noAmount", { amount: null }),
@@ -399,6 +404,19 @@ describe("needs a look", () => {
 });
 
 describe("documents from before the redesign", () => {
+  it("reads old dates: a date with a time keeps its day, anything else is no date", async () => {
+    await writeDocs("transactions", [
+      { id: "t1", data: { ...spend, date: "2026-10-05T00:00:00", createdAt: "2026-10-20T08:00:00.000Z" } },
+      { id: "t2", data: { ...spend, date: "5 Oct", createdAt: "2026-10-20T08:00:00.000Z" } },
+      { id: "t3", data: { ...spend, date: "", createdAt: "2026-10-20T08:00:00.000Z" } },
+    ]);
+    const { result, unmount } = await openHook();
+    await waitFor(() => expect(result.current.spends).toHaveLength(3));
+    const dates = Object.fromEntries(result.current.spends.map((t) => [t.id, t.date]));
+    expect(dates).toEqual({ t1: "2026-10-05", t2: "", t3: "" });
+    unmount();
+  });
+
   it("reads and accepts an old waiting line with no direction, bank line or order", async () => {
     await writeDocs("transactions", [
       { id: "old", data: { ...spend, source: "ocr", status: "pending_review", createdAt: "2026-09-01T08:00:00.000Z" } },

@@ -218,6 +218,8 @@ describe("the tick", () => {
   it("does nothing with no connection, dims, and says why", () => {
     online.value = false;
     const { actions } = open({ waiting: [line({ store: "FIRST" })] });
+    const tick = screen.getByRole("button", { name: "Accept FIRST, Rp 28.000" });
+    expect(tick.getAttribute("aria-disabled")).toBe("true");
     press("Accept FIRST, Rp 28.000");
     expect(actions.acceptLine).not.toHaveBeenCalled();
     expect(toastText()).toBe(NET_SHORT);
@@ -281,9 +283,35 @@ describe("the accept bar", () => {
   it("does nothing with no connection, dims, and says why", () => {
     online.value = false;
     const { actions } = open({ waiting: [line(), line()] });
+    expect(screen.getByRole("button", { name: "Accept all 2" }).getAttribute("aria-disabled")).toBe("true");
     press("Accept all 2");
     expect(actions.acceptLines).not.toHaveBeenCalled();
     expect(toastText()).toBe(NET_SHORT);
+  });
+});
+
+describe("with no connection in the open row", () => {
+  it("refuses Throw away and says why", () => {
+    online.value = false;
+    const { actions } = open({ waiting: [line({ store: "FIRST" }), line()] });
+    press("FIRST");
+    press("Throw away");
+    expect(actions.throwAway).not.toHaveBeenCalled();
+    expect(toastText()).toBe(NET_SHORT);
+    expect(screen.getByRole("button", { name: "FIRST" })).toBeTruthy();
+  });
+
+  it("refuses a category chosen in a picker opened before the connection went, and stays open", () => {
+    const a = line({ store: "FIRST" });
+    const { actions, update } = open({ waiting: [a, line()] });
+    press("FIRST");
+    press(/More/);
+    online.value = false;
+    update({});
+    fireEvent.click(within(screen.getByRole("dialog", { name: "Choose a category" })).getByRole("button", { name: /Travel/ }));
+    expect(actions.editWaitingLine).not.toHaveBeenCalled();
+    expect(toastText()).toBe(NET_SHORT);
+    expect(screen.getByRole("dialog", { name: "Choose a category" })).toBeTruthy();
   });
 });
 

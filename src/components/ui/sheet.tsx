@@ -147,15 +147,25 @@ export function Sheet({ label, onClose, busy, role = "dialog", className, childr
   );
 }
 
-/** The title and the close button. */
-export function SheetHead({ title, closeLabel = "Close" }: { title: string; closeLabel?: string }) {
+/** The title and the close button (left out while a delete runs, which can't be stopped). */
+export function SheetHead({
+  title,
+  closeLabel = "Close",
+  noClose = false,
+}: {
+  title: string;
+  closeLabel?: string;
+  noClose?: boolean;
+}) {
   const { dismiss } = useContext(SheetContext);
   return (
     <div className={styles.head}>
       <h2>{title}</h2>
-      <button type="button" className={styles.close} onClick={dismiss} aria-label={closeLabel}>
-        <Icon name="close" />
-      </button>
+      {noClose ? null : (
+        <button type="button" className={styles.close} onClick={dismiss} aria-label={closeLabel}>
+          <Icon name="close" />
+        </button>
+      )}
     </div>
   );
 }

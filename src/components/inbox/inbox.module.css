@@ -386,7 +386,7 @@
   font-size: var(--fs-amt);
 }
 
-.acceptAll[aria-disabled="true"] {
+.acceptAll[aria-busy="true"] {
   cursor: progress;
 }
 

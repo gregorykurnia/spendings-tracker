@@ -12,8 +12,8 @@ type Props = {
   categories: readonly Category[];
   /** The category chosen now, if any. */
   selectedId: string;
-  /** A category was tapped. The picker closes itself after this returns. */
-  onChoose: (categoryId: string) => void;
+  /** A category was tapped. The picker closes itself after this returns, unless it returns `false`. */
+  onChoose: (categoryId: string) => boolean | void;
   onClose: () => void;
 };
 
@@ -34,8 +34,7 @@ export function CategoryPicker({ categories, selectedId, onChoose, onClose }: Pr
                   aria-pressed={on}
                   data-autofocus={on ? "" : undefined}
                   onClick={() => {
-                    onChoose(category.id);
-                    onClose();
+                    if (onChoose(category.id) !== false) onClose();
                   }}
                 >
                   <CategoryDisc emoji={category.emoji} color={category.color} />

@@ -240,13 +240,13 @@ test.describe("Categories", () => {
     expected.splice(expected.indexOf("Health"), 1);
     expected.splice(expected.indexOf("Shopping") + 2, 0, "Health");
     // Groceries, Food & Drink, Transport, Home & Utilities, Business, Shopping, Entertainment, Health, ...
-    expect(await names(page)).toEqual(expected);
+    await expect.poll(() => names(page)).toEqual(expected);
 
     await page.getByRole("button", { name: "Done" }).click();
     await expect(page.getByRole("button", { name: "Change order" })).toBeVisible();
     await expect(page.getByText("16 categories. Tap one to change it.")).toBeVisible();
     expect(await names(page)).toEqual(expected);
-    expect((await savedCategories()).map((c) => c.data.name)).toEqual(expected);
+    await expect.poll(async () => (await savedCategories()).map((c) => c.data.name)).toEqual(expected);
 
     await page.reload();
     await expect(row(page, "Groceries")).toBeVisible();

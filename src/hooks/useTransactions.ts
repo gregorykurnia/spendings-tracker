@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { inChunks } from "@/lib/batches";
+import { isISODate } from "@/lib/dates";
 import { suggestCategoryId } from "@/lib/suggest";
 import { Category, OcrLine, Transaction } from "@/types";
 
@@ -23,6 +24,8 @@ const transactionsRef = collection(db, "transactions");
 
 /** How long a waiting line's edits wait for more typing before they are written. */
 export const EDIT_DELAY_MS = 400;
+/** How long a failed edit waits before it is written again. */
+export const RETRY_DELAY_MS = 5000;
 
 /** The fields the spend form edits. */
 export type SpendFields = Pick<
@@ -31,6 +34,16 @@ export type SpendFields = Pick<
 >;
 
 /** Reads a stored document, old shapes included. */
+/**
+ * Dates are stored as `YYYY-MM-DD`. Lines saved by the old OCR page could hold whatever the reader
+ * returned: a date with a time keeps its day, and anything else reads as no date.
+ */
+function readDate(value: unknown) {
+  if (typeof value !== "string") return "";
+  const day = value.slice(0, 10);
+  return isISODate(day) ? day : "";
+}
+
 export function toTransaction(id: string, data: DocumentData): Transaction {
   return {
     ...data,
@@ -39,7 +52,7 @@ export function toTransaction(id: string, data: DocumentData): Transaction {
     store: data.store ?? "",
     description: data.description ?? "",
     categoryId: data.categoryId ?? "",
-    date: data.date ?? "",
+    date: readDate(data.date),
     source: data.source === "ocr" ? "ocr" : "manual",
     status: data.status === "pending_review" ? "pending_review" : "confirmed",
     createdAt: data.createdAt ?? "",
@@ -89,6 +102,11 @@ function editPayload(patch: Partial<SpendFields>) {
   return "categoryId" in patch
     ? { ...patch, categorySuggested: deleteField() }
     : { ...patch };
+}
+
+/** A line is kept as typed while waiting; it is saved as a spend without stray spaces. */
+function trimmed(line: Pick<Transaction, "store" | "description">) {
+  return { store: line.store.trim(), description: line.description.trim() };
 }
 
 async function writeEdit(id: string, patch: Partial<SpendFields>) {
@@ -233,18 +251,26 @@ export function useTransactions() {
   /** Changes a waiting line as the owner types; written after a short pause. */
   function editWaitingLine(id: string, patch: Partial<SpendFields>) {
     pending.current.set(id, { ...pending.current.get(id), ...patch });
+    flushLater(id, EDIT_DELAY_MS);
+    bumpPending();
+  }
+
+  // A failed write is put back (restorePending) and tried again after a longer pause, so typing that
+  // couldn't be saved isn't left waiting for the next keystroke.
+  function flushLater(id: string, delay: number) {
     const old = timers.current.get(id);
     if (old) clearTimeout(old);
     timers.current.set(
       id,
       setTimeout(() => {
+        timers.current.delete(id);
         flushEdits(id).catch((err) => {
           console.error("saving an edit failed:", err);
           setSaveError(err.message);
+          if (pending.current.has(id) && !timers.current.has(id)) flushLater(id, RETRY_DELAY_MS);
         });
-      }, EDIT_DELAY_MS)
+      }, delay)
     );
-    bumpPending();
   }
 
   /** Writes waiting-line edits now: one line's, or every line's. */
@@ -282,6 +308,7 @@ export function useTransactions() {
     try {
       await updateDoc(doc(transactionsRef, id), {
         ...editPayload(patch ?? {}),
+        ...trimmed(line),
         status: "confirmed",
       });
     } catch (err) {
@@ -297,13 +324,17 @@ export function useTransactions() {
       const reason = cannotSave(line);
       if (reason) throw new NotReadyError(line, reason);
     }
-    const writes = lines.map((line) => ({ id: line.id, patch: takePending(line.id) }));
+    const writes = lines.map((line) => ({ id: line.id, patch: takePending(line.id), line }));
     bumpPending();
     const chunks = inChunks(writes);
     for (let i = 0; i < chunks.length; i++) {
       const batch = writeBatch(db);
       for (const w of chunks[i]) {
-        batch.update(doc(transactionsRef, w.id), { ...editPayload(w.patch ?? {}), status: "confirmed" });
+        batch.update(doc(transactionsRef, w.id), {
+          ...editPayload(w.patch ?? {}),
+          ...trimmed(w.line),
+          status: "confirmed",
+        });
       }
       try {
         await batch.commit();
@@ -351,16 +382,6 @@ export function useTransactions() {
     await writeEdit(id, fields);
   }
 
-  // The two functions below are unchecked and go with the old screens (tasks 2.2 to 2.5).
-  async function addTransaction(input: Omit<Transaction, "id" | "createdAt">) {
-    await addDoc(transactionsRef, { ...input, createdAt: new Date().toISOString() });
-  }
-
-  /** Changes a saved spend. */
-  async function updateTransaction(id: string, input: Partial<Omit<Transaction, "id">>) {
-    await updateDoc(doc(transactionsRef, id), input);
-  }
-
   /** Deletes a saved spend for good. */
   async function deleteTransaction(id: string) {
     takePending(id);
@@ -383,8 +404,6 @@ export function useTransactions() {
     keepLine,
     addSpend,
     updateSpend,
-    addTransaction,
-    updateTransaction,
     deleteTransaction,
   };
 }

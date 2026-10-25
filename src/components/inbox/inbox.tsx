@@ -7,6 +7,7 @@ import { CategoryPicker } from "@/components/spend-form/category-picker";
 import type { SpendFields, useTransactions } from "@/hooks/useTransactions";
 import { useOnline } from "@/hooks/useOnline";
 import { todayISO } from "@/lib/dates";
+import { NET_SHORT } from "@/lib/offline";
 import { reviewReasons, type ReviewAction } from "@/lib/review";
 import type { Category, Transaction } from "@/types";
 import { AcceptBar } from "./accept-bar";
@@ -14,6 +15,7 @@ import styles from "./inbox.module.css";
 import { LookRow } from "./look-row";
 import { ReviewRow } from "./review-row";
 import {
+  acceptedManyAnnouncement,
   acceptedManyMessage,
   acceptedOneMessage,
   inboxGroups,
@@ -227,7 +229,7 @@ export function Inbox({
     leave(items, () => {
       setBulk(null);
       toast(message);
-      announce(`${message} ${waiting.length - items.length} left to check.`);
+      announce(acceptedManyAnnouncement(items.length, waiting.length - items.length));
     });
   }
 
@@ -400,6 +402,12 @@ export function Inbox({
           categories={categories}
           selectedId={pickingLine.categoryId}
           onChoose={(categoryId) => {
+            // Choosing writes the line at once, so with no connection it says why and stays open.
+            if (!online) {
+              toast(NET_SHORT);
+              announce(NET_SHORT);
+              return false;
+            }
             edit(pickingLine, { categoryId });
             setFocusAfter({ id: pickingLine.id });
           }}

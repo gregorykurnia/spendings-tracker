@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { buildSeed } from "../scripts/seed-emulator";
+import { todayISO } from "../src/lib/dates";
 import { clearEmulator, listDocs, writeDocs, type EmulatorDoc } from "../scripts/test-env";
 import { bankLine, mockOcr, screenshots } from "./fixtures/ocr";
 
@@ -9,7 +10,8 @@ import { bankLine, mockOcr, screenshots } from "./fixtures/ocr";
 // typing addresses, so what one screen leaves behind is what the next one reads. Claude is never
 // called: `/api/ocr` is answered by `mockOcr`.
 
-const today = new Date().toISOString().slice(0, 10);
+// The browser's calendar day, as the app reads it (not UTC).
+const today = todayISO();
 
 const NET_ERROR = "No connection. Nothing was saved. Try again when you are back online.";
 const NET_SHORT = "No connection. Try again when you are back online.";
@@ -218,9 +220,10 @@ test.describe("losing the connection halfway", () => {
     const before = (await savedSpends()).length;
 
     await goOffline(page, true);
-    await page.getByRole("button", { name: "Accept Indomaret, Rp 15.000" }).click();
+    // Dimmed and marked aria-disabled, but pressing says why (`force`: Playwright won't press them otherwise).
+    await page.getByRole("button", { name: "Accept Indomaret, Rp 15.000" }).click({ force: true });
     await expect(toast(page)).toHaveText(NET_SHORT);
-    await page.getByRole("button", { name: "Accept all 3" }).click();
+    await page.getByRole("button", { name: "Accept all 3" }).click({ force: true });
     await expect(toast(page)).toHaveText(NET_SHORT);
     await expect(title(page)).toHaveText("3 to check");
     expect((await savedSpends()).length).toBe(before);

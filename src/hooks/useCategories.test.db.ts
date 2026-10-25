@@ -94,7 +94,8 @@ describe("first open", () => {
     await writeDocs("meta", [{ id: "categoriesSeeded", data: { startedAt: "2026-10-25T08:00:00.000Z" } }]);
     await writeDocs("categories", [category("mine", "Kids", 0)]);
     const { result, unmount } = await freshHook();
-    await waitFor(() => expect(result.current.categories).toHaveLength(1));
+    // Not an exact length: Telecommunications may already be in by the time this looks.
+    await waitFor(() => expect(result.current.categories.map((c) => c.id)).toContain("mine"));
 
     await expect.poll(async () => (await listDocs("meta")).find((m) => m.id === "categoriesSeeded")?.data.seededAt).toBeTruthy();
     // Telecommunications is the one later addition every database gets.

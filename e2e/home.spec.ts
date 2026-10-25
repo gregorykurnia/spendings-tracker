@@ -1,12 +1,14 @@
 import { expect, test, type Page } from "@playwright/test";
 import { buildSeed, seedEmulator } from "../scripts/seed-emulator";
+import { todayISO } from "../src/lib/dates";
 import { clearEmulator, listDocs, writeDocs } from "../scripts/test-env";
 import { bankLine, gate, mockOcr, screenshots } from "./fixtures/ocr";
 
 // Home (design notes §8): the import tray, the inbox it feeds, the glance card, the links, the menu,
 // first use and "All checked". Claude is never called: `/api/ocr` is answered by `mockOcr`.
 
-const today = new Date().toISOString().slice(0, 10);
+// The browser's calendar day, as the app reads it (not UTC).
+const today = todayISO();
 const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
 
 const waitingDocs = async () =>
@@ -231,8 +233,9 @@ test.describe("checking what was read", () => {
     await page.getByRole("button", { name: "It's a spend" }).click();
     await expect(page.getByRole("heading", { name: "Need a look 1" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Look right 3" })).toBeVisible();
-    const kept = (await waitingDocs()).find((d) => d.id === "waiting-in")!;
-    expect(kept.data).toMatchObject({ kept: true, direction: "out" });
+    await expect
+      .poll(async () => (await waitingDocs()).find((d) => d.id === "waiting-in")?.data)
+      .toMatchObject({ kept: true, direction: "out" });
     expect(await waitingDocs()).toHaveLength(3);
   });
 
@@ -248,11 +251,11 @@ test.describe("checking what was read", () => {
     await page.getByRole("button", { name: "Superindo", exact: true }).click();
     await page.getByRole("button", { name: "Throw away" }).click();
     await expect(title(page)).toHaveText("All checked");
-    expect(await waitingDocs()).toHaveLength(0);
+    await expect.poll(async () => (await waitingDocs()).length).toBe(0);
 
     await fileInput(page).setInputFiles(screenshots(1));
     await expect(title(page)).toHaveText("1 to check");
-    expect(await waitingDocs()).toHaveLength(1);
+    await expect.poll(async () => (await waitingDocs()).length).toBe(1);
   });
 });
 
@@ -324,7 +327,9 @@ test.describe("the rest of home", () => {
 
     let picked = false;
     page.on("filechooser", () => (picked = true));
-    await addButton(page).click();
+    // Dimmed and marked aria-disabled, but pressing it still says why (`force`: Playwright won't press it otherwise).
+    await expect(addButton(page)).toHaveAttribute("aria-disabled", "true");
+    await addButton(page).click({ force: true });
     await expect(toast(page)).toHaveText("No connection. Try again when you are back online.");
     expect(picked).toBe(false);
     await context.setOffline(false);

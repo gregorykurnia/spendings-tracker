@@ -17,6 +17,7 @@ import { HomeLinks } from "./home-links";
 import { ImportTray } from "./import-tray";
 import { Inbox } from "./inbox";
 import styles from "./inbox.module.css";
+import { freshShotCount } from "./rules";
 import { useImportTray } from "./use-import-tray";
 
 type FormTarget =
@@ -57,8 +58,8 @@ export function HomeScreen() {
     },
   };
 
-  // The form edits the live line. Once it is accepted from the form the data drops it, and the form
-  // goes on showing the line it opened with until it closes itself.
+  // The form edits the live line. Once it is accepted from the form it is a spend (with the edits it
+  // was accepted with) until the form closes itself; the line it opened with is the last resort.
   const mode: SpendFormMode | null =
     form === null
       ? null
@@ -66,7 +67,10 @@ export function HomeScreen() {
         ? { kind: "add" }
         : {
             kind: "correct",
-            line: waiting.find((line) => line.id === form.line.id) ?? form.line,
+            line:
+              waiting.find((line) => line.id === form.line.id) ??
+              spends.find((spend) => spend.id === form.line.id) ??
+              form.line,
             focus: form.focus,
           };
 
@@ -76,8 +80,7 @@ export function HomeScreen() {
 
   const typeIn = () => setForm({ kind: "add" });
   // "From 2 screenshots, added just now": only while every waiting line came in this visit.
-  const freshShots =
-    waiting.length > 0 && waiting.every((line) => tray.fresh.stamps.has(line.createdAt)) ? tray.fresh.shots : 0;
+  const freshShots = freshShotCount(waiting, tray.fresh.stamps);
   const trayShown = tray.shots.length > 0;
   const firstUse = !spends.length && !waiting.length && !trayShown;
   const openPicker = () => picker.current?.click();

@@ -70,7 +70,8 @@ export function CategoriesScreen() {
   });
 
   // The counts are what the rows say, so a failure to read them is a failure to load, never "No spends yet".
-  if (countsError !== null) return <BootFailed screen="categories" what="transactions" onRetry={retry} />;
+  // An open form stays (with what was typed) until it closes.
+  if (countsError !== null && form === null) return <BootFailed screen="categories" what="transactions" onRetry={retry} />;
   if (categories.loading || loadingCounts) return <ScreenSkeleton screen="categories" />;
 
   const n = sorted.length;
@@ -189,7 +190,13 @@ export function CategoriesScreen() {
         </ul>
       </main>
       {mode ? (
-        <CategoryForm mode={mode} categories={sorted} actions={categories} onClose={() => setForm(null)} />
+        <CategoryForm
+          mode={mode}
+          categories={sorted}
+          actions={categories}
+          spends={mode.kind === "change" ? counts[mode.category.id]?.spends : undefined}
+          onClose={() => setForm(null)}
+        />
       ) : null}
     </>
   );

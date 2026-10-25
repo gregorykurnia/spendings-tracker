@@ -26,7 +26,7 @@ export function AddButton({ onPress, reading, short, big, ref }: Props) {
       type="button"
       className={cx(styles.add, big && styles.addBig, blocked && !reading && styles.addOffline)}
       aria-label="Add screenshots"
-      aria-disabled={reading || undefined}
+      aria-disabled={reading || blocked || undefined}
       onClick={() => {
         if (reading) return;
         if (blocked) refuse();

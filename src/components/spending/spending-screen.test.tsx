@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { ToastProvider } from "@/components/ui/toast";
 import type { Category, Transaction } from "@/types";
-import { SpendingScreen } from "./spending-screen";
+import { forgetSpendingChoice, SpendingScreen } from "./spending-screen";
 
 const data = vi.hoisted(() => ({
   spends: [] as Transaction[],
@@ -79,6 +79,7 @@ const earlier = (unit: string) => screen.getByRole("button", { name: `Earlier ${
 const later = (unit: string) => screen.getByRole("button", { name: `Later ${unit}` });
 
 beforeEach(() => {
+  forgetSpendingChoice();
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(new Date(2026, 9, 21, 10, 0, 0)); // Wednesday 21 October 2026
   data.spends = [
@@ -110,6 +111,15 @@ describe("Spending", () => {
     expect(screen.getByText("1 to 21 September was Rp 500.000")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Month" }).getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button", { name: "Week" }).getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("comes back to the period it was showing (back from a category's spends)", () => {
+    show();
+    fireEvent.click(earlier("month"));
+    expect(screen.getByText("September 2026")).toBeTruthy();
+    cleanup();
+    show();
+    expect(screen.getByText("September 2026")).toBeTruthy();
   });
 
   it("keeps Later off in the current period and offers no way back", () => {

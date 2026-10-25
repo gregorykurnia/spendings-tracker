@@ -30,7 +30,7 @@ export function AcceptBar({ ready, needLook, accepting, error, onAccept }: Props
       <button
         type="button"
         className={cx(styles.acceptAll, blocked && !busy && styles.offline)}
-        aria-disabled={busy || undefined}
+        aria-disabled={busy || blocked || undefined}
         aria-busy={busy || undefined}
         onClick={() => {
           if (busy) return;

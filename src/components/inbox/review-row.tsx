@@ -32,6 +32,7 @@ function Tick({ line, busy, onAccept }: { line: Transaction; busy: boolean; onAc
       className={cx(styles.tick, blocked && styles.offline)}
       data-focus-id={line.id}
       aria-label={tickLabel(line)}
+      aria-disabled={blocked || undefined}
       onClick={() => (blocked ? refuse() : onAccept())}
     >
       <Icon name="check" />
@@ -82,6 +83,7 @@ export function ReviewRow({
   onThrow,
 }: Props) {
   const panel = useId();
+  const { blocked, refuse } = useWriteGuard(true);
   return (
     <li className={cx(styles.row, open && styles.open, busy && styles.busy, leaving && styles.leaving)}>
       <div className={styles.rowIn}>
@@ -149,7 +151,11 @@ export function ReviewRow({
               <button type="button" onClick={onEdit}>
                 Edit details
               </button>
-              <button type="button" onClick={onThrow}>
+              <button
+                type="button"
+                className={cx(blocked && styles.offline)}
+                onClick={() => (blocked ? refuse() : onThrow())}
+              >
                 Throw away
               </button>
             </div>

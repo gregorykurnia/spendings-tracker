@@ -200,6 +200,43 @@ describe("delete a category", () => {
     expect(await within(ask()).findByText("No spends use it. It is removed for good.")).toBeTruthy();
   });
 
+  it("shows the list's spend count while it checks, and no close button while it moves", async () => {
+    const actions = makeActions();
+    let answer: (usage: { spends: number; waiting: number }) => void = () => {};
+    actions.categoryUsage.mockReturnValue(new Promise((resolve) => (answer = resolve)));
+    let finish: () => void = () => {};
+    actions.deleteCategory.mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
+    render(
+      <ToastProvider>
+        <CategoryForm
+          mode={{ kind: "change", category: categories[0] }}
+          categories={categories}
+          actions={actions as unknown as CategoryFormActions}
+          spends={69}
+          onClose={vi.fn()}
+        />
+      </ToastProvider>
+    );
+    press("Delete this category");
+    expect(within(ask()).getByText("69 spends")).toBeTruthy();
+    answer({ spends: 69, waiting: 0 });
+    fireEvent.click(await within(ask()).findByRole("button", { name: "Groceries" }));
+    expect(within(ask()).getByRole("button", { name: "Close" })).toBeTruthy();
+    fireEvent.click(within(ask()).getByRole("button", { name: "Move 69 and delete" }));
+    await waitFor(() => expect(within(ask()).queryByRole("button", { name: "Close" })).toBeNull());
+    finish();
+  });
+
+  it("with no connection deletes nothing and says why", async () => {
+    online.value = false;
+    const { actions } = open({ kind: "change", category: categories[0] });
+    press("Delete this category");
+    await within(ask()).findByText("No spends use it. It is removed for good.");
+    fireEvent.click(within(ask()).getByRole("button", { name: "Delete" }));
+    expect(await within(ask()).findByText(NET_ERROR)).toBeTruthy();
+    expect(actions.deleteCategory).not.toHaveBeenCalled();
+  });
+
   it("cancel goes back to the form", async () => {
     open({ kind: "change", category: categories[0] });
     press("Delete this category");

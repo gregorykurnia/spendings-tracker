@@ -191,7 +191,14 @@ export function FindScreen() {
                     <Icon name="close" size={18} />
                   </button>
                 ))}
-                <Button variant="quiet" onClick={clearFilters}>
+                <Button
+                  variant="quiet"
+                  onClick={() => {
+                    clearFilters();
+                    // The chips go, this button with them: focus moves to Filters.
+                    filtersButton()?.focus();
+                  }}
+                >
                   Clear all
                 </Button>
               </div>

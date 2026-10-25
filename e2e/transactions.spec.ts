@@ -221,6 +221,7 @@ test.describe("All transactions", () => {
     await expect(search(page)).toHaveValue("pert");
     expect(await stores(page)).toEqual(["Pertamina"]);
     await expect(page.locator("#live")).toHaveText("Filters cleared.");
+    await expect(filtersButton(page)).toBeFocused();
 
     // Clear all in the sheet does the same.
     await search(page).fill("");

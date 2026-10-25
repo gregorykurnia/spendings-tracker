@@ -161,9 +161,13 @@ export function SpendForm({ mode, categories, actions, onClose }: Props) {
     onClose();
   }
 
-  async function done() {
-    // Closing never loses typing: write what is waiting now rather than after the pause.
-    if (mode.kind === "correct") await actions.flushEdits(mode.line.id).catch(() => {});
+  function done() {
+    // Closing never loses typing: write what is waiting now rather than after the pause. It isn't
+    // waited for (a slow write would hold the sheet open); if it fails, the edit is tried again.
+    if (mode.kind === "correct") {
+      const id = mode.line.id;
+      actions.flushEdits(id).catch(() => actions.editWaitingLine(id, {}));
+    }
     onClose();
   }
 

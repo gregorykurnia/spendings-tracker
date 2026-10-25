@@ -11,7 +11,7 @@ import { CategoryInUseError, type useCategories } from "@/hooks/useCategories";
 import { useOnline } from "@/hooks/useOnline";
 import { NET_ERROR } from "@/lib/offline";
 import type { Category, CategoryUsage } from "@/types";
-import { deleteButtonLabel, deleteNote, deletedMessage, spendCountLine, usedBy } from "./organise";
+import { deleteButtonLabel, deleteNote, deletedMessage, plural, usedBy } from "./organise";
 import styles from "./organise.module.css";
 
 type Actions = Pick<ReturnType<typeof useCategories>, "categoryUsage" | "deleteCategory">;
@@ -21,6 +21,8 @@ type Props = {
   /** Every other category: where the spends and waiting lines can go. */
   others: readonly Category[];
   actions: Actions;
+  /** How many spends the list says it has, shown until the check answers. */
+  knownSpends?: number;
   /** "Cancel": back to the form. */
   onCancel: () => void;
   /** The category is gone. */
@@ -34,7 +36,7 @@ const CHECK_FAILED = "Couldn't check whether it is used. Try again in a moment."
  * removed for good, or asks where the spends and waiting lines go first (no default), moves them
  * and deletes. Once it is running it can't be dismissed.
  */
-export function DeleteCategoryDialog({ category, others, actions, onCancel, onDeleted }: Props) {
+export function DeleteCategoryDialog({ category, others, actions, knownSpends, onCancel, onDeleted }: Props) {
   const online = useOnline();
   const { toast, announce } = useToast();
   const [usage, setUsage] = useState<CategoryUsage | null>(null);
@@ -103,16 +105,18 @@ export function DeleteCategoryDialog({ category, others, actions, onCancel, onDe
     onDeleted();
   }
 
+  const shownSpends = usage?.spends ?? knownSpends ?? 0;
+
   return (
     <Sheet label="Delete this category?" role="alertdialog" onClose={onCancel} busy={busy}>
-      <SheetHead title={`Delete ${category.name}?`} />
+      <SheetHead title={`Delete ${category.name}?`} noClose={busy} />
       <SheetBody>
         <div className={styles.question}>
           <div className={styles.card}>
             <CategoryDisc emoji={category.emoji} color={category.color} />
             <span className={styles.main}>
               <span className={styles.name}>{category.name}</span>
-              <span className={styles.count}>{usage?.spends ? spendCountLine(usage.spends) : "No spends"}</span>
+              <span className={styles.count}>{shownSpends ? plural(shownSpends, "spend", "spends") : "No spends"}</span>
             </span>
           </div>
           {checking ? (

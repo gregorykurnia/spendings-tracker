@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { Transaction } from "@/types";
 import {
   acceptBarLabel,
+  acceptedManyAnnouncement,
   acceptedManyMessage,
+  freshShotCount,
   acceptedOneMessage,
   inboxGroups,
   inboxSub,
@@ -200,6 +202,11 @@ describe("what is said afterwards", () => {
     );
   });
 
+  it("announces how many were accepted and what is left", () => {
+    expect(acceptedManyAnnouncement(3, 2)).toBe("Accepted 3. 2 lines left to check.");
+    expect(acceptedManyAnnouncement(3, 0)).toBe("Accepted 3. Nothing left to check.");
+  });
+
   it("says what was accepted or thrown away and how many are left", () => {
     expect(acceptedOneMessage({ store: "GRAB* A-7XK2", amount: 43000 }, 6)).toBe(
       "Accepted GRAB* A-7XK2, Rp 43.000. 6 lines left to check."
@@ -239,5 +246,19 @@ describe("where focus goes when lines leave", () => {
   it("is nothing when nothing is left, or nothing left", () => {
     expect(nextFocusId(order, new Set(order))).toBeNull();
     expect(nextFocusId(order, new Set(["z"]))).toBeNull();
+  });
+});
+
+describe("freshShotCount", () => {
+  const stamps = new Set(["a", "b", "c"]);
+  it("counts the screenshots the waiting lines came from", () => {
+    expect(freshShotCount([{ createdAt: "a" }, { createdAt: "a" }, { createdAt: "b" }], stamps)).toBe(2);
+  });
+  it("counts only what is still waiting: two read and accepted, then one more", () => {
+    expect(freshShotCount([{ createdAt: "c" }], stamps)).toBe(1);
+  });
+  it("is 0 when a line is older than this visit, or nothing waits", () => {
+    expect(freshShotCount([{ createdAt: "a" }, { createdAt: "old" }], stamps)).toBe(0);
+    expect(freshShotCount([], stamps)).toBe(0);
   });
 });
