@@ -13,10 +13,9 @@ export default function CategoriesPage() {
     loading,
     error,
     addCategory,
+    categoryUsage,
     updateCategory,
     deleteCategory,
-    transactionCountForCategory,
-    reassignAndDelete,
     moveCategory,
   } = useCategories();
   const counts = useTransactionCounts();
@@ -50,8 +49,8 @@ export default function CategoriesPage() {
   async function openDelete(category: Category) {
     setDeleteTarget(category);
     setDeleteCount(null);
-    const count = await transactionCountForCategory(category.id);
-    setDeleteCount(count);
+    const usage = await categoryUsage(category.id);
+    setDeleteCount(usage.spends + usage.waiting);
   }
 
   return (
@@ -97,8 +96,8 @@ export default function CategoriesPage() {
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: category.color }}
                   />
-                  {counts[category.id] ?? 0} transaction
-                  {(counts[category.id] ?? 0) === 1 ? "" : "s"}
+                  {counts[category.id]?.spends ?? 0} transaction
+                  {(counts[category.id]?.spends ?? 0) === 1 ? "" : "s"}
                 </div>
               </button>
 
@@ -150,7 +149,7 @@ export default function CategoriesPage() {
           if (deleteTarget) await deleteCategory(deleteTarget.id);
         }}
         onReassignAndDelete={async (toCategoryId) => {
-          if (deleteTarget) await reassignAndDelete(deleteTarget.id, toCategoryId);
+          if (deleteTarget) await deleteCategory(deleteTarget.id, toCategoryId);
         }}
       />
     </div>

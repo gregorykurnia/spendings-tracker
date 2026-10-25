@@ -56,7 +56,7 @@ export default function Home() {
   }, [transactions, range]);
 
   const total = useMemo(
-    () => periodTransactions.reduce((sum, t) => sum + t.amount, 0),
+    () => periodTransactions.reduce((sum, t) => sum + (t.amount ?? 0), 0),
     [periodTransactions]
   );
 
@@ -74,7 +74,7 @@ export default function Home() {
     const confirmed = transactions.filter((t) => t.status === "confirmed");
     return confirmed
       .filter((t) => t.date >= comparisonRange.start && t.date <= comparisonRange.end)
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + (t.amount ?? 0), 0);
   }, [transactions, comparisonRange]);
 
   const comparisonDeltaPct =
@@ -95,7 +95,7 @@ export default function Home() {
   const breakdown = useMemo(() => {
     const totals = new Map<string, number>();
     for (const t of periodTransactions) {
-      totals.set(t.categoryId, (totals.get(t.categoryId) ?? 0) + t.amount);
+      totals.set(t.categoryId, (totals.get(t.categoryId) ?? 0) + (t.amount ?? 0));
     }
     return [...totals.entries()]
       .map(([id, value]) => {
@@ -116,13 +116,13 @@ export default function Home() {
     const byKey = new Map(buckets.map((b) => [b.key, b]));
     for (const t of periodTransactions) {
       const bucket = byKey.get(t.date);
-      if (bucket) bucket.value += t.amount;
+      if (bucket) bucket.value += t.amount ?? 0;
     }
     return buckets;
   }, [range, periodTransactions]);
 
   const topTransactions = useMemo(
-    () => [...periodTransactions].sort((a, b) => b.amount - a.amount).slice(0, 5),
+    () => [...periodTransactions].sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0)).slice(0, 5),
     [periodTransactions]
   );
 
@@ -238,7 +238,7 @@ export default function Home() {
                         </div>
                       </div>
                       <span className="text-sm font-semibold text-slate-900 shrink-0">
-                        {formatIDR(t.amount)}
+                        {formatIDR(t.amount ?? 0)}
                       </span>
                     </li>
                   );

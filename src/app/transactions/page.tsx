@@ -51,8 +51,8 @@ export default function TransactionsPage() {
       if (range && (t.date < range.start || t.date > range.end)) return false;
       if (filters.categoryIds.length && !filters.categoryIds.includes(t.categoryId)) return false;
       if (filters.source !== "all" && t.source !== filters.source) return false;
-      if (min !== null && t.amount < min) return false;
-      if (max !== null && t.amount > max) return false;
+      if (min !== null && (t.amount ?? 0) < min) return false;
+      if (max !== null && (t.amount ?? 0) > max) return false;
       if (
         keyword &&
         !t.store.toLowerCase().includes(keyword) &&
@@ -67,9 +67,9 @@ export default function TransactionsPage() {
         case "date_asc":
           return a.date.localeCompare(b.date);
         case "amount_desc":
-          return b.amount - a.amount;
+          return (b.amount ?? 0) - (a.amount ?? 0);
         case "amount_asc":
-          return a.amount - b.amount;
+          return (a.amount ?? 0) - (b.amount ?? 0);
         case "date_desc":
         default:
           return b.date.localeCompare(a.date);
@@ -187,7 +187,7 @@ export default function TransactionsPage() {
                   </div>
                 </button>
 
-                <div className="font-semibold text-slate-900">{formatIDR(t.amount)}</div>
+                <div className="font-semibold text-slate-900">{formatIDR(t.amount ?? 0)}</div>
 
                 <button
                   onClick={() => setDeleteTarget(t)}

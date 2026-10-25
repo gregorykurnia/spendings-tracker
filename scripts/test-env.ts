@@ -47,13 +47,27 @@ export async function clearEmulator(): Promise<void> {
   if (!res.ok) throw new Error(`Clearing the emulator failed: ${res.status}`);
 }
 
-type FieldValue = string | number | boolean | null;
+type FieldValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: FieldValue };
 export type EmulatorDoc = { id: string; data: Record<string, FieldValue> };
 
 function encode(value: FieldValue): Record<string, unknown> {
   if (value === null) return { nullValue: null };
   if (typeof value === "string") return { stringValue: value };
   if (typeof value === "boolean") return { booleanValue: value };
+  if (typeof value === "object") {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(value).map(([k, v]) => [k, encode(v)])
+        ),
+      },
+    };
+  }
   return Number.isInteger(value)
     ? { integerValue: String(value) }
     : { doubleValue: value };
@@ -64,6 +78,14 @@ function decode(value: Record<string, unknown>): FieldValue {
   if ("integerValue" in value) return Number(value.integerValue);
   if ("doubleValue" in value) return value.doubleValue as number;
   if ("booleanValue" in value) return value.booleanValue as boolean;
+  if ("mapValue" in value) {
+    const fields =
+      (value.mapValue as { fields?: Record<string, Record<string, unknown>> })
+        .fields ?? {};
+    return Object.fromEntries(
+      Object.entries(fields).map(([k, v]) => [k, decode(v)])
+    );
+  }
   return null;
 }
 
