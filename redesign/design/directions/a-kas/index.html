@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kas: check what was read</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --ground:#FFF1E7;
+  --paper:#FFFFFF;
+  --ink:#2F1638;
+  --ink-2:#6A5472;
+  --plum:#5B2A7E;
+  --apricot:#FFC7A0;
+  --line:#F1D8C8;
+  --food-t:#FFE6CF;  --food-b:#F6C9A0;
+  --groc-t:#DDF1DF;  --groc-b:#B4DDB9;
+  --trans-t:#DCE8FB; --trans-b:#B3CDF3;
+  --shop-t:#FBDFEA;  --shop-b:#F2B6CE;
+  --home-t:#E8E0FA;  --home-b:#CDBFF0;
+  --subs-t:#D5F1EE;  --subs-b:#A8DDD6;
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+html{background:var(--ground);color:var(--ink);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;font-size:16px;line-height:1.45;font-variant-numeric:tabular-nums;padding-bottom:116px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--plum);outline-offset:3px;border-radius:12px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* header and dock */
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 4px;max-width:560px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:23px;letter-spacing:-.025em;text-decoration:none}
+.add{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 17px 0 14px;border-radius:22px;border:1.5px solid var(--plum);color:var(--plum);font-weight:700;font-size:15px}
+.dock{position:fixed;left:16px;right:16px;bottom:14px;z-index:5;display:flex;gap:4px;padding:6px;background:var(--paper);border-radius:32px;box-shadow:0 0 0 1px rgba(91,42,126,.08),0 16px 32px -12px rgba(91,42,126,.38);max-width:528px;margin:0 auto}
+.dock a{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;height:52px;border-radius:26px;color:var(--ink-2);font-weight:700;font-size:15px;text-decoration:none}
+.dock a[aria-current]{background:var(--plum);color:#fff}
+.badge{min-width:24px;height:24px;padding:0 7px;border-radius:12px;background:var(--apricot);color:var(--ink);font-size:14px;font-weight:800;display:grid;place-items:center}
+
+/* stage */
+.stage{padding:6px 18px 0;max-width:560px;margin:0 auto}
+.progress{display:flex;flex-direction:column;gap:12px;margin:12px 2px 18px}
+.count{margin:0;font-size:17px;font-weight:600;color:var(--ink-2)}
+.count b{color:var(--ink);font-weight:800}
+.segs{display:flex;gap:5px}
+.segs i{flex:1;height:7px;border-radius:4px;background:var(--line)}
+.segs i.now{background:var(--plum)}
+.segs i.look{background:var(--apricot)}
+
+.stack{position:relative;padding-bottom:26px}
+.peek{position:absolute;left:0;right:0;top:30px;bottom:0;border-radius:28px;background:#fff;border:1px solid var(--line)}
+.peek.p1{left:12px;right:12px;bottom:13px;opacity:.75}
+.peek.p2{left:24px;right:24px;bottom:0;opacity:.45}
+.card{position:relative;background:var(--paper);border-radius:28px;padding:20px 22px 12px;box-shadow:0 1px 0 rgba(47,22,56,.04),0 22px 44px -22px rgba(91,42,126,.32)}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.date{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:17px;background:var(--ground);font-weight:700;font-size:15px}
+.src{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.mini{width:20px;height:28px;border:1.5px solid #E5C9B8;border-radius:6px;padding:4px 3px;display:grid;gap:2.5px;align-content:start;background:#fff}
+.mini b{display:block;height:2.5px;border-radius:2px;background:var(--line)}
+.mini b.hit{background:var(--plum)}
+.store{margin:16px 0 0;font-size:17px;font-weight:700;letter-spacing:.01em;overflow-wrap:anywhere}
+.amount{margin:0;font-size:clamp(46px,14.5vw,60px);font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.rp{font-size:.4em;font-weight:700;color:var(--ink-2);letter-spacing:0;margin-right:.22em}
+.cat-row{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-top:12px}
+.cat{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 12px 0 12px;border-radius:23px;font-weight:700;font-size:16px;background:var(--groc-t);border:1.5px solid var(--groc-b)}
+.cat .e{font-size:20px;line-height:1}
+.hint{font-size:14px;font-weight:500;color:var(--ink-2)}
+.note{display:block;margin-top:12px}
+.note input{width:100%;height:50px;border-radius:14px;border:1.5px solid var(--line);background:#FFFAF6;padding:0 16px;font-size:16px}
+.note input::placeholder{color:#7A6580}
+.accept{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:60px;margin-top:14px;border-radius:20px;background:var(--plum);color:#fff;font-weight:800;font-size:18px}
+.alt{display:flex;margin-top:2px}
+.alt button{flex:1;height:50px;font-weight:700;font-size:16px;color:var(--plum)}
+.alt button + button{color:var(--ink-2)}
+.bulk{margin-top:16px;text-align:center}
+.bulk button{display:inline-flex;align-items:center;gap:8px;height:52px;padding:0 22px;border-radius:26px;background:rgba(91,42,126,.09);color:var(--plum);font-weight:800;font-size:16px}
+.bulk p{margin:10px 0 0;font-size:15px;color:var(--ink-2)}
+
+.queue{display:none}
+
+@media (min-width:960px){
+  body{padding-bottom:48px}
+  .top{display:grid;grid-template-columns:1fr auto 1fr;max-width:1180px;padding:24px 40px 8px}
+  .add{justify-self:end;height:48px;font-size:16px}
+  .dock{position:static;max-width:none;margin:0;padding:5px;box-shadow:0 0 0 1px var(--line)}
+  .dock a{flex:none;padding:0 22px;height:46px;font-size:16px}
+  .stage{max-width:1000px;display:grid;grid-template-columns:minmax(0,540px) minmax(0,340px);gap:76px;justify-content:center;align-items:start;padding-top:20px}
+  .card{padding:30px 32px 16px}
+  .store{font-size:19px;margin-top:22px}
+  .amount{font-size:76px}
+  .cat{height:50px}
+  .accept{height:64px;font-size:19px}
+  .queue{display:block;padding-top:6px}
+  .queue h2{margin:0 0 10px;font-size:17px;font-weight:700;color:var(--ink-2)}
+  .queue ul{list-style:none;margin:0;padding:0}
+  .queue li{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}
+  .disc{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:21px}
+  .qs{margin:0;font-weight:700;font-size:16px;overflow-wrap:anywhere}
+  .qc{margin:0;font-size:14px;color:var(--ink-2);font-weight:500}
+  .qa{font-weight:700;font-size:16px}
+  .queue .look .disc{background:var(--apricot);color:var(--ink)}
+  .queue .look .qc{color:var(--plum);font-weight:600}
+  .t-trans{background:var(--trans-t)} .t-shop{background:var(--shop-t)} .t-home{background:var(--home-t)} .t-subs{background:var(--subs-t)}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.4l2.5 2.5 4.9-5.2"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M6 20v-7M12 20V5M18 20v-10"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 7h11M9 12h11M9 17h11M4.5 7h.01M4.5 12h.01M4.5 17h.01"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5"/></symbol>
+  <symbol id="i-in" viewBox="0 0 24 24"><path d="M17 7L7 17M7 9v8h8"/></symbol>
+</svg>
+
+<header class="top">
+  <a class="brand" href="#">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="14" cy="19" r="12" fill="#5B2A7E"/><circle cx="23" cy="13" r="9.5" fill="#FFC7A0"/></svg>
+    Kas
+  </a>
+  <nav class="dock" aria-label="Main">
+    <a href="#" aria-current="page"><svg class="i"><use href="#i-inbox"/></svg>Check<span class="badge">7</span></a>
+    <a href="#"><svg class="i"><use href="#i-chart"/></svg>Spending</a>
+    <a href="#"><svg class="i"><use href="#i-list"/></svg>History</a>
+  </nav>
+  <button class="add" type="button"><svg class="i"><use href="#i-plus"/></svg>Add screenshots</button>
+</header>
+
+<main class="stage">
+  <section aria-label="Check one transaction">
+    <div class="progress">
+      <p class="count"><b>1</b> of 7 to check</p>
+      <div class="segs" role="img" aria-label="Transaction 1 of 7. The last two need a look.">
+        <i class="now"></i><i></i><i></i><i></i><i></i><i class="look"></i><i class="look"></i>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="peek p2"></div>
+      <div class="peek p1"></div>
+      <article class="card">
+        <div class="meta">
+          <span class="date">Sun 25 Oct</span>
+          <span class="src"><span class="mini" aria-hidden="true"><b></b><b class="hit"></b><b></b><b></b></span>Screenshot 1</span>
+        </div>
+        <h1 class="store">INDOMARET FRESH BSD</h1>
+        <p class="amount"><span class="rp">Rp</span>87.450</p>
+        <div class="cat-row">
+          <button class="cat" type="button"><span class="e">🛒</span>Groceries<svg class="i" style="width:18px;height:18px"><use href="#i-down"/></svg></button>
+          <span class="hint">Suggested for this store</span>
+        </div>
+        <label class="note">
+          <span class="sr">What did you buy?</span>
+          <input type="text" placeholder="What did you buy? (optional)">
+        </label>
+        <button class="accept" type="button"><svg class="i"><use href="#i-check"/></svg>Accept</button>
+        <div class="alt">
+          <button type="button">Edit details</button>
+          <button type="button">Not a spend</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="bulk">
+      <button type="button"><svg class="i"><use href="#i-check"/></svg>Accept the 5 that look right</button>
+      <p>2 need a look: a repeat and money coming in.</p>
+    </div>
+  </section>
+
+  <aside class="queue" aria-label="Up next">
+    <h2>Up next</h2>
+    <ul>
+      <li><span class="disc t-trans">🚗</span><div><p class="qs">GRAB* A-7XK2</p><p class="qc">Transport</p></div><span class="qa">Rp 43.000</span></li>
+      <li><span class="disc t-shop">👗</span><div><p class="qs">TOKOPEDIA</p><p class="qc">Shopping</p></div><span class="qa">Rp 1.249.000</span></li>
+      <li><span class="disc t-home">🏠</span><div><p class="qs">PLN PREPAID 5390 4421</p><p class="qc">Home &amp; Utilities</p></div><span class="qa">Rp 200.000</span></li>
+      <li><span class="disc t-subs">🔧</span><div><p class="qs">NETFLIX.COM</p><p class="qc">Subscriptions</p></div><span class="qa">Rp 186.000</span></li>
+      <li class="look"><span class="disc"><svg class="i"><use href="#i-repeat"/></svg></span><div><p class="qs">KOPI KENANGAN SCBD</p><p class="qc">Looks like a repeat</p></div><span class="qa">Rp 28.000</span></li>
+      <li class="look"><span class="disc"><svg class="i"><use href="#i-in"/></svg></span><div><p class="qs">TRSF E-BANKING CR</p><p class="qc">Money coming in</p></div><span class="qa">Rp 5.000.000</span></li>
+    </ul>
+  </aside>
+</main>
+
+</body>
+</html>
