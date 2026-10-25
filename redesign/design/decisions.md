@@ -22,6 +22,9 @@ Added reasons: the amount couldn't be read, no category yet, and (rarely) a miss
 **P6 (adopted 2026-10-25, with the owner's approval of group 1). Incoming money offers "It's a spend", not "Count it".**
 Direction D had "Count it" on incoming money, which contradicts R10 (never counted as spending). The only reason to keep such a line is that the bank's CR/DB was misread, so the button says what the person is declaring: "It's a spend". It then moves to "Look right" and still needs the tick. A repeat's second button stays "Keep it" and works the same way.
 
+**P7 (built in the prototype, waiting for the owner's yes or no). U8 and F6 are one thing: tapping a saved spend anywhere opens the same "Change spend" form.**
+"Open that transaction to check or correct it" (U8) and "change a saved transaction" (F6) end in the same place, so there is no separate read-only detail screen. Tapping one of the biggest spends, a row in a category's list, or (group 3) a row in All transactions opens the form with its fields filled in. Say no and U8 gets a read-only detail view with a "Change" button in front of the form.
+
 ## Stage 1 choice (2026-10-25)
 - **Chosen:** B (Daybook) with C's "From the screenshot" crop in the open row, built as `directions/d-daybook-crop`.
 - **Reason:** the designer's recommendation, which the owner accepted: fewest taps for the daily job (a tick per row plus accept all), no tab bar, and the crop is the real check against a misread amount, date or name (R1). The owner has not given a reason of their own yet.
@@ -50,4 +53,20 @@ Choices that follow from the approved direction; none changes the inventory.
 1. **No undo, no confirmation on "Throw away" for waiting lines.** Default: as built. A thrown-away line can be brought back by adding that screenshot again. (F7 still confirms once for saved ones.)
 2. **No undo after accepting.** Default: none; a wrong one is fixed or deleted later (F6, F7). An undo bar for accept and throw away would be a small follow-up if you want it.
 3. **Working name and mark** "Daybook" are still a placeholder until branding is decided.
+
+## Stage 2, group 2: understand (2026-10-25)
+- **Order on the screen follows what you said you glance at**: the total and its comparison, then where the money went, then day by day, then the biggest spends. On desktop the categories sit in a right-hand column beside the rest.
+- **One total, one comparison** (U1, U2): the big number, then "Rp 475.650 lower" with an arrow, then "1 to 25 September was Rp 7.318.000". While a period runs it is compared with the same number of days of the one before. No green or red: spending more isn't an error. The glance card on home says the same thing in one line.
+- **Week or month, earlier or later** (U6): a Week/Month switch and an arrow either side of the period name. Switching keeps the date you were looking at. "Later" is off in the current period, and a "Back to this month/week" button appears when you've gone back.
+- **Categories show the top five, "Show N more" for the rest** (U3), to keep the screen quiet. Each has its emoji on its colour, the amount and share, and a bar in that colour. Tapping one opens its spends (U7).
+- **Day by day** (U4) is bars, with the exact amount for one day shown above them. Slide a finger or the mouse along the bars, or use the arrows beside the amount: a month of 31 bars is too narrow to tap one at a time. It starts on the biggest day, tagged "Biggest day" in lemon, so a spike is already pointed out. A day with no spending is a flat mark and says "Nothing spent". Days still to come in a running month are faint marks that can't be picked.
+- **Biggest spends** (U5) are five rows: store, date and category, amount. Tapping one opens it (U8, see P7).
+- **A category's spends in a period** (U7) is the first version of All transactions: the same rows, filtered. Group 3 adds search, filters, ordering and deleting to it.
+- **States**: no spending in the period says so and, if lines are still waiting, points at them (they count once accepted). "Nothing to compare with" replaces the comparison when the period before had nothing. Transactions whose category no longer exists are counted under "No category" so totals still add up; group 3 designs how to fix them.
+- **Large numbers**: a total of ten digits or more drops to a smaller size so it fits a phone.
+- **Stress data** (`?stress`) now also has 240 extra saved spends, with store names that have no spaces, amounts up to Rp 48.250.000, no notes, and seven whose category no longer exists.
+
+### Questions for the owner (defaults, nothing waits)
+1. **Top five categories by default.** Default: as built. Showing all sixteen at once would make the screen longer, not clearer.
+2. **Bars are the same colour except the one you are looking at.** Default: as built; a category colour per bar would add colour without adding information.
 

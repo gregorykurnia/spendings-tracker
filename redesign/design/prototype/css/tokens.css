@@ -28,6 +28,8 @@
   --alert-soft:#FDE6DF;
   --alert-line:#F2B9A8;
 
+  --bar:#66919B;            /* chart bars, 3:1 on the ground */
+
   --scrim:rgba(15,63,84,.42);
 
   --font:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;

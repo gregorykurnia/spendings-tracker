@@ -23,7 +23,7 @@
 
   /* ---------- categories: emoji and colour are the user's; the colour has a tint (pills) and a solid (charts) ---------- */
   D.SWATCHES = {
-    apricot:['#FFE3C8','#E07B2E'], mint:['#D9F0D6','#3F9A4E'], sky:['#D6E8FA','#2F7FC4'], rose:['#FAD9E6','#D14F86'],
+    apricot:['#FFE3C8','#D4701C'], mint:['#D9F0D6','#3F9A4E'], sky:['#D6E8FA','#2F7FC4'], rose:['#FAD9E6','#D14F86'],
     lilac:['#E4DCF8','#7C5FD0'], aqua:['#CFF0EB','#22998A'], coral:['#FFD9D0','#DB5B43'], sand:['#EFE3CF','#A27B4C'],
     lime:['#E6F2C2','#74991A'], indigo:['#D8DEF8','#4458C0'], slate:['#E3E8EA','#62767F'], plum:['#EBD3EE','#9C48A8'],
     cyan:['#D3EEF5','#2490B0']
@@ -165,7 +165,27 @@
     return out.concat(monthly, gen);
   }
 
-  D.buildSaved = function () {
+  /* stress set (?stress): hundreds of entries, store names with no spaces, spends up to tens of millions,
+     empty notes, and a few whose category no longer exists */
+  function stressSaved() {
+    var r = rng(777), out = [];
+    var names = [
+      'INDOMARET*POINT*KEMANG*RAYA*BLOK*C*NO*17*JAKARTA*SELATAN*DKI*JAKARTA*12730*BCA*DEBIT*2510*ID',
+      'TOKO-BESAR-ELEKTRONIK-JAKARTA-TIMUR-CABANG-CAWANG-KAV-12', 'PT-TELEKOMUNIKASI-SELULAR-PAKET-DATA-BULANAN',
+      'WARUNG', 'GRAB* A-7XK2', 'KOPI KENANGAN SCBD', 'TOKOPEDIA', 'SHOPEE', 'BLUE BIRD TAXI', 'ALFAMART', 'PERTAMINA SPBU 3401'
+    ];
+    var ids = D.CATS.map(function (c) { return c.id; });
+    for (var i = 0; i < 240; i++) {
+      var big = i % 24 === 5;
+      var amt = big ? Math.round((5000000 + r() * 43250000) / 50000) * 50000 : Math.max(1000, Math.round((5000 + r() * 395000) / 500) * 500);
+      out.push({date: D.addDays('2026-10-25', -Math.floor(r() * 55)), store: names[i % names.length] + (i % 4 === 0 ? ' ' + (100 + i) : ''),
+        amount: amt, cat: i % 37 === 11 ? 'deleted-category' : ids[Math.floor(r() * ids.length)], note: '', src: i % 5 === 0 ? 'hand' : 'shot'});
+    }
+    out.push({date: '2026-10-24', store: 'NOTARIS-DAN-PPAT-BIAYA-BALIK-NAMA-KAVLING-JAKARTA', amount: 48250000, cat: 'biz', note: '', src: 'hand'});
+    return out;
+  }
+
+  D.buildSaved = function (stress) {
     var r = rng(20261025);
     var oct = genRange(r, '2026-10-01', '2026-10-25', 6842350, {
       fixed: [{date: '2026-10-25', store: 'KOPI KENANGAN SCBD', amount: 28000, cat: 'food', note: 'Coffee', src: 'shot'}],
@@ -175,7 +195,7 @@
     var sepA = genRange(r, '2026-09-01', '2026-09-25', 7318000, {noSpend: ['2026-09-09']});
     var sepB = genRange(r, '2026-09-26', '2026-09-30', 1450000, {skipMonthly: ['INDIHOME', 'SPOTIFY', 'GOOGLE', 'PLN', 'NETFLIX']});
     var aug = genRange(r, '2026-08-01', '2026-08-31', 8240000, {noSpend: ['2026-08-16']});
-    var all = oct.concat(sepA, sepB, aug);
+    var all = oct.concat(sepA, sepB, aug, stress ? stressSaved() : []);
     all.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
     all.forEach(function (t, i) { t.id = 't' + (i + 1); });
     return all;

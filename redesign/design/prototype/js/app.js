@@ -7,23 +7,28 @@
 
   /* screens that later sessions design; until then they say so */
   var LATER = {
-    spending: 'Spending',
-    transactions: 'All transactions',
     categories: 'Categories'
   };
+  D.stubHtml = function (title) {
+    return D.barHtml() + '<main id="main" class="stub" tabindex="-1"><h1>' + title + '</h1>' +
+      '<p>This screen is designed in a later session of the prototype.</p>' +
+      '<a class="btn" href="#/">Back to what is waiting</a></main>';
+  };
   Object.keys(LATER).forEach(function (k) {
-    if (D.screens[k]) return;
-    D.screens[k] = {render: function () {
-      return D.barHtml() + '<main id="main" class="stub" tabindex="-1"><h1>' + LATER[k] + '</h1>' +
-        '<p>This screen is designed in a later session of the prototype.</p>' +
-        '<a class="btn" href="#/">Back to what is waiting</a></main>';
-    }};
+    if (!D.screens[k]) D.screens[k] = {render: function () { return D.stubHtml(LATER[k]); }};
   });
 
-  D.routeName = function () {
-    var h = location.hash.replace(/^#\/?/, '').split('?')[0];
-    return h && D.screens[h] ? h : 'home';
+  /* #/name?key=value */
+  D.parseHash = function () {
+    var a = location.hash.replace(/^#\/?/, '').split('?'), params = {};
+    if (a[1]) a[1].split('&').forEach(function (kv) { var p = kv.split('='); params[decodeURIComponent(p[0])] = decodeURIComponent((p[1] || '').replace(/\+/g, ' ')); });
+    return {route: a[0] && D.screens[a[0]] ? a[0] : 'home', params: params};
   };
+  D.routeName = function () { return D.parseHash().route; };
+  function hashFor(route, params) {
+    var q = Object.keys(params || {}).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&');
+    return route === 'home' ? '#/' : '#/' + route + (q ? '?' + q : '');
+  }
 
   D.render = function () {
     var app = document.getElementById('app');
@@ -40,7 +45,8 @@
 
   window.addEventListener('hashchange', function () {
     D.overlay.closeAll();
-    D.route = D.routeName();
+    var r = D.parseHash();
+    D.route = r.route; D.params = r.params;
     D.render();
     window.scrollTo(0, 0);
     var m = document.getElementById('main');
@@ -63,6 +69,9 @@
     if (el && el.dataset && el.dataset.in && D.touch) D.touch(el.dataset.in);
   });
   document.addEventListener('keydown', function (e) { D.overlay.onKey(e); });
+  ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'].forEach(function (t) {
+    document.addEventListener(t, function (e) { if (D.chartPointer) D.chartPointer(e); });
+  });
 
   D.acts['ov-close'] = function () {
     var top = D.overlay.top();
@@ -79,7 +88,11 @@
     D.overlay.closeAll();
     var s = D.S = D.makeState({stress: D.stress});
     s.scenario = def.id;
-    if (!boot && D.route !== 'home') { D.route = 'home'; try { history.replaceState(null, '', location.pathname + location.search + '#/'); } catch (e) {} }
+    /* a state names its screen; a link with its own #/screen wins at start */
+    if (!(boot && location.hash.replace(/^#\/?/, '') !== '')) {
+      D.route = def.route || 'home'; D.params = def.params || {};
+      try { history.replaceState(null, '', location.pathname + location.search + hashFor(D.route, D.params)); } catch (e) {}
+    }
     def.run(s);
     D.render();
     if (!boot) { var m = document.getElementById('main'); if (m) m.focus({preventScroll: true}); }
@@ -92,7 +105,8 @@
   document.body.insertAdjacentHTML('afterbegin', D.sprite());
   var q = new URLSearchParams(location.search);
   D.stress = q.has('stress');
-  D.route = D.routeName();
+  var start = D.parseHash();
+  D.route = start.route; D.params = start.params;
   var picker = document.getElementById('picker');
   if (picker) picker.addEventListener('change', function () {
     var n = picker.files ? picker.files.length : 0;

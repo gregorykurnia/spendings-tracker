@@ -31,7 +31,7 @@
     opts = opts || {};
     D.epoch++;
     return {
-      today: D.TODAY, cats: D.CATS.slice(), saved: D.buildSaved(),
+      today: D.TODAY, cats: D.CATS.slice(), saved: D.buildSaved(!!opts.stress),
       waiting: [], imports: null,
       ui: {openId: null, accepting: new Set(), leaving: new Set(), acceptingAll: false},
       seq: 100, poolI: 0, freshShots: 0, frozen: false, stress: !!opts.stress, scenario: null
@@ -79,26 +79,7 @@
   /* lines stay in the order they arrived (the bank's own order), so new ones never push the row you're about to tap */
   function sortWaiting(list) { return list.slice(); }
 
-  /* ---------- the glance card: this month so far against the same days last month ---------- */
-  D.glance = function () {
-    var s = S(), to = s.today, dt = D.parse(to);
-    var from = to.slice(0, 8) + '01';
-    var pm = new Date(dt.getFullYear(), dt.getMonth() - 1, 1, 12);
-    var pFrom = D.iso(pm);
-    var pDay = Math.min(dt.getDate(), new Date(dt.getFullYear(), dt.getMonth(), 0).getDate());
-    var pTo = pFrom.slice(0, 8) + (pDay < 10 ? '0' : '') + pDay;
-    var total = D.sumRange(s.saved, from, to), prev = D.sumRange(s.saved, pFrom, pTo);
-    var span = '1 to ' + pDay + ' ' + D.monthName(pFrom);
-    var cmp;
-    if (prev === 0) cmp = 'Nothing in ' + span + ' to compare with';
-    else if (total === prev) cmp = 'Same as ' + span;
-    else cmp = rp(Math.abs(total - prev)) + (total < prev ? ' lower' : ' higher') + ' than ' + span;
-    var label = D.monthName(to) + ' so far';
-    return '<a class="glance" href="#/spending" aria-label="' + esc(label + ', ' + rp(total) + '. Open spending.') + '">' +
-      '<span class="g-top">' + esc(label) + icon('right', 20) + '</span>' +
-      '<span class="g-amount"><small>Rp</small>' + D.dots(total) + '</span>' +
-      '<span class="g-cmp">' + esc(cmp) + '</span></a>';
-  };
+  /* the glance card (D.glance) lives in spending.js, next to the period maths it shares */
 
   /* ---------- pieces of the home screen ---------- */
   D.barHtml = function () {
@@ -616,7 +597,7 @@
     }).join('');
     var href = '?state=' + encodeURIComponent(cur || 'review-fresh') + (S().stress ? '' : '&stress');
     return '<div class="ov-head"><h2>Menu</h2>' + D.closeBtn() + '</div><div class="ov-body"><div class="menu-list">' +
-      '<a class="menu-item" href="#/" data-act="nav"><span class="h-ic">' + icon('check') + '</span><span><b>To check</b><small>What is waiting to be accepted</small></span>' + chev + '</a>' +
+      '<a class="menu-item" href="#/" data-act="nav"><span class="h-ic">' + icon('check') + '</span><span><b>Home</b><small>What is waiting to be checked</small></span>' + chev + '</a>' +
       '<a class="menu-item" href="#/spending" data-act="nav"><span class="h-ic">' + icon('chart') + '</span><span><b>Spending</b><small>Totals, categories and biggest spends</small></span>' + chev + '</a>' +
       '<a class="menu-item" href="#/transactions" data-act="nav"><span class="h-ic">' + icon('list') + '</span><span><b>All transactions</b><small>Search, filter and fix</small></span>' + chev + '</a>' +
       '<a class="menu-item" href="#/categories" data-act="nav"><span class="h-ic">' + icon('grid') + '</span><span><b>Categories</b><small>Emoji, colour and order</small></span>' + chev + '</a>' +

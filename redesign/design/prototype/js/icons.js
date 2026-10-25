@@ -20,7 +20,9 @@
     pencil: '<path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L8 19z"/><path d="M14.5 6.5l3 3"/>',
     calendar: '<rect x="4" y="5.5" width="16" height="14" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/>',
     image:  '<rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17.5l4.2-4.2 3 3 2.8-2.8 4 4"/>',
-    dash:   '<path d="M7 12h10"/>'
+    dash:   '<path d="M7 12h10"/>',
+    lower:  '<path d="M7 7l10 10M17 8.5V17H8.5"/>',
+    higher: '<path d="M7 17L17 7M8.5 7H17v8.5"/>'
   };
 
   D.icon = function (name, px) {
