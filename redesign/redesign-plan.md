@@ -20,7 +20,7 @@ Work one step per session. At the start of each session, check the model against
 - [x] Step 1: `inventory.md` job stories, owner-only `inventory-notes.md`, starter `priorities.md`, `brief.md`, `needs.md`; banned-word scan clean (2026-10-25) — **Opus 5.5 Medium** · Claude on `main`
 
 **Your input (without opening the app)**
-- [ ] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` — you · helper session **Haiku 5.5 Max**
+- [ ] Step 2: open questions in `inventory-notes.md` decided; `priorities.md` and `brief.md` status `FILLED` — you, interviewed by a helper session **Haiku 5.5 Max**
 
 **Design (studio, never sees the old app)**
 - [ ] Step 3a: 3 directions as screenshots; you pick one (or one mix); choice recorded in `decisions.md` — **Sonnet 5.5 xHigh** · studio; screenshots by `! ./shoot`
@@ -114,19 +114,13 @@ Starter files: `priorities.md` (`Status: DRAFT`, then `ID | Job story (short) | 
 
 Finish with the banned-word scan (a `grep -niwE` over `redesign/handoff/`): rewrite every hit, and reread each story once for anything that still gives away the current order or wording.
 
-## Step 2: Your input (you, helper session Haiku 5.5 Max)
+## Step 2: Your input (you, interviewed by a helper session, Haiku 5.5 Max)
 
-1. Decide the questions in `inventory-notes.md` §4; record them in §5 and add any newly confirmed needs to `inventory.md` as job stories.
-2. `priorities.md`: tag each story **daily / weekly / rare / drop**, from what you actually do. Set `Status: FILLED`.
-3. `brief.md`: fill in and set `Status: FILLED`:
-   - **Who uses it:** you, on your phone (and desktop?), when
-   - **Language:** English, Indonesian or both
-   - **Personality:** calm, dense, playful, warm or clinical
-   - **References:** 2–3 apps you admire that aren't this one
-   - **Constraints:** phone and desktop, installable, light and/or dark mode
-   - **Branding:** name, logo and colours are open unless you keep something (write only what you keep)
-   - **Permission to challenge:** the designer may propose merging, splitting or removing concepts; proposals come to you, never adopted silently
-4. Commit, run the banned-word scan, then `redesign/studio.sh enter`.
+The helper interviews you in rounds of multiple-choice questions and drafts the files for you to correct, following "Steps 2–3: The owner interview" in `~/.claude/playbooks/blank-slate-redesign.md` (its firewall rules and rounds). Here that means:
+1. Decisions on `inventory-notes.md` §4, recorded in §5; newly confirmed needs added to `inventory.md` as job stories.
+2. `priorities.md`: each story tagged **daily / weekly / rare / drop**, from what you actually do. `Status: FILLED`.
+3. `brief.md`, under its existing headings (who uses it, language, personality, references, constraints, branding, permission to challenge), plus your dislikes. `Status: FILLED`.
+4. Banned-word scan, commit, then `redesign/studio.sh enter`.
 
 ## Step 3: Design (studio, Sonnet 5.5 xHigh)
 
