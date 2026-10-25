@@ -1,0 +1,501 @@
+/* Spending: the total, the day chart, where it went, the biggest spends. Wide layout from 960 (see tokens.css). */
+
+/* phone: one column in the order total, categories, days, biggest */
+.sp {
+  display: flex;
+  flex-direction: column;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 6px 20px 56px;
+}
+
+.sp:focus {
+  outline: 0;
+}
+
+.left,
+.right {
+  display: contents;
+}
+
+.hero {
+  order: 1;
+}
+
+.cats {
+  order: 2;
+}
+
+.days {
+  order: 3;
+}
+
+.big {
+  order: 4;
+}
+
+.emptyCard {
+  order: 2;
+  margin-top: 18px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.head h1 {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.pnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pnavLabel {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-l);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pnow {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+/* the total */
+.hero {
+  margin-top: 14px;
+  padding: 16px 18px 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+
+.heroLabel {
+  font-size: var(--fs-m);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.heroAmount {
+  margin-top: 2px;
+  font-size: var(--fs-hero);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.heroAmount small {
+  margin-right: 0.2em;
+  font-size: 0.5em;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--ink-2);
+}
+
+.heroAmount.long {
+  font-size: var(--fs-hero-long);
+}
+
+.heroCmp {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--fs-amt);
+  font-weight: 700;
+}
+
+.heroCmp svg {
+  color: var(--petrol);
+}
+
+.heroCmp.dim {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.heroSub {
+  margin-top: 2px;
+  font-size: var(--fs-m);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* sections */
+.sec {
+  margin-top: 30px;
+}
+
+.sec h2 {
+  font-size: var(--fs-l);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.hint {
+  margin-top: 2px;
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.more {
+  margin-top: 6px;
+}
+
+/* where it went, and the biggest spends */
+.list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+
+.list li + li > * {
+  border-top: 1px solid var(--line);
+}
+
+.catLine {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: center;
+  padding: 12px 0;
+  text-decoration: none;
+}
+
+.catName {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.catBar {
+  display: block;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 4px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.catBar i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.catSide {
+  text-align: right;
+}
+
+.catSide b {
+  display: block;
+  font-size: var(--fs-amt);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.catSide small {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.txLine {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  column-gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  text-align: left;
+}
+
+.txMain {
+  display: block;
+  min-width: 0;
+}
+
+.txStore {
+  display: block;
+  font-size: var(--fs-b);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.txSub {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+
+.txSide {
+  min-width: 0;
+  text-align: right;
+}
+
+.txSide b {
+  display: block;
+  font-size: var(--fs-amt);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+/* day by day */
+.readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.roMain {
+  flex: 1;
+  min-width: 0;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.roDate {
+  font-size: var(--fs-m);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.roAmt {
+  font-size: var(--fs-readout);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.roAmt.roNone {
+  font-size: var(--fs-l);
+  font-weight: 700;
+  color: var(--ink-2);
+}
+
+.roTag {
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: var(--lemon-soft);
+  border: 1px solid var(--lemon-line);
+  font-size: var(--fs-s);
+  font-weight: 700;
+}
+
+.chart {
+  margin-top: 8px;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+.plot {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 150px;
+  border-bottom: 1.5px solid var(--line-2);
+}
+
+.plot.week {
+  gap: 10px;
+}
+
+.plot.week .bar {
+  border-radius: 6px 6px 0 0;
+}
+
+.day {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 6px 6px 0 0;
+}
+
+.day.on {
+  background: var(--day-on);
+}
+
+.bar {
+  display: block;
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: var(--bar);
+}
+
+.day.on .bar {
+  background: var(--petrol);
+}
+
+.day.zero .bar,
+.day.future .bar {
+  height: 3px;
+  border-radius: 2px;
+}
+
+.day.zero .bar {
+  background: var(--field-line);
+}
+
+.day.future .bar {
+  background: var(--line);
+}
+
+.axis {
+  position: relative;
+  height: 28px;
+  margin-top: 6px;
+}
+
+.axis span {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: var(--fs-s);
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+@media (min-width: 960px) {
+  .sp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    column-gap: 56px;
+    align-items: start;
+    padding: 12px 40px 64px;
+  }
+
+  .top {
+    grid-column: 1 / -1;
+  }
+
+  .left {
+    display: block;
+    grid-column: 1;
+  }
+
+  .right {
+    display: block;
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .head {
+    margin-top: 16px;
+  }
+
+  .head h1 {
+    font-size: var(--fs-h1-wide);
+  }
+
+  .pnav {
+    max-width: 520px;
+    margin-top: 14px;
+  }
+
+  .pnavLabel {
+    text-align: left;
+    padding-left: 6px;
+    font-size: var(--fs-xl);
+  }
+
+  .pnow {
+    justify-content: flex-start;
+  }
+
+  .hero {
+    margin-top: 18px;
+    padding: 22px 26px 24px;
+  }
+
+  .heroLabel {
+    font-size: var(--fs-b);
+  }
+
+  .heroAmount {
+    margin-top: 6px;
+    font-size: var(--fs-hero-wide);
+  }
+
+  .heroAmount.long {
+    font-size: var(--fs-hero-long-wide);
+  }
+
+  .heroCmp {
+    margin-top: 14px;
+    font-size: var(--fs-l);
+  }
+
+  .heroSub {
+    font-size: var(--fs-b);
+  }
+
+  .sec {
+    margin-top: 36px;
+  }
+
+  .cats {
+    margin-top: 18px;
+  }
+
+  .cats .list {
+    margin-top: 6px;
+  }
+
+  .plot {
+    height: 200px;
+    gap: 4px;
+  }
+
+  .roAmt {
+    font-size: var(--fs-readout-wide);
+  }
+}
+
+@media (hover: hover) {
+  .catLine:hover .catName,
+  .txLine:hover .txStore {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}

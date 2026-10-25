@@ -121,7 +121,7 @@ Fresh session. Review the phase diff against the design notes and the prototype;
 | 2.1 | The spend form and category picker (all three modes, delete) | Sonnet 5.5 High | interaction and saving, used everywhere | 2026-10-25, spend form |
 | 2.2 | Home: the inbox, review rows, needs a look, accept bar | Sonnet 5.5 xHigh | the daily screen; densest design | 2026-10-25, inbox |
 | 2.3 | Home: import tray, glance card, links, menu, first use, all checked; `e2e/home.spec.ts` | Sonnet 5.5 High | the import flow writes data | 2026-10-25, import tray |
-| 2.4 | Spending; `e2e/spending.spec.ts` | Sonnet 5.5 xHigh | chart and number layout |  |
+| 2.4 | Spending; `e2e/spending.spec.ts` | Sonnet 5.5 xHigh | chart and number layout | 2026-10-25, spending |
 | 2.5 | All transactions; `e2e/transactions.spec.ts` | Sonnet 5.5 High | filters, edit and delete |  |
 | 2.6 | Categories; `e2e/categories.spec.ts` | Sonnet 5.5 High | reorder, move-and-delete |  |
 | 2.7 | Phase 2 end-to-end: `e2e/journey.spec.ts` across screens and offline | Sonnet 5.5 High | the screens together |  |
@@ -147,7 +147,7 @@ Done when: `e2e/spending.spec.ts` covers week/month and earlier/later, stepping 
 Also (R1): render `<main id="main" tabIndex={-1}>` (skip link and focus fallbacks land there).
 
 ### 2.5 All transactions
-Files: `src/app/transactions/page.tsx`, `src/components/find/*`, `e2e/transactions.spec.ts`; delete `TransactionFilters.tsx`. Read: design notes §4 (Spend row, Filter chip, Chip); `decisions.md` group 3; prototype `js/find.js`, `css/find.css`; states `find-*`, `app-first-list`.
+Files: `src/app/transactions/page.tsx`, `src/components/find/*`, `e2e/transactions.spec.ts`; delete `TransactionFilters.tsx` and `PeriodNav.tsx` (its last importer is the old page; 2.4 deleted the other old chart files). Spending opens this page with `?cat=<id or __none__>&from=&to=&label=&back=spending` (`categoryHref` in `src/components/spending/spending.ts`): read it into the filters (custom span with its label, category, back link); `StepButton` and `EmptyCard` in `src/components/ui/` are there for the date step and the empty states. Read: design notes §4 (Spend row, Filter chip, Chip); `decisions.md` group 3; prototype `js/find.js`, `css/find.css`; states `find-*`, `app-first-list`.
 Done when: `e2e/transactions.spec.ts` covers type in a spend, search, a filter and clear all, change a spend, delete one.
 Also (R1): render `<main id="main" tabIndex={-1}>` (skip link and focus fallbacks land there).
 

@@ -1,0 +1,16 @@
+.step {
+  flex: none;
+  width: var(--touch);
+  height: var(--touch);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-2);
+  background: var(--paper);
+  color: var(--petrol);
+}
+
+.step[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: default;
+}
