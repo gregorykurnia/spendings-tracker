@@ -29,7 +29,7 @@ Work one step per session. At the start of each session, check the model against
 - [x] Step 3d: design imported onto `main` — **Haiku 5.5 High** · Claude on `main` — cb3c4a9, 2026-10-25
 
 **Rebuild**
-- [ ] Step 4: `redesign/ui-implementation-plan.md` (3 phases, written for `autorun all`); `autorun check` finds its first task; you approve — **Opus 5.5 High** · Claude on `main`
+- [x] Step 4: `redesign/ui-implementation-plan.md` (3 phases, written for `autorun all`); `autorun check` finds its first task; you approve — **Opus 5.5 High** · Claude on `main` — approved 2026-10-25
 - [ ] Step 5: rebuild on the `redesign` branch, phases 1–3 with their reviews — each task's pick from the implementation plan; reviews **Opus 5.5 High**
 - [ ] Step 6: merged to `main` when you say so; `CLAUDE.md` updated for the new UI; staging setup offered and done or declined (write which here) — **Sonnet 5.5 High**
 

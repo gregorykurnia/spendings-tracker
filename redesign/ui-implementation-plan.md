@@ -11,7 +11,7 @@ Written 2026-10-25 for `autorun all` (Step 4 of `redesign/redesign-plan.md`). It
 
 ## Before the run
 
-- *owner*: approve this plan. Claude then creates `redesign` from `main` and pushes it.
+- *owner*: approve this plan. Done 2026-10-25; `redesign` created from `main`.
 - Nothing else blocks the run: Java 21 is installed (Firestore emulator), and no task needs a login, a secret or the live database. There is no `.env.local` on this server, so the app can only run against the emulator here, which is what every test uses.
 
 ## Architecture
