@@ -286,9 +286,8 @@ async function newPage(browser: Browser, vp: (typeof VIEWPORTS)[number], offline
   const page = await context.newPage();
   if (offline) {
     // As e2e/app.spec.ts does it: the browser says it is offline and the database can't be reached.
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, "onLine", { get: () => false, configurable: true });
-    });
+    // A string, not a function: tsx adds a helper to functions that the page doesn't have.
+    await page.addInitScript(`Object.defineProperty(navigator, "onLine", { get: () => false, configurable: true });`);
     await page.route(`**://${EMULATOR_HOST}:${EMULATOR_PORT}/**`, (route) => route.abort("internetdisconnected"));
   }
   return { page, close: () => context.close() };

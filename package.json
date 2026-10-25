@@ -13,6 +13,7 @@
     "test:db": "firebase emulators:exec --only firestore --project demo-spendings \"vitest run --project db\"",
     "test:e2e": "tsx scripts/e2e.ts",
     "a11y": "tsx scripts/a11y.ts",
+    "compare": "tsx scripts/compare.ts",
     "seed:emulator": "tsx scripts/seed-emulator.ts",
     "ocr:try": "tsx scripts/ocr-try.ts"
   },

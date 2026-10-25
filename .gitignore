@@ -47,3 +47,7 @@ next-env.d.ts
 /blob-report/
 firebase-debug.log*
 firestore-debug.log*
+
+# screenshot compare: pictures stay local, only the report is kept
+/redesign/compare/*
+!/redesign/compare/report.md
