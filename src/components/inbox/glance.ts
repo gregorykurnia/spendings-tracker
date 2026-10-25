@@ -1,6 +1,6 @@
 // The card at the top of home: this month so far, against the same days of the month before.
 
-import { formatDigits, formatRupiah, isLongTotal } from "@/lib/money";
+import { formatDigits, isLongTotal } from "@/lib/money";
 import { heroLabel, summarise, type Spend } from "@/lib/periods";
 
 export type Glance = {
@@ -12,8 +12,6 @@ export type Glance = {
   long: boolean;
   /** `Rp 475.650 lower than 1 to 25 September`. */
   comparison: string;
-  /** What a screen reader hears for the whole link. */
-  ariaLabel: string;
 };
 
 export function glanceFor(spends: readonly Spend[], today: string): Glance {
@@ -24,6 +22,5 @@ export function glanceFor(spends: readonly Spend[], today: string): Glance {
     digits: formatDigits(total),
     long: isLongTotal(total),
     comparison: comparison.short,
-    ariaLabel: `${label}, ${formatRupiah(total)}. Open spending.`,
   };
 }

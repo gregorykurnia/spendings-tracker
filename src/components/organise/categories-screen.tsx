@@ -27,7 +27,7 @@ function AddCategoryButton({ disabled, onPress }: { disabled: boolean; onPress: 
     <button
       type="button"
       className={cx(styles.add, blocked && !disabled && styles.addOffline)}
-      aria-label="Add a category"
+      aria-label="Add category"
       aria-disabled={disabled || undefined}
       onClick={() => {
         if (disabled) return;

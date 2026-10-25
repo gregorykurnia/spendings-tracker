@@ -169,7 +169,7 @@ As R1, for the Phase 2 diff; also compare each screen against its prototype stat
 | 3.1 | Reverse-check leftovers: provisional G1/G2, metadata, unused files | Haiku 5.5 Max | mechanical, from design pieces | 2026-10-25, reverse check |
 | 3.2 | Installable: manifest, icons, favicon, service worker for the new shell | Sonnet 5.5 High | offline opening must work |2026-10-25, 846ce7c |
 | 3.3 | Share from iPhone: `/api/import` with a token, Shortcut guide (G3) | Opus 5.5 High | a public endpoint that writes data | 2026-10-25, share route |
-| 3.4 | Accessibility pass: axe scan script over every screen, fixes | Sonnet 5.5 High | design notes §6 |  |
+| 3.4 | Accessibility pass: axe scan script over every screen, fixes | Sonnet 5.5 High | design notes §6 |2026-10-25, axe scan |
 | 3.5 | Screenshot compare tool: app vs prototype, run once, list differences | Sonnet 5.5 High | builds the slow tool once |  |
 | 3.6 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes |  |
 | 3.7 | Fix compare differences: Spending, All transactions, Categories | Sonnet 5.5 xHigh | visual fixes |  |

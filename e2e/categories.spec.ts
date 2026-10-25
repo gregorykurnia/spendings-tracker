@@ -106,7 +106,7 @@ test.describe("Categories", () => {
     await seed();
     await open(page);
 
-    await page.getByRole("button", { name: "Add a category" }).click();
+    await page.getByRole("button", { name: "Add category", exact: true }).click();
     await expect(form(page)).toBeVisible();
     await expect(form(page).getByLabel("Name")).toBeFocused();
     await expect(form(page).getByText("Still needed: a name.")).toBeVisible();
@@ -141,7 +141,7 @@ test.describe("Categories", () => {
   test("a new category starts as different as it can be, and any emoji can be typed", async ({ page }) => {
     await seed();
     await open(page);
-    await page.getByRole("button", { name: "Add a category" }).click();
+    await page.getByRole("button", { name: "Add category", exact: true }).click();
     // Every colour but Cyan is used by a starter (Travel's old hex counts as Sky), so Cyan is the start.
     await expect(form(page).getByRole("radio", { checked: true })).toHaveAccessibleName("Cyan");
 
@@ -159,7 +159,7 @@ test.describe("Categories", () => {
   test("a name that is already used is refused, capitals ignored", async ({ page }) => {
     await seed();
     await open(page);
-    await page.getByRole("button", { name: "Add a category" }).click();
+    await page.getByRole("button", { name: "Add category", exact: true }).click();
     await form(page).getByLabel("Name").fill("groceries");
     // The message shows once the field is left (or the button is pressed).
     await form(page).getByLabel("Name").blur();
@@ -219,7 +219,7 @@ test.describe("Categories", () => {
     await page.getByRole("button", { name: "Change order" }).click();
     await expect(page.getByRole("button", { name: "Done" })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByText("Use the arrows to move a category. The first four are the quick choices")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Add a category" })).toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByRole("button", { name: "Add category", exact: true })).toHaveAttribute("aria-disabled", "true");
     // The dashed line sits after the fourth row and is not read out.
     await expect(page.getByText("Quick choices end here")).toBeVisible();
     await expect(page.getByRole("button", { name: "Move up: Food & Drink, now 1 of 16" })).toHaveAttribute("aria-disabled", "true");

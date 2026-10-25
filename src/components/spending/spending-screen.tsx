@@ -142,70 +142,63 @@ export function SpendingScreen() {
           )}
         </div>
 
-        <div className={styles.left}>
-          {firstUse ? (
-            <EmptyCard
-              icon="chart"
-              title="Nothing to show yet."
-              className={styles.emptyCard}
-              actions={
-                <ButtonLink variant="solid" href="/">
-                  Add your first screenshots
-                </ButtonLink>
-              }
-            >
-              <p>Once you have accepted some spending, you will see where it went here.</p>
-            </EmptyCard>
-          ) : (
-            <>
-              <Hero label={view.label} summary={summary} />
-              {view.count === 0 ? (
-                <EmptyCard
-                  icon="chart"
-                  title={words.what}
-                  className={styles.emptyCard}
-                  actions={
-                    waiting.length > 0 ? <ButtonLink href="/">{words.go}</ButtonLink> : undefined
-                  }
-                >
-                  {words.waiting ? <p>{words.waiting}</p> : null}
-                </EmptyCard>
-              ) : (
-                <>
-                  <DayChart
-                    days={view.days}
-                    mode={choice.mode}
-                    shown={view.shown}
-                    last={view.last}
-                    biggestDay={view.biggestDay}
-                    today={today}
-                    summary={view.chartSummary}
-                    onPick={(date) => setChoice((c) => ({ ...c, picked: date }))}
-                  />
-                  <BiggestSpends
-                    spends={view.biggest}
-                    categories={categories}
-                    today={today}
-                    onOpen={(spend) => setForm({ kind: "change", spend })}
-                  />
-                </>
-              )}
-            </>
-          )}
-        </div>
-
-        {firstUse || view.count === 0 ? null : (
-          <div className={styles.right}>
-            <CategoryLines
-              shares={view.categories.shown}
-              categories={categories}
-              period={period}
-              label={view.label}
-              more={view.categories.more}
-              showAll={choice.showAll}
-              onToggleAll={() => setChoice((c) => ({ ...c, showAll: !c.showAll }))}
-            />
-          </div>
+        {/* One order for everyone (WCAG 1.3.2, 2.4.3): total, where it went, day by day, biggest spends.
+            The phone shows it as one column; wide puts "where it went" beside the rest (spending.module.css). */}
+        {firstUse ? (
+          <EmptyCard
+            icon="chart"
+            title="Nothing to show yet."
+            className={styles.emptyCard}
+            actions={
+              <ButtonLink variant="solid" href="/">
+                Add your first screenshots
+              </ButtonLink>
+            }
+          >
+            <p>Once you have accepted some spending, you will see where it went here.</p>
+          </EmptyCard>
+        ) : (
+          <>
+            <Hero label={view.label} summary={summary} />
+            {view.count === 0 ? (
+              <EmptyCard
+                icon="chart"
+                title={words.what}
+                className={styles.emptyCard}
+                actions={waiting.length > 0 ? <ButtonLink href="/">{words.go}</ButtonLink> : undefined}
+              >
+                {words.waiting ? <p>{words.waiting}</p> : null}
+              </EmptyCard>
+            ) : (
+              <>
+                <CategoryLines
+                  shares={view.categories.shown}
+                  categories={categories}
+                  period={period}
+                  label={view.label}
+                  more={view.categories.more}
+                  showAll={choice.showAll}
+                  onToggleAll={() => setChoice((c) => ({ ...c, showAll: !c.showAll }))}
+                />
+                <DayChart
+                  days={view.days}
+                  mode={choice.mode}
+                  shown={view.shown}
+                  last={view.last}
+                  biggestDay={view.biggestDay}
+                  today={today}
+                  summary={view.chartSummary}
+                  onPick={(date) => setChoice((c) => ({ ...c, picked: date }))}
+                />
+                <BiggestSpends
+                  spends={view.biggest}
+                  categories={categories}
+                  today={today}
+                  onOpen={(spend) => setForm({ kind: "change", spend })}
+                />
+              </>
+            )}
+          </>
         )}
       </main>
       {mode ? <SpendForm mode={mode} categories={categories} actions={tx} onClose={() => setForm(null)} /> : null}

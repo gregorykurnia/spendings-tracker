@@ -160,7 +160,7 @@ describe("the empty panels", () => {
 describe("the glance card and the links", () => {
   it("links the card to Spending with the month so far, written out for a screen reader", () => {
     render(<GlanceCard today="2026-10-25" spends={[{ id: "a", date: "2026-10-03", amount: 128_000, categoryId: "x" }]} />);
-    const link = screen.getByRole("link", { name: "October so far, Rp 128.000. Open spending." });
+    const link = screen.getByRole("link", { name: /^October so far\s*Rp\s*128\.000\s*Nothing in 1 to 25 September to compare with\. Open spending\.$/ });
     expect(link.getAttribute("href")).toBe("/spending");
     expect(link.textContent).toContain("128.000");
   });

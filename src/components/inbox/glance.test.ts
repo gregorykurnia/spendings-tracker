@@ -20,7 +20,6 @@ describe("the glance card", () => {
     expect(g.label).toBe("October so far");
     expect(g.digits).toBe("128.000");
     expect(g.comparison).toBe("Rp 72.000 lower than 1 to 25 September");
-    expect(g.ariaLabel).toBe("October so far, Rp 128.000. Open spending.");
     expect(g.long).toBe(false);
   });
 

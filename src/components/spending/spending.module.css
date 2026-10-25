@@ -1,6 +1,6 @@
 /* Spending: the total, the day chart, where it went, the biggest spends. Wide layout from 960 (see tokens.css). */
 
-/* phone: one column in the order total, categories, days, biggest */
+/* phone: one column; the page is written in this order (total, categories, days, biggest) */
 .sp {
   display: flex;
   flex-direction: column;
@@ -13,29 +13,7 @@
   outline: 0;
 }
 
-.left,
-.right {
-  display: contents;
-}
-
-.hero {
-  order: 1;
-}
-
-.cats {
-  order: 2;
-}
-
-.days {
-  order: 3;
-}
-
-.big {
-  order: 4;
-}
-
 .emptyCard {
-  order: 2;
   margin-top: 18px;
 }
 
@@ -409,15 +387,38 @@
     grid-column: 1 / -1;
   }
 
-  .left {
-    display: block;
+  /* Left column: total, chart, biggest spends. Right column: where it went, from the total's row down.
+     The last row takes the leftover height, so a tall right column doesn't stretch the left one. */
+  .sp {
+    grid-template-rows: auto auto auto auto 1fr;
+  }
+
+  .hero,
+  .emptyCard,
+  .days,
+  .big {
     grid-column: 1;
   }
 
-  .right {
-    display: block;
-    grid-column: 2;
+  .hero {
     grid-row: 2;
+  }
+
+  .emptyCard {
+    grid-row: 3;
+  }
+
+  .days {
+    grid-row: 3;
+  }
+
+  .big {
+    grid-row: 4;
+  }
+
+  .cats {
+    grid-column: 2;
+    grid-row: 2 / 6;
   }
 
   .head {

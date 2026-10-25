@@ -113,6 +113,12 @@ describe("Spending", () => {
     expect(screen.getByRole("button", { name: "Week" }).getAttribute("aria-pressed")).toBe("false");
   });
 
+  it("reads and tabs in the order it shows on a phone: total, where it went, day by day, biggest spends", () => {
+    show();
+    const order = screen.getAllByRole("region").map((r) => r.querySelector("h2")?.textContent ?? "total");
+    expect(order).toEqual(["total", "Where it went", "Day by day", "Biggest spends"]);
+  });
+
   it("comes back to the period it was showing (back from a category's spends)", () => {
     show();
     fireEvent.click(earlier("month"));

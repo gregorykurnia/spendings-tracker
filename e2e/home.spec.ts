@@ -271,7 +271,7 @@ test.describe("the rest of home", () => {
 
     await openHome(page, "3 to check");
     // "so far" is dropped on the month's last day, when it is no longer running.
-    const glance = page.getByRole("link", { name: new RegExp(`^${month}( so far)?, Rp ${dotted}\\. Open spending\\.$`) });
+    const glance = page.getByRole("link", { name: new RegExp(`^${month}( so far)?\\s*Rp\\s*${dotted}\\s*.+\\. Open spending\\.$`) });
     await expect(glance).toBeVisible();
     await expect(glance).toHaveAttribute("href", "/spending");
     await expect(glance).toContainText(/lower than|higher than|Same as|to compare with/);
