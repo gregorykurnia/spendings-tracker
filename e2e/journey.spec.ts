@@ -70,7 +70,7 @@ test.describe("from a screenshot to a deleted spend", () => {
     await expect(title(page)).toHaveText("All checked");
     // Two spends carry this store (the old one and the new one), in no fixed order.
     await expect
-      .poll(async () => (await savedSpends()).filter((d) => d.data.store === "Toko Journey").map((d) => d.data.amount).sort())
+      .poll(async () => (await savedSpends()).filter((d) => d.data.store === "Toko Journey").map((d) => d.data.amount as number).sort((a, b) => a - b))
       .toEqual([11_111, 9_876_000]);
     expect((await listDocs("transactions")).filter((d) => d.data.status === "pending_review")).toHaveLength(0);
     expect((await savedSpends()).filter((d) => d.data.store === "Toko Journey")).toHaveLength(2);

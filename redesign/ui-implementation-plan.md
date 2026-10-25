@@ -174,7 +174,7 @@ As R1, for the Phase 2 diff; also compare each screen against its prototype stat
 | 3.6 | Fix compare differences: home, form, whole-app states | Sonnet 5.5 xHigh | visual fixes | 2026-10-25, home gap |
 | 3.7 | Fix compare differences: Spending, All transactions, Categories | Sonnet 5.5 xHigh | visual fixes | 2026-10-25, add form spacing |
 | 3.8 | Phase 3 end-to-end: full e2e suite once, build | Sonnet 5.5 High | final flow check | 2026-10-25, 64 e2e + build |
-| R3 | Phase 3 review | Opus 5.5 High | phase review rule |  |
+| R3 | Phase 3 review | Opus 5.5 High | phase review rule | 2026-10-25, phase 3 review |
 
 ### 3.1 Reverse-check leftovers
 Files: `src/app/not-found.tsx`, `src/app/error.tsx`, `src/app/layout.tsx` (metadata), `public/`. Read: "Reverse check", "Design gaps". Do: the provisional G1 and G2 screens; title, description and home-screen name from the prototype's `index.html`; delete the unused starter SVGs and `src/lib/dateRanges.ts` if unused. Done when: every reverse-check row is done or still listed as a gap.

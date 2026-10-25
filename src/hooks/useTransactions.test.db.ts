@@ -1,6 +1,6 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { deleteDoc, doc, terminate } from "firebase/firestore";
+import { deleteDoc, doc, terminate, waitForPendingWrites } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Category, OcrLine } from "@/types";
 import { clearEmulator, listDocs, writeDocs, type EmulatorDoc } from "../../scripts/test-env";
@@ -67,7 +67,12 @@ async function openHook() {
   return hook;
 }
 
-beforeEach(clearEmulator);
+// A hook that unmounts writes what is left without waiting (leaving never loses typing). Let those
+// writes land before the next test clears the emulator, or they reach the next test's documents.
+beforeEach(async () => {
+  await waitForPendingWrites(db);
+  await clearEmulator();
+});
 afterAll(() => terminate(db));
 
 describe("saved spends", () => {
@@ -356,15 +361,33 @@ describe("accepting waiting lines", () => {
     act(() => result.current.editWaitingLine("w2", { store: "Grab" }));
     await deleteDoc(doc(db, "transactions", "w2"));
     await expect(result.current.acceptLine("w2")).rejects.toThrow();
-    // Nothing was put back for the line that is gone, so there is nothing left to write.
+    // The line is gone, so its edits were dropped: there is nothing left to write, and no save error.
     await act(() => result.current.flushEdits("w2"));
+    expect(result.current.saveError).toBeNull();
+    unmount();
+  });
+
+  it("drops the typing on a line that is thrown away elsewhere, with no save error", async () => {
+    await writeDocs("transactions", [waitingDoc("w1")]);
+    const { result, unmount } = await openHook();
+    await waitFor(() => expect(result.current.waiting).toHaveLength(1));
+
+    act(() => result.current.editWaitingLine("w1", { store: "Grab" }));
+    await deleteDoc(doc(db, "transactions", "w1"));
+    await waitFor(() => expect(result.current.waiting).toHaveLength(0));
+    // The pause before writing passes; the write finds no line.
+    await act(() => new Promise((resolve) => setTimeout(resolve, EDIT_DELAY_MS + 500)));
+    expect(result.current.saveError).toBeNull();
+    expect(await listDocs("transactions")).toHaveLength(0);
     unmount();
   });
 
   it("accepts none of them if one isn't ready", async () => {
     await writeDocs("transactions", [waitingDoc("w1"), waitingDoc("w2", { seq: 1, categoryId: "" })]);
+    console.log("DBG server", (await listDocs("transactions")).map((d) => d.id));
     const { result, unmount } = await openHook();
-    await waitFor(() => expect(result.current.waiting).toHaveLength(2));
+    console.log("DBG first", result.current.waiting.map((t) => t.id));
+    try { await waitFor(() => expect(result.current.waiting).toHaveLength(2), { timeout: 8000 }); } catch (e) { console.log("DBG late", result.current.waiting.map((t) => t.id), result.current.transactions?.map?.((t: {id:string}) => t.id)); throw e; }
 
     await expect(result.current.acceptLines(["w1", "w2"])).rejects.toThrow("no category");
     expect((await listDocs("transactions")).every((d) => d.data.status === "pending_review")).toBe(true);

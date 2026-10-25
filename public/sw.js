@@ -23,9 +23,22 @@ function staticFilesIn(html) {
   return [...found];
 }
 
+/**
+ * Trims the static cache to STATIC_LIMIT, oldest first, but never a file a kept page still names: files
+ * that stay the same across deploys are the oldest, and a screen not opened for a while still needs them.
+ */
 async function trimStatic(cache) {
   const keys = await cache.keys();
-  await Promise.all(keys.slice(0, Math.max(0, keys.length - STATIC_LIMIT)).map((key) => cache.delete(key)));
+  const extra = keys.length - STATIC_LIMIT;
+  if (extra <= 0) return;
+  const named = new Set();
+  const shell = await caches.open(SHELL_CACHE);
+  for (const route of ROUTES) {
+    const page = await shell.match(route);
+    if (page) for (const file of staticFilesIn(await page.text())) named.add(new URL(file, self.location.origin).href);
+  }
+  const unnamed = keys.filter((key) => !named.has(key.url));
+  await Promise.all(unnamed.slice(0, extra).map((key) => cache.delete(key)));
 }
 
 /** Keeps a page and the static files it names. Does nothing if the page can't be fetched. */

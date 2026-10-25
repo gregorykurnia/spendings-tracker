@@ -160,7 +160,11 @@ export function useTransactions() {
 
   function find(id: string) {
     const line = transactions.find((t) => t.id === id);
-    if (!line) throw new Error(`Transaction ${id} not found`);
+    if (!line) {
+      // The line is gone (thrown away or accepted elsewhere): its edits have nothing left to write to.
+      if (takePending(id)) bumpPending();
+      throw new Error(`Transaction ${id} not found`);
+    }
     return line;
   }
 
@@ -244,6 +248,8 @@ export function useTransactions() {
           () => settle(lineId, sent),
           (err) => {
             settle(lineId, sent);
+            // A line that is gone has nothing left to save: that isn't a failed save.
+            if (lineIsGone(err)) return;
             restorePending(lineId, patch, err);
             throw err;
           }
