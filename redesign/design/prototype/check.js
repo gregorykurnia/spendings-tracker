@@ -1,0 +1,258 @@
+/* Developer check for the prototype (not loaded by the page). Run: node check.js
+   No browser: a stub DOM runs the real scripts, renders every state, validates the markup
+   and runs the main flows. It can't judge looks; it catches broken markup, missing handlers and logic slips. */
+'use strict';
+var fs = require('fs'), path = require('path'), vm = require('vm');
+var ROOT = __dirname;
+
+/* ---------- a very small stand-in for the DOM ---------- */
+function FakeEl(id) {
+  this.id = id || ''; this.dataset = {}; this.innerHTML = ''; this.textContent = ''; this.hidden = false; this.inert = false;
+  this.value = ''; this.files = []; this.children = []; this._attrs = {}; this.style = {};
+  var cls = {}; this.classList = {add: function (c) { cls[c] = 1; }, remove: function (c) { delete cls[c]; }, toggle: function (c, on) { if (on) cls[c] = 1; else delete cls[c]; }, contains: function (c) { return !!cls[c]; }};
+}
+['focus','click','remove','scrollIntoView','showPicker','insertAdjacentHTML','addEventListener'].forEach(function (m) { FakeEl.prototype[m] = function () {}; });
+FakeEl.prototype.appendChild = function (c) { this.children.push(c); return c; };
+FakeEl.prototype.querySelector = function (sel) { return this._sub || (this._sub = new FakeEl()); };
+FakeEl.prototype.querySelectorAll = function () { return []; };
+FakeEl.prototype.contains = function () { return false; };
+FakeEl.prototype.setAttribute = function (k, v) { this._attrs[k] = v; };
+FakeEl.prototype.removeAttribute = function (k) { delete this._attrs[k]; };
+FakeEl.prototype.getAttribute = function (k) { return this._attrs[k] == null ? null : this._attrs[k]; };
+
+var els = {};
+var doc = {
+  body: new FakeEl('body'), activeElement: null,
+  getElementById: function (id) { return els[id] || (els[id] = new FakeEl(id)); },
+  createElement: function () { return new FakeEl(); },
+  querySelector: function () { return null; },
+  querySelectorAll: function () { return []; },
+  addEventListener: function () {}
+};
+global.window = global;
+global.document = doc;
+global.location = {hash: '', search: '', pathname: '/index.html'};
+global.history = {replaceState: function () {}};
+global.matchMedia = function () { return {matches: false}; };
+global.scrollTo = function () {};
+global.addEventListener = function () {};
+['app', 'overlays', 'toast', 'live', 'picker'].forEach(function (i) { doc.getElementById(i); });
+
+['icons', 'data', 'ui', 'capture', 'app'].forEach(function (f) {
+  vm.runInThisContext(fs.readFileSync(path.join(ROOT, 'js', f + '.js'), 'utf8'), {filename: f + '.js'});
+});
+var D = window.Daybook;
+
+/* ---------- little test kit ---------- */
+var failed = 0, passed = 0;
+function ok(cond, msg) { if (cond) passed++; else { failed++; console.log('  FAIL: ' + msg); } }
+function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function app() { return doc.getElementById('app').innerHTML; }
+function formHtml() { var t = D.overlay.top(); return t ? t.cfg.render() : ''; }
+
+var VOID = {input: 1, br: 1, img: 1, hr: 1, meta: 1, link: 1};
+function validate(html, label) {
+  var re = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g, m, stack = [];
+  while ((m = re.exec(html))) {
+    var close = m[1] === '/', tag = m[2].toLowerCase(), self = /\/\s*$/.test(m[3]);
+    if (VOID[tag] || self) continue;
+    if (!close) stack.push(tag);
+    else { var top = stack.pop(); if (top !== tag) { ok(false, label + ': </' + tag + '> closes <' + top + '>'); return; } }
+  }
+  ok(stack.length === 0, label + ': unclosed <' + stack.join('><') + '>');
+  ok(!/undefined|NaN|\[object|>null</.test(html), label + ': stray undefined / NaN / null in the markup');
+  var ids = {}, dup = null;
+  html.replace(/\sid="([^"]+)"/g, function (_, id) { if (ids[id]) dup = id; ids[id] = 1; });
+  ok(!dup, label + ': duplicate id ' + dup);
+  var keys = {}, dupk = null;
+  html.replace(/data-key="([^"]+)"/g, function (_, k) { if (keys[k]) dupk = k; keys[k] = 1; });
+  ok(!dupk, label + ': duplicate data-key ' + dupk);
+  html.replace(/data-act="([^"]+)"/g, function (_, a) { ok(!!D.acts[a], label + ': no handler for data-act="' + a + '"'); });
+  html.replace(/data-in="([^"]+)"/g, function (_, a) { ok(!!D.ins[a], label + ': no handler for data-in="' + a + '"'); });
+  html.replace(/aria-controls="([^"]+)"/g, function (_, id) { ok(html.indexOf('id="' + id + '"') >= 0 || /aria-expanded="false"/.test(html), label + ': aria-controls target ' + id + ' missing'); });
+  html.replace(/<use href="#i-([a-z-]+)"/g, function (_, n) { ok(D.sprite().indexOf('id="i-' + n + '"') >= 0, label + ': icon ' + n + ' is not in the sprite'); });
+  html.replace(/font-size:(\d+)px/g, function (_, n) { ok(+n >= 14, label + ': font-size ' + n + 'px under 14'); });
+}
+function text(html) { return html.replace(/<[^>]+>/g, ' ').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' '); }
+
+(async function () {
+  D.stress = false;
+  D.route = 'home';
+
+  /* 1. every state renders cleanly */
+  console.log('States');
+  var STATE_ONLY = D.scenarios.map(function (s) { return s.id; });
+  STATE_ONLY.forEach(function (id) {
+    D.applyScenario(id, true);
+    validate(app(), 'state ' + id);
+    var o = D.overlay.top();
+    if (o) validate('<div>' + o.cfg.render() + '</div>', 'overlay of ' + id);
+    D.overlay.closeAll();
+  });
+  D.stress = true;
+  D.applyScenario('review-fresh', true);
+  validate(app(), 'stress review-fresh');
+  ok(D.S.waiting.length >= 40, 'stress has many waiting lines');
+  D.stress = false;
+
+  /* 2. the default home */
+  console.log('Default home');
+  D.applyScenario('review-fresh', true);
+  var h = app(), t = text(h);
+  ok(/7 to check/.test(t), 'title says 7 to check');
+  ok(/From 2 screenshots, added just now/.test(t), 'sub-line for a fresh batch');
+  ok(/Look right 5/.test(t) && /Need a look 2/.test(t), 'groups and counts');
+  ok(/2 need a look/.test(t), 'jump pill');
+  ok(/Accept the 5 that look right/.test(t), 'accept bar wording');
+  ok(/October so far/.test(t) && /6\.842\.350/.test(t), 'glance total');
+  ok(/Rp 475\.650 lower than 1 to 25 September/.test(t), 'glance comparison');
+  ok(/From the screenshot/.test(h) && /87\.450,00 DB/.test(h), 'crop in the open row');
+  ok(/You already have this one/.test(t) && /Money coming in/.test(t), 'reason lines');
+  ok(/Suggested from the store name/.test(t), 'suggestion hint');
+  ok(D.S.waiting.filter(function (w) { return D.problems(w).length; }).length === 2, 'two lines need a look');
+
+  /* 3. accept one */
+  console.log('Accept one');
+  var s = D.S, first = s.waiting[0], savedBefore = s.saved.length;
+  D.acts.accept({dataset: {id: first.id}});
+  ok(s.ui.accepting.has(first.id), 'row is saving');
+  ok(/Accepting INDOMARET/.test(app()), 'saving state shown on the tick');
+  await sleep(850);
+  ok(s.saved.length === savedBefore + 1, 'saved grew by one');
+  ok(s.waiting.length === 6, 'waiting shrank to 6');
+  ok(/6 to check/.test(text(app())), 'title now 6 to check');
+  ok(/6\.929\.800/.test(text(app())), 'glance total went up by 87.450');
+
+  /* 4. throw away, keep it, it's a spend */
+  console.log('Throw away and keep');
+  var repeat = s.waiting.filter(function (w) { return w.dupOf; })[0];
+  D.acts.keep({dataset: {id: repeat.id}});
+  ok(D.problems(repeat).length === 0, 'kept repeat can be accepted');
+  ok(/Look right 5/.test(text(app())), 'kept line joined Look right');
+  var incoming = s.waiting.filter(function (w) { return w.dir === 'in'; })[0];
+  D.acts.keep({dataset: {id: incoming.id}});
+  ok(D.problems(incoming).join() === 'category', "incoming line that is a spend still needs a category");
+  ok(/No category yet/.test(text(app())), 'category reason shown');
+  D.acts.throw({dataset: {id: incoming.id}});
+  await sleep(300);
+  ok(!s.waiting.some(function (w) { return w.id === incoming.id; }), 'thrown away');
+
+  /* 5. accept all */
+  console.log('Accept all');
+  var rightN = s.waiting.filter(function (w) { return !D.problems(w).length; }).length;
+  D.acts['accept-all']({getAttribute: function () { return null; }});
+  ok(s.ui.acceptingAll, 'bar is saving');
+  ok(new RegExp('Accepting ' + rightN).test(text(app())), 'bar says Accepting n');
+  await sleep(1100);
+  ok(s.waiting.length === 0, 'everything accepted');
+  ok(/All checked/.test(text(app())) && /Nothing is waiting/.test(text(app())), 'empty state after accepting all');
+  ok(/Add screenshots from your banking app/.test(text(app())), 'empty state invites adding');
+  validate(app(), 'after accept all');
+
+  /* 6. problem lines */
+  console.log('Problem lines');
+  D.applyScenario('review-problems', true);
+  t = text(app());
+  ok(/No amount/.test(t) && /Couldn't read the amount/.test(t), 'no amount shown');
+  ok(/Add amount/.test(t) && /Choose category/.test(t), 'fix actions');
+  ok(/Need a look 4/.test(t) && /Accept the 5 that look right/.test(t), 'counts with problems');
+  var noAmt = D.S.waiting.filter(function (w) { return !(w.amount > 0); })[0];
+  D.acts.fix({dataset: {id: noAmt.id, focus: 'amount'}});
+  var f = D.form;
+  ok(f && f.mode === 'edit-waiting' && f.unread, 'form opened for the unread amount');
+  ok(/id="e-amount"[^>]* hidden/.test(formHtml()), 'no error shown before touching');
+  ok(/Still needed: amount\./.test(text(formHtml())), 'form says what is still needed');
+  ok(/id="f-primary"[^>]*aria-disabled="true"/.test(formHtml()), 'Accept is off while the amount is missing');
+  D.ins['f-amount']({value: '132500'});
+  ok(f.data.amount === 132500, 'amount typed (R6: kept on the line)');
+  ok(noAmt.amount === 132500, 'edit lands on the waiting line itself');
+  var el = {value: '12345678'}; D.ins['f-amount'](el); ok(el.value === '12.345.678', 'amount formats with dots');
+  el = {value: 'Rp 0'}; D.ins['f-amount'](el); ok(el.value === '' && f.data.amount == null, 'zero is not an amount');
+  D.acts['form-submit']();
+  ok(f.attempted && /Couldn't read this amount|Enter an amount above Rp 0/.test(text(formHtml())), 'errors show after a try');
+  D.ins['f-amount']({value: '132500'});
+  D.overlay.closeAll();
+  ok(D.problems(noAmt).length === 0, 'line is ready once the amount is typed');
+  ok(/Look right 6/.test(text(app())), 'line moved to Look right');
+
+  /* 7. type in a spend */
+  console.log('Type in a spend');
+  D.acts['type-in']();
+  f = D.form;
+  ok(f.mode === 'add' && /Type in a spend/.test(formHtml()), 'add form opens');
+  ok(/data-autofocus/.test(formHtml()), 'store field takes focus');
+  ok(/Still needed: store, amount and category\./.test(text(formHtml())), 'three things needed at first');
+  var savedN = D.S.saved.length;
+  D.acts['form-submit']();
+  ok(f.attempted && D.S.saved.length === savedN, 'not saved while missing things');
+  D.ins['f-store']({value: 'WARUNG BU TINI'}); D.ins['f-amount']({value: '25000'}); D.form.data.cat = 'food';
+  ok(/id="f-sum" hidden/.test(formHtml()) && /id="f-primary"[^>]*aria-disabled="false"/.test(formHtml()), 'nothing more needed, button on');
+  D.acts['form-submit']();
+  ok(f.saving, 'saving state');
+  await sleep(800);
+  ok(D.S.saved.length === savedN + 1 && D.S.saved[savedN].src === 'hand', 'saved as typed in by hand');
+  ok(!D.overlay.top(), 'form closed');
+
+  /* 8. category picker */
+  console.log('Category picker');
+  D.applyScenario('picker', true);
+  var pick = D.overlay.top().cfg.render();
+  validate('<div>' + pick + '</div>', 'picker');
+  ok((pick.match(/data-act="cat-choose"/g) || []).length === 16, 'picker lists all 16 categories');
+  var nc = D.S.waiting.filter(function (w) { return !w.cat; })[0];
+  D.acts['cat-choose']({dataset: {cat: 'food'}});
+  ok(nc.cat === 'food' && !D.overlay.top(), 'category chosen and picker closed');
+
+  /* 9. import, live */
+  console.log('Import (live, about 8 seconds)');
+  D.applyScenario('import-live', true);
+  ok(/Reading 3 screenshots/.test(text(app())) && /Keep this open until it's done/.test(text(app())), 'reading title');
+  ok(/aria-disabled="true"/.test(app().split('data-key="add-1"')[1].slice(0, 120)), 'Add is off while reading');
+  await sleep(6600);
+  t = text(app());
+  ok(/Read 2 of 3 screenshots/.test(t), 'two read, one failed: ' + t.slice(0, 200));
+  ok(/Couldn't read this one/.test(t) && /Try again/.test(t) && /Type in a spend/.test(t), 'failure row with ways out');
+  ok(D.S.waiting.length > 0 && /to check/.test(t), 'lines from the good screenshots are already waiting');
+  D.acts['tray-retry']({dataset: {n: '2'}});
+  await sleep(2800);
+  ok(D.S.imports && D.S.imports.items.every(function (i) { return i.status === 'ok'; }), 'retry read it');
+  ok(/Read all 3 screenshots/.test(text(app())), 'summary after all read');
+  await sleep(2900);
+  ok(D.S.imports === null, 'tray goes away by itself when everything was read');
+  validate(app(), 'after import');
+
+  console.log('Failed and nothing found');
+  D.applyScenario('import-mixed', true);
+  D.acts['tray-dismiss']({dataset: {n: '2'}});
+  ok(D.S.imports && D.S.imports.items.length === 2, 'dismissed one');
+  D.acts['tray-dismiss']({dataset: {n: '3'}});
+  ok(D.S.imports === null, 'tray is gone once nothing is left to handle');
+  D.applyScenario('import-failed', true);
+  t = text(app());
+  ok(/Nothing to check yet/.test(t) && /Nothing added/.test(t) && !/All checked/.test(t), 'failed only: no false "All checked"');
+
+  /* 10. other states */
+  console.log('Other states');
+  D.applyScenario('review-later', true);
+  t = text(app());
+  ok(/12 to check/.test(t) && /Oldest is from Thu 22 Oct/.test(t), 'coming back later');
+  D.applyScenario('review-saving', true);
+  t = text(app());
+  ok(/Accepting 5/.test(t), 'frozen saving state');
+  D.applyScenario('form-notready', true);
+  t = text(formHtml());
+  ok(/Add the store name/.test(t) && /Enter an amount above Rp 0/.test(t) && /Choose a category/.test(t), 'not ready: every missing field named');
+  D.overlay.closeAll();
+  D.applyScenario('form-saving', true);
+  ok(/Accepting…/.test(text(formHtml())), 'form saving label');
+  D.overlay.closeAll();
+  D.applyScenario('form-saved', true);
+  ok(/Change spend/.test(text(formHtml())) && /Save changes/.test(text(formHtml())), 'change-a-saved-spend variant');
+  D.overlay.closeAll();
+
+  /* money formatting */
+  ok(D.rp(1234567) === 'Rp 1.234.567' && D.rp(5000) === 'Rp 5.000' && D.rp(48250000) === 'Rp 48.250.000', 'rupiah formatting');
+
+  console.log('\n' + passed + ' passed, ' + failed + ' failed');
+  process.exit(failed ? 1 : 0);
+})().catch(function (e) { console.log(e && e.stack || e); process.exit(2); });
