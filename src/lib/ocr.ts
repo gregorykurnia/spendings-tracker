@@ -65,7 +65,7 @@ export const MAX_IMAGE_CHARS = 7_000_000;
 
 /**
  * A rupiah amount from a number or, when the model sends text anyway, from
- * the Indonesian form ("87.450,00", "Rp45.000"). Returns a positive whole
+ * the Indonesian or English form ("87.450,00", "Rp45.000", "IDR 51,000.00"). Returns a positive whole
  * number of rupiah, or null.
  */
 export function parseAmount(value: unknown): number | null {
@@ -75,14 +75,12 @@ export function parseAmount(value: unknown): number | null {
   } else if (typeof value === "string") {
     const digits = value.replace(/[^\d.,]/g, "");
     if (!/\d/.test(digits)) return null;
-    if (!digits.includes(",") && /^\d+\.\d{1,2}$/.test(digits)) {
-      // "45000.50": one dot with one or two digits after it is cents, not thousands.
-      n = Number(digits);
-    } else {
-      // Dots group thousands; a comma starts the cents.
-      const [whole, cents = ""] = digits.split(",");
-      n = Number(`${whole.replace(/\./g, "")}.${cents.replace(/\./g, "") || "0"}`);
-    }
+    // The last mark starts the cents when one or two digits follow it: "87.450,00" (BCA),
+    // "51,000.00" (Krom), "45000.50". Every other dot or comma groups thousands.
+    const cents = /^(.*)[.,](\d{1,2})$/.exec(digits);
+    n = cents
+      ? Number(`${cents[1].replace(/[.,]/g, "")}.${cents[2]}`)
+      : Number(digits.replace(/[.,]/g, ""));
   } else {
     return null;
   }

@@ -79,6 +79,13 @@ describe("parseAmount", () => {
     expect(parseAmount("45.000")).toBe(45_000);
   });
 
+  it("reads Krom's English amount text", () => {
+    expect(parseAmount("IDR 51,000.00")).toBe(51_000);
+    expect(parseAmount("IDR 170,940.00")).toBe(170_940);
+    expect(parseAmount("1,250,000")).toBe(1_250_000);
+    expect(parseAmount("-IDR 51,700.50")).toBe(51_701);
+  });
+
   it("returns null for nothing, zero and non-numbers", () => {
     expect(parseAmount(null)).toBeNull();
     expect(parseAmount(0)).toBeNull();
