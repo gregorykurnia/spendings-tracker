@@ -1,7 +1,8 @@
 /* a sheet below 700 wide, a dialog from 700 (see tokens.css) */
 .ov {
   position: fixed;
-  inset: 0;
+  /* on the screen's real edges (app/viewport-sync.tsx) */
+  inset: var(--vv-top, 0px) 0 var(--vv-bottom, 0px);
   z-index: var(--z-overlay);
   display: flex;
   align-items: flex-end;
@@ -19,8 +20,7 @@
   position: relative;
   width: 100%;
   max-width: var(--sheet-max);
-  max-height: calc(100vh - 24px);
-  max-height: calc(100dvh - 24px);
+  max-height: calc(100% - 24px);
   display: flex;
   flex-direction: column;
   background: var(--ground);

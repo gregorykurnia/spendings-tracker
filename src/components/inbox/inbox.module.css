@@ -363,7 +363,8 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  /* on the screen's real bottom edge (app/viewport-sync.tsx) */
+  bottom: var(--vv-bottom, 0px);
   z-index: var(--z-bar);
   display: grid;
   gap: 10px;

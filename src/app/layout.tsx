@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Hanken_Grotesk } from "next/font/google";
 import AppShell from "@/components/app/app-shell";
 import ServiceWorkerRegister from "@/components/app/service-worker-register";
+import ViewportSync from "@/components/app/viewport-sync";
 import "@/styles/tokens.css";
 import "./globals.css";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body>
         <AppShell>{children}</AppShell>
         <ServiceWorkerRegister />
+        <ViewportSync />
       </body>
     </html>
   );

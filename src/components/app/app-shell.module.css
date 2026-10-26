@@ -13,3 +13,16 @@
 .skip:focus {
   top: 12px;
 }
+
+/* The installed app runs under the status bar; this keeps the page from scrolling up under the clock.
+   No height in a browser tab, where the inset is 0. Below the sheets' grey, which dims it too. */
+.statusCover {
+  position: fixed;
+  top: var(--vv-top, 0px);
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  z-index: var(--z-bar);
+  background: var(--ground);
+  pointer-events: none;
+}

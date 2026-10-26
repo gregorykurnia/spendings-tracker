@@ -28,6 +28,7 @@ function SkipLink() {
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
+      <div className={styles.statusCover} aria-hidden="true" />
       <div id="app">
         <SkipLink />
         <AppGate>{children}</AppGate>
