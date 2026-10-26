@@ -31,7 +31,7 @@ Work one step per session. At the start of each session, check the model against
 **Rebuild**
 - [x] Step 4: `redesign/ui-implementation-plan.md` (3 phases, written for `autorun all`); `autorun check` finds its first task; you approve — **Opus 5.5 High** · Claude on `main` — approved 2026-10-25
 - [x] Step 5: rebuild on the `redesign` branch, phases 1–3 with their reviews — each task's pick from the implementation plan; reviews **Opus 5.5 High** — done 2026-10-25 (R3)
-- [ ] Step 6: merged to `main` when you say so; `CLAUDE.md` updated for the new UI; staging setup offered and done or declined (write which here) — **Sonnet 5.5 High**
+- [ ] Step 6: merged to `main` when you say so; `CLAUDE.md` updated for the new UI; staging setup offered and done or declined (write which here) — **Sonnet 5.5 High** — merged to `main` 2026-10-26 (`3a7af43`), CLAUDE.md updated; staging offered, answer pending
 
 ---
 
