@@ -27,3 +27,6 @@ One to three lines per entry; details are in the commit body.
 - Redesign 3.7: compare fixes for Spending, All transactions and Categories. Only the add-category form differed: the "Or type or paste your own" label is the hint style, and the emoji and colour groups use the prototype's 6px gap with 8px above the own-emoji field (rows now match the prototype pixel for pixel at 390). The delete question's focus ring (F1) and the beige disabled "Clear all" (F2) are explained in `redesign/compare/report.md`, not app differences.
 - Redesign 3.8: Phase 3 end-to-end. Full e2e suite (64 specs) and `npm run build` clean; the one failure was the journey spec reading the first of two same-store spends, now it polls both amounts.
 - Redesign R3: Phase 3 review (`redesign/reviews/R3-phase-3.md`). Fixed typing on a line thrown away elsewhere (no stray save error, no write to a missing line) and the service worker trimming files a kept page still needs; steadied the hook's emulator tests. Reverse check and design gaps up to date; nothing routed on.
+
+## 2026-10-26
+- iPhone: sheets, the accept bar and the toast follow `visualViewport` (`app/viewport-sync.tsx`), so a page iOS leaves shifted or short no longer floats them mid-screen; a strip covers the status bar so the page no longer scrolls under the clock.
